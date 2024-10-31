@@ -7,69 +7,67 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState } from "react"
 import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, Download, RefreshCcw, Save, Phone } from "lucide-react"
+import { 
+  Loader2, 
+  Download, 
+  RefreshCcw, 
+  Save,
+  Phone
+} from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
-import { StyleForm } from "../qr-code/style-form"
-import { phoneSchema, defaultStyleValues } from "@/lib/types/qr-forms"
+import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 
-type PhoneFormValues = z.infer<typeof phoneSchema>
+const phoneFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  number: z.string()
+    .min(1, "Phone number is required")
+    .regex(/^[+]?[\d\s-()]+$/, "Please enter a valid phone number"),
+  style: QRStyleSchema,
+})
+
+type PhoneFormValues = z.infer<typeof phoneFormSchema>
 
 const defaultValues: PhoneFormValues = {
   title: "",
-  phone: "",
+  number: "",
   style: defaultStyleValues,
 }
 
-const phoneTypes = [
-  { label: "Mobile", value: "MOBILE" },
-  { label: "Home", value: "HOME" },
-  { label: "Work", value: "WORK" },
-  { label: "Main", value: "MAIN" },
-] as const
+interface PhoneFormProps {
+  onSubmit?: (data: PhoneFormValues) => void;
+}
 
-export function PhoneForm() {
+export function PhoneForm({ onSubmit: externalSubmit }: PhoneFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCode, setQRCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
-  const [phoneType, setPhoneType] = useState<string>("MOBILE")
   const { toast } = useToast()
   const { addToHistory } = useHistoryStore()
 
   const form = useForm<PhoneFormValues>({
-    resolver: zodResolver(phoneSchema),
+    resolver: zodResolver(phoneFormSchema),
     defaultValues,
   })
 
-  const formatPhoneNumber = (phone: string) => {
-    // Remove any non-digit characters from the phone number
-    const cleaned = phone.replace(/\D/g, '')
-    
-    // Format the phone number with international format
-    if (cleaned.startsWith('1')) {
-      return `+${cleaned}`
-    } else if (!cleaned.startsWith('+')) {
-      return `+${cleaned}`
-    }
-    return cleaned
-  }
-
   const onSubmit = async (data: PhoneFormValues) => {
+    if (externalSubmit) {
+      externalSubmit(data);
+      return;
+    }
+
     try {
       setIsGenerating(true)
-      const formattedPhone = formatPhoneNumber(data.phone)
-      
       const qrCodeData = {
         id: crypto.randomUUID(),
         type: 'phone' as const,
         title: data.title,
-        phone: formattedPhone,
-        phoneType,
+        number: data.number.replace(/\s+/g, ''), // Remove spaces from phone number
         created: new Date(),
         ...data.style,
       }
@@ -96,7 +94,6 @@ export function PhoneForm() {
 
   const handleReset = () => {
     form.reset(defaultValues)
-    setPhoneType("MOBILE")
     setQRCode(null)
   }
 
@@ -130,7 +127,7 @@ export function PhoneForm() {
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Contact Phone QR Code" 
+                      placeholder="Phone Number QR Code" 
                       {...field}
                       className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                     />
@@ -140,49 +137,29 @@ export function PhoneForm() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="+1234567890" 
-                          {...field}
-                          className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        type="tel"
+                        placeholder="+1 (234) 567-8900" 
+                        {...field}
+                        className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormItem>
-                <FormLabel>Phone Type</FormLabel>
-                <Select
-                  value={phoneType}
-                  onValueChange={setPhoneType}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select phone type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {phoneTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            </div>
-
-            <StyleForm
+            <UnifiedStyleForm
               value={form.watch('style')}
               onChange={(style) => form.setValue('style', style)}
             />
@@ -213,7 +190,7 @@ export function PhoneForm() {
       </Form>
 
       <AnimatePresence>
-        {qrCode && (
+        {qrCode && !externalSubmit && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

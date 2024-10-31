@@ -14,7 +14,8 @@ import { useHistoryStore } from "@/lib/store/history-store"
 import { motion, AnimatePresence } from "framer-motion"
 import { Loader2, Download, RefreshCcw, Save } from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
-import { StyleForm } from "../qr-code/style-form"
+import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 
 const urlFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -24,15 +25,7 @@ const urlFormSchema = z.object({
     }
     return url;
   }),
-  style: z.object({
-    backgroundColor: z.string(),
-    foregroundColor: z.string(),
-    pattern: z.string().optional(),
-    margin: z.number().min(0).max(50),
-    cornerSquareStyle: z.string().optional(),
-    cornerDotStyle: z.string().optional(),
-    errorCorrectionLevel: z.enum(['L', 'M', 'Q', 'H']),
-  }),
+  style: QRStyleSchema, // Using the unified style schema
 })
 
 type URLFormValues = z.infer<typeof urlFormSchema>
@@ -40,18 +33,14 @@ type URLFormValues = z.infer<typeof urlFormSchema>
 const defaultValues: URLFormValues = {
   title: "",
   url: "",
-  style: {
-    backgroundColor: "#FFFFFF",
-    foregroundColor: "#000000",
-    pattern: "squares",
-    margin: 20,
-    cornerSquareStyle: "square",
-    cornerDotStyle: "square",
-    errorCorrectionLevel: "M",
-  },
+  style: defaultStyleValues,
 }
 
-export function URLForm() {
+interface URLFormProps {
+  onSubmit?: (data: URLFormValues) => void;
+}
+
+export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCode, setQRCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
@@ -64,6 +53,11 @@ export function URLForm() {
   })
 
   const onSubmit = async (data: URLFormValues) => {
+    if (externalSubmit) {
+      externalSubmit(data);
+      return;
+    }
+
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -158,7 +152,7 @@ export function URLForm() {
               )}
             />
 
-            <StyleForm
+            <UnifiedStyleForm
               value={form.watch('style')}
               onChange={(style) => form.setValue('style', style)}
             />
@@ -189,7 +183,7 @@ export function URLForm() {
       </Form>
 
       <AnimatePresence>
-        {qrCode && (
+        {qrCode && !externalSubmit && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

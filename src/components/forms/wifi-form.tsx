@@ -7,7 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { useState } from "react"
 import { QRCodeService } from "@/services/qr-service"
@@ -25,10 +31,19 @@ import {
   ShieldCheck
 } from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
-import { StyleForm } from "../qr-code/style-form"
-import { wifiSchema, defaultStyleValues } from "@/lib/types/qr-forms"
+import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 
-type WiFiFormValues = z.infer<typeof wifiSchema>
+const wifiFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  ssid: z.string().min(1, "Network name is required"),
+  password: z.string(),
+  encryption: z.enum(["WPA2", "WEP", "none"]).default("WPA2"),
+  hidden: z.boolean().default(false),
+  style: QRStyleSchema,
+})
+
+type WiFiFormValues = z.infer<typeof wifiFormSchema>
 
 const defaultValues: WiFiFormValues = {
   title: "",
@@ -39,13 +54,11 @@ const defaultValues: WiFiFormValues = {
   style: defaultStyleValues,
 }
 
-const encryptionTypes = [
-  { label: "WPA/WPA2", value: "WPA2" },
-  { label: "WEP", value: "WEP" },
-  { label: "None", value: "" },
-] as const
+interface WiFiFormProps {
+  onSubmit?: (data: WiFiFormValues) => void;
+}
 
-export function WiFiForm() {
+export function WiFiForm({ onSubmit: externalSubmit }: WiFiFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCode, setQRCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
@@ -54,11 +67,16 @@ export function WiFiForm() {
   const { addToHistory } = useHistoryStore()
 
   const form = useForm<WiFiFormValues>({
-    resolver: zodResolver(wifiSchema),
+    resolver: zodResolver(wifiFormSchema),
     defaultValues,
   })
 
   const onSubmit = async (data: WiFiFormValues) => {
+    if (externalSubmit) {
+      externalSubmit(data);
+      return;
+    }
+
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -166,20 +184,20 @@ export function WiFiForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Security Type</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
                     >
-                      <SelectTrigger className="w-full">
-                        <ShieldCheck className="w-4 h-4 mr-2 text-muted-foreground" />
-                        <SelectValue placeholder="Select security type" />
-                      </SelectTrigger>
+                      <FormControl>
+                        <SelectTrigger>
+                          <ShieldCheck className="w-4 h-4 mr-2 text-muted-foreground" />
+                          <SelectValue placeholder="Select security type" />
+                        </SelectTrigger>
+                      </FormControl>
                       <SelectContent>
-                        {encryptionTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="WPA2">WPA/WPA2</SelectItem>
+                        <SelectItem value="WEP">WEP</SelectItem>
+                        <SelectItem value="none">No Security</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -243,7 +261,7 @@ export function WiFiForm() {
               )}
             />
 
-            <StyleForm
+            <UnifiedStyleForm
               value={form.watch('style')}
               onChange={(style) => form.setValue('style', style)}
             />
@@ -274,7 +292,7 @@ export function WiFiForm() {
       </Form>
 
       <AnimatePresence>
-        {qrCode && (
+        {qrCode && !externalSubmit && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

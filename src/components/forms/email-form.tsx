@@ -13,12 +13,28 @@ import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, Download, RefreshCcw, Save } from "lucide-react"
+import { 
+  Loader2, 
+  Download, 
+  RefreshCcw, 
+  Save,
+  Mail,
+  MessageSquare,
+  Link
+} from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
-import { StyleForm } from "../qr-code/style-form"
-import { emailSchema, defaultStyleValues } from "@/lib/types/qr-forms"
+import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 
-type EmailFormValues = z.infer<typeof emailSchema>
+const emailFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  email: z.string().email("Please enter a valid email address"),
+  subject: z.string().optional(),
+  body: z.string().optional(),
+  style: QRStyleSchema,
+})
+
+type EmailFormValues = z.infer<typeof emailFormSchema>
 
 const defaultValues: EmailFormValues = {
   title: "",
@@ -28,7 +44,11 @@ const defaultValues: EmailFormValues = {
   style: defaultStyleValues,
 }
 
-export function EmailForm() {
+interface EmailFormProps {
+  onSubmit?: (data: EmailFormValues) => void;
+}
+
+export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCode, setQRCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
@@ -36,11 +56,16 @@ export function EmailForm() {
   const { addToHistory } = useHistoryStore()
 
   const form = useForm<EmailFormValues>({
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(emailFormSchema),
     defaultValues,
   })
 
   const onSubmit = async (data: EmailFormValues) => {
+    if (externalSubmit) {
+      externalSubmit(data);
+      return;
+    }
+
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -109,7 +134,7 @@ export function EmailForm() {
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Email Contact QR Code" 
+                      placeholder="Email QR Code" 
                       {...field}
                       className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                     />
@@ -119,63 +144,73 @@ export function EmailForm() {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="email"
-                      placeholder="contact@example.com" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          type="email"
+                          placeholder="example@domain.com" 
+                          {...field}
+                          className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject (Optional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Email subject" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject (Optional)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                          placeholder="Email subject" 
+                          {...field}
+                          className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="body"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Type your message here" 
-                      {...field}
-                      className="resize-none transition-all duration-300 focus:ring-2 focus:ring-primary"
-                      rows={4}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="body"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Message (Optional)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Textarea 
+                          placeholder="Enter email message" 
+                          {...field}
+                          className="pl-10 min-h-[100px] resize-none transition-all duration-300 focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <StyleForm
+            <UnifiedStyleForm
               value={form.watch('style')}
               onChange={(style) => form.setValue('style', style)}
             />
@@ -206,7 +241,7 @@ export function EmailForm() {
       </Form>
 
       <AnimatePresence>
-        {qrCode && (
+        {qrCode && !externalSubmit && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

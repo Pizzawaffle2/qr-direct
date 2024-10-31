@@ -1,66 +1,46 @@
-export type QRCodeType = 'url' | 'text' | 'email' | 'phone' | 'wifi' | 'vcard';
+// File: src/lib/types/qr-code.ts
+import * as z from "zod"
 
-interface BaseQRCode {
-  id: string;
-  type: QRCodeType;
-  title: string; // Make title required
-  created: Date;
-  backgroundColor: string;
-  foregroundColor: string;
-}
+export const WifiSecurityTypes = ["WEP", "WPA", "WPA2", "nopass"] as const
 
-export interface URLQRCode extends BaseQRCode {
-  type: 'url';
-  url: string;
-}
-
-export interface TextQRCode extends BaseQRCode {
-  type: 'text';
-  text: string;
-}
-
-export interface EmailQRCode extends BaseQRCode {
-  type: 'email';
-  email: string;
-  subject?: string;
-  body?: string;
-}
-
-export interface PhoneQRCode extends BaseQRCode {
-  type: 'phone';
-  phoneNumber: string;
-}
-
-export interface WiFiQRCode extends BaseQRCode {
-  type: 'wifi';
-  ssid: string;
-  password?: string;
-  encryption: 'WPA' | 'WEP' | 'none';
-  hidden?: boolean;
-}
-
-export interface VCardQRCode extends BaseQRCode {
-  type: 'vcard';
-  firstName: string;
-  lastName: string;
-  organization?: string;
-  jobTitle?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  address?: string;
+export const QRDataSchema = {
+  url: z.object({
+    type: z.literal("URL"),
+    url: z.string().url({ message: "Please enter a valid URL" })
+  }),
+  wifi: z.object({
+    type: z.literal("WIFI"),
+    ssid: z.string().min(1, "Network name is required"),
+    password: z.string(),
+    security: z.enum(WifiSecurityTypes),
+    hidden: z.boolean().default(false)
+  }),
+  vcard: z.object({
+    type: z.literal("VCARD"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Please enter a valid email"),
+    phone: z.string().min(1, "Phone number is required"),
+    company: z.string().optional(),
+    title: z.string().optional(),
+    url: z.string().url().optional(),
+    address: z.string().optional()
+  }),
+  email: z.object({
+    type: z.literal("EMAIL"),
+    email: z.string().email("Please enter a valid email"),
+    subject: z.string().optional(),
+    body: z.string().optional()
+  }),
+  phone: z.object({
+    type: z.literal("PHONE"),
+    number: z.string().min(1, "Phone number is required")
+  })
 }
 
 export type QRCodeData = 
-  | URLQRCode 
-  | TextQRCode 
-  | EmailQRCode 
-  | PhoneQRCode 
-  | WiFiQRCode 
-  | VCardQRCode;
-
-export interface QRCodeGenerationOptions {
-  width?: number;
-  margin?: number;
-  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H';
-}
+  | z.infer<typeof QRDataSchema.url>
+  | z.infer<typeof QRDataSchema.wifi>
+  | z.infer<typeof QRDataSchema.vcard>
+  | z.infer<typeof QRDataSchema.email>
+  | z.infer<typeof QRDataSchema.phone>

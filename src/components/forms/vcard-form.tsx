@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { QRCodeService } from "@/services/qr-service"
@@ -28,11 +27,25 @@ import {
   FileText
 } from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
-import { StyleForm } from "../qr-code/style-form"
-import { vcardSchema, defaultStyleValues } from "@/lib/types/qr-forms"
+import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 import { Card, CardContent } from "@/components/ui/card"
 
-type VCardFormValues = z.infer<typeof vcardSchema>
+const vcardFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  organization: z.string().optional(),
+  email: z.string().email("Please enter a valid email").optional(),
+  phone: z.string().optional(),
+  mobile: z.string().optional(),
+  website: z.string().url("Please enter a valid URL").optional(),
+  address: z.string().optional(),
+  note: z.string().optional(),
+  style: QRStyleSchema,
+})
+
+type VCardFormValues = z.infer<typeof vcardFormSchema>
 
 const defaultValues: VCardFormValues = {
   title: "",
@@ -49,9 +62,9 @@ const defaultValues: VCardFormValues = {
 }
 
 interface FormSectionProps {
-  title: string
-  icon: React.ElementType
-  children: React.ReactNode
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
 }
 
 const FormSection = ({ title, icon: Icon, children }: FormSectionProps) => (
@@ -64,22 +77,30 @@ const FormSection = ({ title, icon: Icon, children }: FormSectionProps) => (
       {children}
     </CardContent>
   </Card>
-)
+);
 
-export function VCardForm() {
+interface VCardFormProps {
+  onSubmit?: (data: VCardFormValues) => void;
+}
+
+export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [qrCode, setQRCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState("basic")
   const { toast } = useToast()
   const { addToHistory } = useHistoryStore()
 
   const form = useForm<VCardFormValues>({
-    resolver: zodResolver(vcardSchema),
+    resolver: zodResolver(vcardFormSchema),
     defaultValues,
   })
 
   const onSubmit = async (data: VCardFormValues) => {
+    if (externalSubmit) {
+      externalSubmit(data);
+      return;
+    }
+
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -106,7 +127,7 @@ export function VCardForm() {
 
       toast({
         title: "Success",
-        description: "Contact QR code generated successfully!",
+        description: "VCard QR code generated successfully!",
       })
     } catch (error) {
       toast({
@@ -122,14 +143,13 @@ export function VCardForm() {
   const handleReset = () => {
     form.reset(defaultValues)
     setQRCode(null)
-    setActiveTab("basic")
   }
 
   const handleDownload = () => {
     if (!qrCode) return
     const link = document.createElement('a')
     link.href = qrCode
-    link.download = `${form.getValues().title || 'contact-qr-code'}.png`
+    link.download = `${form.getValues().title || 'vcard-qr-code'}.png`
     link.click()
     
     toast({
@@ -145,7 +165,7 @@ export function VCardForm() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="grid gap-6"
           >
             <FormField
               control={form.control}
@@ -155,7 +175,7 @@ export function VCardForm() {
                   <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Business Contact QR Code" 
+                      placeholder="Contact QR Code" 
                       {...field}
                       className="transition-all duration-300 focus:ring-2 focus:ring-primary"
                     />
@@ -165,169 +185,158 @@ export function VCardForm() {
               )}
             />
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="additional">Additional Info</TabsTrigger>
-              </TabsList>
+            <FormSection title="Personal Information" icon={User}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="John" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Doe" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </FormSection>
 
-              <TabsContent value="basic" className="space-y-6">
-                <FormSection title="Personal Information" icon={User}>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="John" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Doe" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </FormSection>
+            <FormSection title="Organization" icon={Building}>
+              <FormField
+                control={form.control}
+                name="organization"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company/Organization</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Company Ltd." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FormSection>
 
-                <FormSection title="Organization" icon={Building}>
-                  <FormField
-                    control={form.control}
-                    name="organization"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company/Organization</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Company Ltd." />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </FormSection>
+            <FormSection title="Contact Information" icon={Phone}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Work Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="+1234567890" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="mobile"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="+1234567890" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </FormSection>
 
-                <FormSection title="Contact Information" icon={Phone}>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={form.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Work Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="+1234567890" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="mobile"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mobile Phone</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="+1234567890" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </FormSection>
-              </TabsContent>
+            <FormSection title="Online Presence" icon={Globe}>
+              <div className="grid gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="email" placeholder="john@example.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="website"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="https://example.com" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </FormSection>
 
-              <TabsContent value="additional" className="space-y-6">
-                <FormSection title="Online Presence" icon={Globe}>
-                  <div className="grid gap-4">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" placeholder="john@example.com" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="website"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Website</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="https://example.com" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </FormSection>
+            <FormSection title="Address" icon={MapPin}>
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Enter full address"
+                        className="resize-none"
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FormSection>
 
-                <FormSection title="Address" icon={MapPin}>
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Address</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            {...field} 
-                            placeholder="Enter full address"
-                            className="resize-none"
-                            rows={3}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </FormSection>
+            <FormSection title="Additional Notes" icon={FileText}>
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Add any additional information"
+                        className="resize-none"
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </FormSection>
 
-                <FormSection title="Additional Notes" icon={FileText}>
-                  <FormField
-                    control={form.control}
-                    name="note"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notes</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            {...field} 
-                            placeholder="Add any additional information"
-                            className="resize-none"
-                            rows={3}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </FormSection>
-              </TabsContent>
-            </Tabs>
-
-            <StyleForm
+            <UnifiedStyleForm
               value={form.watch('style')}
               onChange={(style) => form.setValue('style', style)}
             />
@@ -358,7 +367,7 @@ export function VCardForm() {
       </Form>
 
       <AnimatePresence>
-        {qrCode && (
+        {qrCode && !externalSubmit && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
