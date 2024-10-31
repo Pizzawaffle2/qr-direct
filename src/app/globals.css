@@ -19,3 +19,64 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 1s ease-out;
+}
+
+.neon-glow {
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2),
+              0 0 20px rgba(0, 255, 255, 0.1),
+              0 0 30px rgba(0, 255, 255, 0.05);
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.particle {
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 0.3s ease;
+}
+
+.particle:hover {
+  opacity: 0.8;
+}
+@layer utilities {
+  .bg-dot-white\/\[0\.2\] {
+    background-image: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.2) 2px,
+      transparent 2px
+    );
+  }
+}
