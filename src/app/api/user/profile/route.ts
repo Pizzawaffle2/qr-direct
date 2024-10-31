@@ -1,25 +1,42 @@
-// File: src/app/api/user/profile/route.ts
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+// File: src/app/api/profile/route.ts
 
-export async function PUT(req: Request) {
- const session = await getServerSession(authOptions)
- if (!session?.user?.id) return new Response("Unauthorized", { status: 401 })
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getSession } from 'next-auth/react';
+import { prisma } from '@/lib/prisma';
 
- try {
-   const data = await req.json()
-   const user = await prisma.user.update({
-     where: { id: session.user.id },
-     data: {
-       name: data.name,
-       bio: data.bio,
-       image: data.avatar,
-     },
-   })
-   return NextResponse.json(user)
- } catch (error) {
-   return new Response("Failed to update profile", { status: 500 })
- }
+export async function PUT(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getSession({ req });
+  if (!session) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401 }
+    );
+  }
+
+  try {
+    const { name, image, isDarkMode, emailNotifications } = await req.json();
+    const userId = session.user.id;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { name, image },
+    });
+
+    // Update user settings in the database
+    await prisma.settings.update({
+      where: { userId: userId },
+      data: { isDarkMode, emailNotifications },
+    });
+
+    return new Response(
+      JSON.stringify({ message: 'Profile updated successfully' }),
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return new Response(
+      JSON.stringify({ error: 'Failed to update profile' }),
+      { status: 500 }
+    );
+  }
 }

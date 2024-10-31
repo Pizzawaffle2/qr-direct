@@ -1,4 +1,5 @@
 // File: src/lib/auth.ts
+
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -45,6 +46,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
     error: "/login", // Error code passed in query string as ?error=
     verifyRequest: "/verify-email",
+    resetPassword: "/auth/reset-password", // Page for password reset
   },
   providers: [
     GoogleProvider({
@@ -163,15 +165,37 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    async signIn({ user, account, profile, isNewUser }) {
+    signIn: async ({ user, isNewUser }) => {
       if (isNewUser) {
         // Create initial user settings
         await prisma.settings.create({
           data: {
             userId: user.id,
+            isDarkMode: false, // Set default value for dark mode
+            emailNotifications: true, // Set default value for email notifications
           },
         });
       }
+    },
+    createUser: async ({ user }) => {
+      // Generate a default username based on the user's email address
+      const defaultUsername = user.email?.split("@")[0] || "user";
+
+      // Check if the username is already taken
+      let username = defaultUsername;
+      let count = 1;
+      while (
+        await prisma.user.findUnique({ where: { username } })
+      ) {
+        username = `${defaultUsername}${count}`;
+        count++;
+      }
+
+      // Update the user's profile with the generated username
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { username },
+      });
     },
   },
   debug: process.env.NODE_ENV === "development",
