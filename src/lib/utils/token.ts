@@ -1,14 +1,20 @@
-// File: src/lib/utils/tokens.ts
-import { randomBytes, createHash } from 'crypto';
+// src/lib/utils/tokens.ts
+import { randomBytes } from 'crypto';
 
-export function generateToken(): string {
+export async function generateToken(): Promise<string> {
   return randomBytes(32).toString('hex');
 }
 
-export function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
-
-export function generateExpiryDate(hours: number = 1): Date {
-  return new Date(Date.now() + hours * 60 * 60 * 1000);
+export function generateExpirationDate(duration: number, unit: string): Date {
+  const now = new Date();
+  switch (unit) {
+    case 'minutes':
+      return new Date(now.getTime() + duration * 60 * 1000);
+    case 'hours':
+      return new Date(now.getTime() + duration * 60 * 60 * 1000);
+    case 'days':
+      return new Date(now.getTime() + duration * 24 * 60 * 60 * 1000);
+    default:
+      throw new Error('Invalid unit for expiration date');
+  }
 }
