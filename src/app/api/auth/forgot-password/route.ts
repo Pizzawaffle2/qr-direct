@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { emailService } from "@/services/email-service"
-import { generateToken, hashToken, generateExpiryDate } from "@/lib/utils/tokens"
+import { generateToken, hashToken, generateExpiryDate } from "@/lib/utils/token"
 
 export async function POST(req: Request) {
   try {
