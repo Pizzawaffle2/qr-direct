@@ -1,4 +1,3 @@
-// File: src/components/forms/vcard-form.tsx
 "use client"
 
 import * as z from "zod"
@@ -9,17 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
-import { motion, AnimatePresence } from "framer-motion"
 import { 
   Loader2, 
   Download, 
   RefreshCcw, 
   Save,
   User,
-  Building,
+  Briefcase,
   Phone,
   Mail,
   Globe,
@@ -29,17 +26,23 @@ import {
 import { TemplateDialog } from "../template/template-dialog"
 import { UnifiedStyleForm } from "../qr-code/unified-style-form"
 import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
-import { Card, CardContent } from "@/components/ui/card"
+import { QRPreview } from "@/components/qr-code/preview"
+import { QRGenerator } from "@/components/qr-code/qr-generator"
+import { Card } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+
+const QR_TYPE = 'vcard' as const;
 
 const vcardFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().optional(),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   organization: z.string().optional(),
-  email: z.string().email("Please enter a valid email").optional(),
+  jobTitle: z.string().optional(),
+  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
   phone: z.string().optional(),
   mobile: z.string().optional(),
-  website: z.string().url("Please enter a valid URL").optional(),
+  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
   address: z.string().optional(),
   note: z.string().optional(),
   style: QRStyleSchema,
@@ -52,6 +55,7 @@ const defaultValues: VCardFormValues = {
   firstName: "",
   lastName: "",
   organization: "",
+  jobTitle: "",
   email: "",
   phone: "",
   mobile: "",
@@ -61,31 +65,13 @@ const defaultValues: VCardFormValues = {
   style: defaultStyleValues,
 }
 
-interface FormSectionProps {
-  title: string;
-  icon: React.ElementType;
-  children: React.ReactNode;
-}
-
-const FormSection = ({ title, icon: Icon, children }: FormSectionProps) => (
-  <Card className="border border-border/50">
-    <CardContent className="pt-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Icon className="w-5 h-5 text-muted-foreground" />
-        <h3 className="font-medium text-lg">{title}</h3>
-      </div>
-      {children}
-    </CardContent>
-  </Card>
-);
-
 interface VCardFormProps {
   onSubmit?: (data: VCardFormValues) => void;
 }
 
 export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [qrCode, setQRCode] = useState<string | null>(null)
+  const [qrCode, setQrCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
   const { toast } = useToast()
   const { addToHistory } = useHistoryStore()
@@ -94,6 +80,31 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
     resolver: zodResolver(vcardFormSchema),
     defaultValues,
   })
+
+  const getPreviewData = () => {
+    const title = form.watch('title');
+    const firstName = form.watch('firstName');
+    const lastName = form.watch('lastName');
+    
+    if (!firstName && !lastName) {
+      return null;
+    }
+
+    return {
+      type: QR_TYPE,
+      title: title || 'Contact QR Code',
+      firstName,
+      lastName,
+      organization: form.watch('organization'),
+      jobTitle: form.watch('jobTitle'),
+      email: form.watch('email'),
+      phone: form.watch('phone'),
+      mobile: form.watch('mobile'),
+      website: form.watch('website'),
+      address: form.watch('address'),
+      note: form.watch('note'),
+    };
+  };
 
   const onSubmit = async (data: VCardFormValues) => {
     if (externalSubmit) {
@@ -105,11 +116,12 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
       setIsGenerating(true)
       const qrCodeData = {
         id: crypto.randomUUID(),
-        type: 'vcard' as const,
-        title: data.title,
+        type: QR_TYPE,
+        title: data.title || 'Contact QR Code',
         firstName: data.firstName,
         lastName: data.lastName,
         organization: data.organization,
+        jobTitle: data.jobTitle,
         email: data.email,
         phone: data.phone,
         mobile: data.mobile,
@@ -117,17 +129,19 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
         address: data.address,
         note: data.note,
         created: new Date(),
-        ...data.style,
       }
 
-      const qrCodeUrl = await QRCodeService.generateQRCode(qrCodeData)
-      setQRCode(qrCodeUrl)
+      const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style)
+      setQrCode(qrCodeUrl)
       
-      addToHistory(qrCodeData)
+      addToHistory({
+        ...qrCodeData,
+        url: qrCodeUrl,
+      })
 
       toast({
         title: "Success",
-        description: "VCard QR code generated successfully!",
+        description: "Contact QR code generated successfully!",
       })
     } catch (error) {
       toast({
@@ -142,14 +156,14 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
 
   const handleReset = () => {
     form.reset(defaultValues)
-    setQRCode(null)
+    setQrCode(null)
   }
 
   const handleDownload = () => {
     if (!qrCode) return
     const link = document.createElement('a')
     link.href = qrCode
-    link.download = `${form.getValues().title || 'vcard-qr-code'}.png`
+    link.download = `${form.getValues().title || 'contact-qr-code'}.png`
     link.click()
     
     toast({
@@ -158,228 +172,339 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
     })
   }
 
-  return (
-    <div className="space-y-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid gap-6"
-          >
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Contact QR Code" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormSection title="Personal Information" icon={User}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="John" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Doe" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title="Organization" icon={Building}>
-              <FormField
-                control={form.control}
-                name="organization"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Company/Organization</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Company Ltd." />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </FormSection>
-
-            <FormSection title="Contact Information" icon={Phone}>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Work Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="+1234567890" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="mobile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mobile Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="+1234567890" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title="Online Presence" icon={Globe}>
-              <div className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="email" placeholder="john@example.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="https://example.com" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </FormSection>
-
-            <FormSection title="Address" icon={MapPin}>
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Enter full address"
-                        className="resize-none"
-                        rows={3}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </FormSection>
-
-            <FormSection title="Additional Notes" icon={FileText}>
-              <FormField
-                control={form.control}
-                name="note"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Add any additional information"
-                        className="resize-none"
-                        rows={3}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </FormSection>
-
-            <UnifiedStyleForm
-              value={form.watch('style')}
-              onChange={(style) => form.setValue('style', style)}
-            />
-
-            <div className="flex gap-3">
-              <Button 
-                type="submit" 
-                className="flex-1"
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : "Generate QR Code"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-              >
-                <RefreshCcw className="w-4 h-4" />
-              </Button>
+  const formContent = (
+    <div className="grid grid-cols-1 md:grid-cols-[1fr,400px] gap-8 w-full">
+      <div className="space-y-8">
+        <Card className="bg-slate-900/50 border-slate-800/50">
+          <div className="p-6 space-y-8">
+            <div className="flex items-center gap-2 pb-4 border-b border-slate-800">
+              <User className="h-5 w-5" />
+              <h2 className="text-lg font-medium">Contact QR Code</h2>
             </div>
-          </motion.div>
-        </form>
-      </Form>
 
-      <AnimatePresence>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Contact QR Code" 
+                          {...field}
+                          className="border-slate-800 bg-slate-900/50"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Tabs defaultValue="personal" className="w-full">
+                  <TabsList className="w-full grid grid-cols-4 bg-slate-900/50 p-1">
+                    <TabsTrigger value="personal">Personal</TabsTrigger>
+                    <TabsTrigger value="business">Business</TabsTrigger>
+                    <TabsTrigger value="contact">Contact</TabsTrigger>
+                    <TabsTrigger value="additional">Additional</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="personal" className="mt-4">
+                    <Card className="border-slate-800">
+                      <div className="p-6 space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>First Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="John" 
+                                    {...field}
+                                    className="border-slate-800 bg-slate-900/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Doe" 
+                                    {...field}
+                                    className="border-slate-800 bg-slate-900/50"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="business" className="mt-4">
+                    <Card className="border-slate-800">
+                      <div className="p-6 space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="organization"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Company/Organization (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input 
+                                    placeholder="Company Name" 
+                                    {...field}
+                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                  />
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="jobTitle"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Job Title (Optional)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Software Engineer" 
+                                  {...field}
+                                  className="border-slate-800 bg-slate-900/50"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="contact" className="mt-4">
+                    <Card className="border-slate-800">
+                      <div className="p-6 space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Work Phone (Optional)</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                      type="tel"
+                                      placeholder="+1234567890" 
+                                      {...field}
+                                      className="pl-10 border-slate-800 bg-slate-900/50"
+                                    />
+                                  </div>
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="mobile"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mobile Phone (Optional)</FormLabel>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input 
+                                      type="tel"
+                                      placeholder="+1234567890" 
+                                      {...field}
+                                      className="pl-10 border-slate-800 bg-slate-900/50"
+                                    />
+                                  </div>
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input 
+                                    type="email"
+                                    placeholder="john@example.com" 
+                                    {...field}
+                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="website"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Website (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input 
+                                    placeholder="https://example.com" 
+                                    {...field}
+                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="additional" className="mt-4">
+                    <Card className="border-slate-800">
+                      <div className="p-6 space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                  <Textarea 
+                                    placeholder="Enter address" 
+                                    {...field}
+                                    className="pl-10 min-h-[100px] resize-none border-slate-800 bg-slate-900/50"
+                                  />
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="note"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Notes (Optional)</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                  <Textarea 
+                                    placeholder="Add additional notes" 
+                                    {...field}
+                                    className="pl-10 min-h-[100px] resize-none border-slate-800 bg-slate-900/50"
+                                  />
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="w-full grid grid-cols-4 gap-4 bg-slate-900/50 p-1">
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="colors">Colors</TabsTrigger>
+                    <TabsTrigger value="style">Style</TabsTrigger>
+                    <TabsTrigger value="logo">Logo</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="basic" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="colors" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="style" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="logo" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+                </Tabs>
+
+                <div className="flex gap-3">
+                  <Button 
+                    type="submit" 
+                    className="flex-1"
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : "Generate QR Code"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReset}
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        <QRPreview 
+          data={getPreviewData()}
+          style={form.watch('style')}
+          isGenerating={isGenerating}
+        />
+
         {qrCode && !externalSubmit && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="flex flex-col items-center gap-6 p-6 border rounded-xl bg-white dark:bg-gray-800 shadow-lg"
-          >
-            <img 
-              src={qrCode} 
-              alt="Generated QR Code" 
-              className="max-w-[200px] rounded-lg shadow-md"
-            />
-            <div className="flex gap-3 w-full">
+          <Card className="bg-slate-900/50 border-slate-800/50 p-4">
+            <div className="flex gap-3">
               <Button 
                 onClick={handleDownload}
                 className="flex-1"
@@ -391,20 +516,18 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                 variant="outline"
                 onClick={() => setIsTemplateDialogOpen(true)}
               >
-                <Save className="w-4 h-4 mr-2" />
-                Save as Template
+                <Save className="w-4 h-4" />
               </Button>
             </div>
-          </motion.div>
+          </Card>
         )}
-      </AnimatePresence>
+      </div>
 
       <TemplateDialog
         open={isTemplateDialogOpen}
         onOpenChange={setIsTemplateDialogOpen}
         onSave={async (template) => {
           try {
-            // Save template logic here
             toast({
               title: "Success",
               description: "Template saved successfully!",
@@ -421,5 +544,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
         style={form.watch('style')}
       />
     </div>
-  )
+  );
+
+  return formContent;
 }

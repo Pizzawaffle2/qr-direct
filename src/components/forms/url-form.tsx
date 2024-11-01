@@ -1,4 +1,3 @@
-// File: src/components/forms/url-form.tsx
 "use client"
 
 import * as z from "zod"
@@ -10,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
-import { motion } from "framer-motion"
 import { 
   Loader2, 
   Download, 
@@ -25,16 +23,19 @@ import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
 import { QRPreview } from "@/components/qr-code/preview"
 import { QRGenerator } from "@/components/qr-code/qr-generator"
 import { Card } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+
+const QR_TYPE = 'url' as const;
 
 const urlFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  url: z.string().url("Please enter a valid URL").transform(url => {
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      return `https://${url}`;
-    }
-    return url;
-  }),
+  title: z.string().optional(),
+  url: z.string()
+    .min(1, "URL is required")
+    .transform(url => {
+      let cleanUrl = url.replace(/^(https?:\/\/)/, '');
+      cleanUrl = cleanUrl.replace(/^\/+/, '');
+      return `https://${cleanUrl}`;
+    }),
   style: QRStyleSchema,
 })
 
@@ -62,6 +63,21 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
     defaultValues,
   })
 
+  const getPreviewData = () => {
+    const title = form.watch('title');
+    const url = form.watch('url');
+    
+    if (!url) {
+      return null;
+    }
+
+    return {
+      type: QR_TYPE,
+      title: title || 'Website QR Code',
+      url,
+    };
+  };
+
   const onSubmit = async (data: URLFormValues) => {
     if (externalSubmit) {
       externalSubmit(data);
@@ -72,8 +88,8 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
       setIsGenerating(true)
       const qrCodeData = {
         id: crypto.randomUUID(),
-        type: 'url' as const,
-        title: data.title,
+        type: QR_TYPE,
+        title: data.title || 'Website QR Code',
         url: data.url,
         created: new Date(),
       }
@@ -110,7 +126,7 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
     if (!qrCode) return
     const link = document.createElement('a')
     link.href = qrCode
-    link.download = `${form.getValues().title || 'url-qr-code'}.png`
+    link.download = `${form.getValues().title || 'website-qr-code'}.png`
     link.click()
     
     toast({
@@ -136,7 +152,7 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Title (Optional)</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Website QR Code" 
@@ -178,12 +194,33 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
                     <TabsTrigger value="logo">Logo</TabsTrigger>
                   </TabsList>
 
-                  <div className="mt-4 space-y-4">
+                  <TabsContent value="basic" className="mt-4">
                     <UnifiedStyleForm
                       value={form.watch('style')}
                       onChange={(style) => form.setValue('style', style)}
                     />
-                  </div>
+                  </TabsContent>
+
+                  <TabsContent value="colors" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="style" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="logo" className="mt-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </TabsContent>
                 </Tabs>
 
                 <div className="flex gap-3">
@@ -215,11 +252,7 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
 
       <div className="space-y-4">
         <QRPreview 
-          data={{
-            type: 'url',
-            title: form.watch('title'),
-            url: form.watch('url'),
-          }}
+          data={getPreviewData()}
           style={form.watch('style')}
           isGenerating={isGenerating}
         />
@@ -250,7 +283,6 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
         onOpenChange={setIsTemplateDialogOpen}
         onSave={async (template) => {
           try {
-            // Save template logic here
             toast({
               title: "Success",
               description: "Template saved successfully!",

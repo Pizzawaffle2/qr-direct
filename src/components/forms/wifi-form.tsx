@@ -31,8 +31,31 @@ import { QRGenerator } from "@/components/qr-code/qr-generator"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
+// WiFi Form
+const getPreviewData = () => {
+  const title = form.watch('title');
+  const ssid = form.watch('ssid');
+  const encryption = form.watch('encryption');
+  const password = form.watch('password');
+  const hidden = form.watch('hidden');
+  
+  if (!ssid) {
+    return null;
+  }
+
+  return {
+    type: 'wifi' as const,
+    title: title || 'WiFi QR Code',
+    ssid,
+    encryption,
+    password,
+    hidden,
+  };
+};
+
+// WiFi Form Schema
 const wifiFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().optional(),
   ssid: z.string().min(1, "Network name is required"),
   encryption: z.enum(["WPA2", "WPA", "WEP", "nopass"]),
   password: z.string().optional(),
@@ -142,23 +165,23 @@ export function WiFiForm({ onSubmit: externalSubmit }: WiFiFormProps) {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="WiFi Network QR Code" 
-                          {...field}
-                          className="border-slate-800 bg-slate-900/50"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+  control={form.control}
+  name="title"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Title (Optional)</FormLabel>
+      <FormControl>
+        <Input 
+          placeholder="QR Code Title" 
+          {...field}
+          className="border-slate-800 bg-slate-900/50"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <FormField
