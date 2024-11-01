@@ -13,6 +13,8 @@ import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
 import { motion, AnimatePresence } from "framer-motion"
+import { QRPreview } from "@/components/qr-code/preview"
+import { QRGenerator } from "@/components/qr-code/qr-generator"
 import { 
   Loader2, 
   Download, 
@@ -65,7 +67,7 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
       externalSubmit(data);
       return;
     }
-
+  
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -76,14 +78,16 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
         subject: data.subject,
         body: data.body,
         created: new Date(),
-        ...data.style,
       }
-
-      const qrCodeUrl = await QRCodeService.generateQRCode(qrCodeData)
+  
+      const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style)
       setQRCode(qrCodeUrl)
       
-      addToHistory(qrCodeData)
-
+      addToHistory({
+        ...qrCodeData,
+        url: qrCodeUrl,
+      })
+  
       toast({
         title: "Success",
         description: "Email QR code generated successfully!",
@@ -126,6 +130,16 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
             animate={{ opacity: 1, y: 0 }}
             className="grid gap-6"
           >
+            <QRPreview 
+  data={{
+    type: 'email',
+    email: form.watch('email'),
+    subject: form.watch('subject'),
+    body: form.watch('body'),
+  }}
+  style={form.watch('style')}
+  isGenerating={isGenerating}
+/>
             <FormField
               control={form.control}
               name="title"

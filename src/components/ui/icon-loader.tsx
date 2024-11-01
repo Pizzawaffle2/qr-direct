@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Loader2 } from "lucide-react"
+import { Loader2, ImageIcon } from "lucide-react"
 
 interface IconLoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   icon: string
@@ -26,6 +26,8 @@ export function IconLoader({
 
   useEffect(() => {
     const loadIcon = async () => {
+      if (!icon) return
+
       try {
         setIsLoading(true)
         setError(false)
@@ -42,23 +44,20 @@ export function IconLoader({
         
         setSvgContent(svg)
       } catch (err) {
-        console.error('Error loading icon:', err)
         setError(true)
       } finally {
         setIsLoading(false)
       }
     }
 
-    if (icon) {
-      loadIcon()
-    }
+    loadIcon()
   }, [icon, color])
 
   if (loading || isLoading) {
     return (
       <div 
         className={cn(
-          "flex items-center justify-center",
+          "flex items-center justify-center text-muted-foreground",
           className
         )}
         style={{ width: size, height: size }}
@@ -73,13 +72,28 @@ export function IconLoader({
     return (
       <div 
         className={cn(
-          "flex items-center justify-center bg-muted",
+          "flex items-center justify-center bg-muted/30 rounded-md",
           className
         )}
         style={{ width: size, height: size }}
         {...props}
       >
-        <span className="text-xs">!</span>
+        <ImageIcon className="h-4 w-4 text-muted-foreground opacity-50" />
+      </div>
+    )
+  }
+
+  if (!svgContent) {
+    return (
+      <div 
+        className={cn(
+          "flex items-center justify-center bg-muted/30 rounded-md",
+          className
+        )}
+        style={{ width: size, height: size }}
+        {...props}
+      >
+        <ImageIcon className="h-4 w-4 text-muted-foreground opacity-50" />
       </div>
     )
   }

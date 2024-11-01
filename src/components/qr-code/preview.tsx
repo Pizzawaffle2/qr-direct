@@ -4,40 +4,58 @@
 import { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { QRCodeOptions, QRCodeData } from "@/lib/types/qr-code"
-import { QRGenerator } from "@/services/qr-generator"
+import { QRCodeData, QRCodeOptions } from "@/lib/types/qr-code"
+import { QRGenerator } from "./qr-generator"
 import { Download, Share2, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useToast } from "@/components/ui/use-toast"
 import { ShareDialog } from "@/components/ui/share-dialog"
 
 interface PreviewProps {
-  data: QRCodeData
-  options: QRCodeOptions
+  data?: Partial<QRCodeData>
+  style?: QRCodeOptions
   isGenerating?: boolean
 }
 
-export function QRPreview({ data, options, isGenerating = false }: PreviewProps) {
+export function QRPreview({ data, style, isGenerating = false }: PreviewProps) {
   const [qrCode, setQrCode] = useState<string | null>(null)
   const [isSharing, setIsSharing] = useState(false)
+  const [previewError, setPreviewError] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
-    generateQRCode()
-  }, [data, options])
+    let timeoutId: NodeJS.Timeout
+    
+    const generatePreview = async () => {
+      // Clear previous error
+      setPreviewError(null)
 
-  const generateQRCode = async () => {
-    try {
-      const qrDataUrl = await QRGenerator.generateQR(data, options)
-      setQrCode(qrDataUrl)
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate QR code",
-        variant: "destructive",
-      })
+      // Check if we have enough data to generate a preview
+      if (!data || !style || Object.keys(data).length === 0) {
+        return
+      }
+
+      try {
+        const previewData = {
+          id: 'preview',
+          created: new Date(),
+          ...data,
+        } as QRCodeData
+
+        const qrDataUrl = await QRGenerator.generateQR(previewData, style)
+        setQrCode(qrDataUrl)
+      } catch (error) {
+        console.error('Preview generation error:', error)
+        setPreviewError(error instanceof Error ? error.message : 'Failed to generate preview')
+      }
     }
-  }
+
+    // Debounce the preview generation to avoid too many updates
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(generatePreview, 200)
+
+    return () => clearTimeout(timeoutId)
+  }, [data, style])
 
   const handleDownload = () => {
     if (!qrCode) return
@@ -69,6 +87,16 @@ export function QRPreview({ data, options, isGenerating = false }: PreviewProps)
             >
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </motion.div>
+          ) : previewError ? (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center aspect-square text-destructive text-sm text-center px-4"
+            >
+              {previewError}
+            </motion.div>
           ) : qrCode ? (
             <motion.div
               key="qr-code"
@@ -89,7 +117,7 @@ export function QRPreview({ data, options, isGenerating = false }: PreviewProps)
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center justify-center aspect-square text-muted-foreground"
+              className="flex items-center justify-center aspect-square text-muted-foreground text-sm text-center"
             >
               Enter details to generate QR code
             </motion.div>

@@ -1,6 +1,8 @@
-// File: src/services/qr-generator.ts
-import QRCode from 'qrcode';
-import { QRCodeOptions, QRCodeType, QRCodeData } from '@/lib/types/qr-code';
+// src/services/qr-generator.ts
+import QRCodeStyling from 'ngx-qrcode-styling';
+import { QRCodeData } from '@/lib/types/qr-code';
+import { QRStyle } from '@/lib/types/qr-styles';
+
 
 export class QRGenerator {
   static async generateQR(data: QRCodeData, options: QRCodeOptions): Promise<string> {
@@ -28,25 +30,23 @@ export class QRGenerator {
     switch (data.type) {
       case 'url':
         return data.url;
-      
+
       case 'vcard':
         return this.formatVCard(data);
-      
+
       case 'wifi':
         return this.formatWiFi(data);
-      
+
       case 'email':
         return this.formatEmail(data);
-      
+
       case 'phone':
-        return this.formatPhone(data);
+        return `tel:${data.number}`;
       
-      case 'sms':
-        return this.formatSMS(data);
-      
-      case 'location':
-        return this.formatLocation(data);
-      
+      case 'text': // Add support for text type
+        return data.content; 
+
+      // Add other cases for SMS, location, etc. as needed
       default:
         throw new Error('Unsupported QR code type');
     }
@@ -59,17 +59,19 @@ export class QRGenerator {
       `FN:${data.firstName} ${data.lastName}`,
       `N:${data.lastName};${data.firstName};;;`,
       data.organization ? `ORG:${data.organization}` : '',
-      data.title ? `TITLE:${data.title}` : '',
+      data.title ? `TITLE:${data.title}` : '', // This was missing in the previous response
       data.email ? `EMAIL:${data.email}` : '',
       data.phone ? `TEL:${data.phone}` : '',
+      data.mobile ? `TEL:${data.mobile}` : '', // Add mobile phone
       data.website ? `URL:${data.website}` : '',
       data.address ? `ADR:;;${data.address};;;` : '',
+      data.note ? `NOTE:${data.note}` : '', // Add note
       'END:VCARD'
     ].filter(Boolean).join('\n');
   }
 
   private static formatWiFi(data: QRCodeData): string {
-    const { ssid, password, encryption = '', hidden = false } = data;
+    const { ssid, password, encryption, hidden = false } = data;
     return `WIFI:S:${ssid};T:${encryption};P:${password};H:${hidden};`;
   }
 
@@ -80,16 +82,3 @@ export class QRGenerator {
     if (body) params.append('body', body);
     return `mailto:${email}${params.toString() ? '?' + params.toString() : ''}`;
   }
-
-  private static formatPhone(data: QRCodeData): string {
-    return `tel:${data.phone}`;
-  }
-
-  private static formatSMS(data: QRCodeData): string {
-    return `sms:${data.phone}${data.message ? `:${data.message}` : ''}`;
-  }
-
-  private static formatLocation(data: QRCodeData): string {
-    return `geo:${data.latitude},${data.longitude}`;
-  }
-}

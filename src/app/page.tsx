@@ -54,7 +54,7 @@ export default function Home() {
               className="text-center max-w-4xl mx-auto mb-20"
             >
               <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-6">
-                Create Beautiful QR Codes
+                Create Stunning QR Codes
               </h1>
               <p className="text-xl text-gray-300 mb-8">
                 Generate, customize, and manage QR codes that perfectly match your brand
