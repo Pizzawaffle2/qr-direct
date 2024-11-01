@@ -82,3 +82,4 @@ export class QRGenerator {
     if (body) params.append('body', body);
     return `mailto:${email}${params.toString() ? '?' + params.toString() : ''}`;
   }
+}
