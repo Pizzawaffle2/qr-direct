@@ -2,13 +2,32 @@ import { Inter } from 'next/font/google'
 import { Providers } from '@/components/providers/providers'
 import { Header } from '@/components/layout/header'
 import { Toaster } from '@/components/ui/toaster'
+import { Metadata } from 'next'
 import '@/styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'QR Direct - Professional QR Code Generator',
-  description: 'Generate custom QR codes for your business or personal use',
+  title: 'QR Code Generator | Create Custom QR Codes',
+  description: 'Create custom QR codes for URLs, WiFi networks, contact information, and more. Free QR code generator with advanced customization options.',
+  keywords: 'QR code generator, custom QR codes, WiFi QR code, URL QR code, vCard QR code, free QR code maker',
+  openGraph: {
+    title: 'QR Code Generator | Create Custom QR Codes',
+    description: 'Create custom QR codes for URLs, WiFi networks, contact information, and more.',
+    images: ['/og-image.png'], // Add your OG image
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QR Code Generator | Create Custom QR Codes',
+    description: 'Create custom QR codes for URLs, WiFi networks, contact information, and more.',
+    images: ['/og-image.png'], // Add your Twitter card image
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
