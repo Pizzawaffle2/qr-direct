@@ -1,0 +1,16 @@
+version: 0.2
+cache:
+  paths:
+    - 'node_modules/**/*'
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18.19.1
+    commands:
+      - npm ci
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - echo "Build completed successfully!"
