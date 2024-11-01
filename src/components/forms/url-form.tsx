@@ -8,14 +8,24 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
-import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, Download, RefreshCcw, Save } from "lucide-react"
+import { motion } from "framer-motion"
+import { 
+  Loader2, 
+  Download, 
+  RefreshCcw, 
+  Save,
+  Globe,
+  Link
+} from "lucide-react"
 import { TemplateDialog } from "../template/template-dialog"
 import { UnifiedStyleForm } from "../qr-code/unified-style-form"
 import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
+import { QRPreview } from "@/components/qr-code/preview"
+import { QRGenerator } from "@/components/qr-code/qr-generator"
+import { Card } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const urlFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -25,7 +35,7 @@ const urlFormSchema = z.object({
     }
     return url;
   }),
-  style: QRStyleSchema, // Using the unified style schema
+  style: QRStyleSchema,
 })
 
 type URLFormValues = z.infer<typeof urlFormSchema>
@@ -42,7 +52,7 @@ interface URLFormProps {
 
 export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [qrCode, setQRCode] = useState<string | null>(null)
+  const [qrCode, setQrCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
   const { toast } = useToast()
   const { addToHistory } = useHistoryStore()
@@ -66,17 +76,19 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
         title: data.title,
         url: data.url,
         created: new Date(),
-        ...data.style,
       }
 
-      const qrCodeUrl = await QRCodeService.generateQRCode(qrCodeData)
-      setQRCode(qrCodeUrl)
+      const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style)
+      setQrCode(qrCodeUrl)
       
-      addToHistory(qrCodeData)
+      addToHistory({
+        ...qrCodeData,
+        url: qrCodeUrl,
+      })
 
       toast({
         title: "Success",
-        description: "QR code generated successfully!",
+        description: "URL QR code generated successfully!",
       })
     } catch (error) {
       toast({
@@ -91,14 +103,14 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
 
   const handleReset = () => {
     form.reset(defaultValues)
-    setQRCode(null)
+    setQrCode(null)
   }
 
   const handleDownload = () => {
     if (!qrCode) return
     const link = document.createElement('a')
     link.href = qrCode
-    link.download = `${form.getValues().title || 'qr-code'}.png`
+    link.download = `${form.getValues().title || 'url-qr-code'}.png`
     link.click()
     
     toast({
@@ -108,94 +120,113 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
   }
 
   return (
-    <div className="space-y-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid gap-6"
-          >
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="My Website QR Code" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="example.com" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <UnifiedStyleForm
-              value={form.watch('style')}
-              onChange={(style) => form.setValue('style', style)}
-            />
-
-            <div className="flex gap-3">
-              <Button 
-                type="submit" 
-                className="flex-1"
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : "Generate QR Code"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-              >
-                <RefreshCcw className="w-4 h-4" />
-              </Button>
+    <div className="grid grid-cols-1 md:grid-cols-[1fr,400px] gap-8 w-full">
+      <div className="space-y-8">
+        <Card className="bg-slate-900/50 border-slate-800/50">
+          <div className="p-6 space-y-8">
+            <div className="flex items-center gap-2 pb-4 border-b border-slate-800">
+              <Globe className="h-5 w-5" />
+              <h2 className="text-lg font-medium">URL QR Code</h2>
             </div>
-          </motion.div>
-        </form>
-      </Form>
 
-      <AnimatePresence>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Website QR Code" 
+                          {...field}
+                          className="border-slate-800 bg-slate-900/50"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Website URL</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            placeholder="example.com" 
+                            {...field}
+                            className="pl-10 border-slate-800 bg-slate-900/50"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="w-full grid grid-cols-4 gap-4 bg-slate-900/50 p-1">
+                    <TabsTrigger value="basic">Basic</TabsTrigger>
+                    <TabsTrigger value="colors">Colors</TabsTrigger>
+                    <TabsTrigger value="style">Style</TabsTrigger>
+                    <TabsTrigger value="logo">Logo</TabsTrigger>
+                  </TabsList>
+
+                  <div className="mt-4 space-y-4">
+                    <UnifiedStyleForm
+                      value={form.watch('style')}
+                      onChange={(style) => form.setValue('style', style)}
+                    />
+                  </div>
+                </Tabs>
+
+                <div className="flex gap-3">
+                  <Button 
+                    type="submit" 
+                    className="flex-1"
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : "Generate QR Code"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleReset}
+                  >
+                    <RefreshCcw className="w-4 h-4" />
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        <QRPreview 
+          data={{
+            type: 'url',
+            title: form.watch('title'),
+            url: form.watch('url'),
+          }}
+          style={form.watch('style')}
+          isGenerating={isGenerating}
+        />
+
         {qrCode && !externalSubmit && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="flex flex-col items-center gap-6 p-6 border rounded-xl bg-white dark:bg-gray-800 shadow-lg"
-          >
-            <img 
-              src={qrCode} 
-              alt="Generated QR Code" 
-              className="max-w-[200px] rounded-lg shadow-md"
-            />
-            <div className="flex gap-3 w-full">
+          <Card className="bg-slate-900/50 border-slate-800/50 p-4">
+            <div className="flex gap-3">
               <Button 
                 onClick={handleDownload}
                 className="flex-1"
@@ -207,13 +238,12 @@ export function URLForm({ onSubmit: externalSubmit }: URLFormProps) {
                 variant="outline"
                 onClick={() => setIsTemplateDialogOpen(true)}
               >
-                <Save className="w-4 h-4 mr-2" />
-                Save as Template
+                <Save className="w-4 h-4" />
               </Button>
             </div>
-          </motion.div>
+          </Card>
         )}
-      </AnimatePresence>
+      </div>
 
       <TemplateDialog
         open={isTemplateDialogOpen}

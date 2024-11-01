@@ -9,12 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
-import { QRCodeService } from "@/services/qr-service"
 import { useToast } from "@/components/ui/use-toast"
 import { useHistoryStore } from "@/lib/store/history-store"
 import { motion, AnimatePresence } from "framer-motion"
-import { QRPreview } from "@/components/qr-code/preview"
-import { QRGenerator } from "@/components/qr-code/qr-generator"
 import { 
   Loader2, 
   Download, 
@@ -27,6 +24,10 @@ import {
 import { TemplateDialog } from "../template/template-dialog"
 import { UnifiedStyleForm } from "../qr-code/unified-style-form"
 import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
+import { QRPreview } from "@/components/qr-code/preview"
+import { QRGenerator } from "@/components/qr-code/qr-generator"
+import { Card } from "@/components/ui/card"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 const emailFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -52,7 +53,7 @@ interface EmailFormProps {
 
 export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [qrCode, setQRCode] = useState<string | null>(null)
+  const [qrCode, setQrCode] = useState<string | null>(null)
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
   const { toast } = useToast()
   const { addToHistory } = useHistoryStore()
@@ -67,7 +68,7 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
       externalSubmit(data);
       return;
     }
-  
+
     try {
       setIsGenerating(true)
       const qrCodeData = {
@@ -79,15 +80,15 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
         body: data.body,
         created: new Date(),
       }
-  
+
       const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style)
-      setQRCode(qrCodeUrl)
+      setQrCode(qrCodeUrl)
       
       addToHistory({
         ...qrCodeData,
         url: qrCodeUrl,
       })
-  
+
       toast({
         title: "Success",
         description: "Email QR code generated successfully!",
@@ -105,7 +106,7 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
 
   const handleReset = () => {
     form.reset(defaultValues)
-    setQRCode(null)
+    setQrCode(null)
   }
 
   const handleDownload = () => {
@@ -122,170 +123,179 @@ export function EmailForm({ onSubmit: externalSubmit }: EmailFormProps) {
   }
 
   return (
-    <div className="space-y-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid gap-6"
-          >
-            <QRPreview 
-  data={{
-    type: 'email',
-    email: form.watch('email'),
-    subject: form.watch('subject'),
-    body: form.watch('body'),
-  }}
-  style={form.watch('style')}
-  isGenerating={isGenerating}
-/>
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Email QR Code" 
-                      {...field}
-                      className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="relative w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr,400px] gap-8">
+        {/* Left Column - Form */}
+        <Card className="bg-slate-900/50 border-slate-800/50">
+          <div className="p-6 space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 pb-4 border-b border-slate-800">
+                <Mail className="h-5 w-5" />
+                <h2 className="text-lg font-medium">Email QR Code</h2>
+              </div>
 
-            <div className="grid gap-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          type="email"
-                          placeholder="example@domain.com" 
-                          {...field}
-                          className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Email QR Code" 
+                            {...field}
+                            className="border-slate-800 bg-slate-900/50"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="subject"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          placeholder="Email subject" 
-                          {...field}
-                          className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              type="email"
+                              placeholder="example@domain.com" 
+                              {...field}
+                              className="pl-10 border-slate-800 bg-slate-900/50"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="body"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Message (Optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Textarea 
-                          placeholder="Enter email message" 
-                          {...field}
-                          className="pl-10 min-h-[100px] resize-none transition-all duration-300 focus:ring-2 focus:ring-primary"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subject (Optional)</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              placeholder="Email subject" 
+                              {...field}
+                              className="pl-10 border-slate-800 bg-slate-900/50"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="body"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Message (Optional)</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Textarea 
+                              placeholder="Enter email message" 
+                              {...field}
+                              className="pl-10 min-h-[100px] resize-none border-slate-800 bg-slate-900/50"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Tabs defaultValue="basic" className="w-full">
+                    <TabsList className="w-full grid grid-cols-4 gap-4 bg-slate-900/50 p-1">
+                      <TabsTrigger value="basic">Basic</TabsTrigger>
+                      <TabsTrigger value="colors">Colors</TabsTrigger>
+                      <TabsTrigger value="style">Style</TabsTrigger>
+                      <TabsTrigger value="logo">Logo</TabsTrigger>
+                    </TabsList>
+
+                    <div className="mt-4 space-y-4">
+                      <UnifiedStyleForm
+                        value={form.watch('style')}
+                        onChange={(style) => form.setValue('style', style)}
+                      />
+                    </div>
+                  </Tabs>
+
+                  <div className="flex gap-3">
+                    <Button 
+                      type="submit" 
+                      className="flex-1"
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : "Generate QR Code"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleReset}
+                    >
+                      <RefreshCcw className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </div>
+          </div>
+        </Card>
 
-            <UnifiedStyleForm
-              value={form.watch('style')}
-              onChange={(style) => form.setValue('style', style)}
-            />
+        {/* Right Column - Preview */}
+        <div className="space-y-4">
+          <QRPreview 
+            data={{
+              type: 'email',
+              title: form.watch('title'),
+              email: form.watch('email'),
+              subject: form.watch('subject'),
+              body: form.watch('body'),
+            }}
+            style={form.watch('style')}
+            isGenerating={isGenerating}
+          />
 
-            <div className="flex gap-3">
-              <Button 
-                type="submit" 
-                className="flex-1"
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : "Generate QR Code"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-              >
-                <RefreshCcw className="w-4 h-4" />
-              </Button>
-            </div>
-          </motion.div>
-        </form>
-      </Form>
-
-      <AnimatePresence>
-        {qrCode && !externalSubmit && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="flex flex-col items-center gap-6 p-6 border rounded-xl bg-white dark:bg-gray-800 shadow-lg"
-          >
-            <img 
-              src={qrCode} 
-              alt="Generated QR Code" 
-              className="max-w-[200px] rounded-lg shadow-md"
-            />
-            <div className="flex gap-3 w-full">
-              <Button 
-                onClick={handleDownload}
-                className="flex-1"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsTemplateDialogOpen(true)}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save as Template
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {qrCode && !externalSubmit && (
+            <Card className="bg-slate-900/50 border-slate-800/50 p-4">
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleDownload}
+                  className="flex-1"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsTemplateDialogOpen(true)}
+                >
+                  <Save className="w-4 h-4" />
+                </Button>
+              </div>
+            </Card>
+          )}
+        </div>
+      </div>
 
       <TemplateDialog
         open={isTemplateDialogOpen}
