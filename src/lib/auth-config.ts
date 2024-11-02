@@ -1,13 +1,13 @@
-import NextAuth from "next-auth"
+
+import { AuthOptions } from "next-auth"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { prisma } from "@/lib/prisma"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 import AppleProvider from "next-auth/providers/apple"
 import LinkedInProvider from "next-auth/providers/linkedin"
-import { AuthOptions } from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GithubProvider({
@@ -50,6 +50,3 @@ const authOptions: AuthOptions = {
     verifyRequest: '/verify-email',
   }
 }
-
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
