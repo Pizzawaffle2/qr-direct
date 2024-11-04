@@ -23,11 +23,11 @@ import {
   MapPin,
   FileText
 } from "lucide-react"
-import { TemplateDialog } from "../template/template-dialog"
-import { UnifiedStyleForm } from "../qr-code/unified-style-form"
+import { TemplateDialog } from "../ui/template-dialog"
+import { UnifiedStyleForm } from "../ui/unified-style-form"
 import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
-import { QRPreview } from "@/components/qr-code/preview"
-import { QRGenerator } from "@/components/qr-code/qr-generator"
+import { QRPreview } from "@/components/ui/preview"
+import { QRGenerator } from "@/components/ui/qr-generator"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
