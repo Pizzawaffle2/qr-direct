@@ -1,4 +1,3 @@
-// File: src/app/(auth)/login/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { Github, Loader2, Mail, Eye, EyeOff, ArrowRight } from "lucide-react"
+import { Github, Loader2, Mail, Eye, EyeOff, ArrowRight, Home } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ParticleBackground } from "@/components/ui/particle-background"
 
@@ -30,6 +29,98 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
+
+const Header = () => (
+  <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="fixed top-0 left-0 right-0 z-50 p-4"
+  >
+    <div className="container mx-auto">
+      <Link href="/" className="inline-flex items-center">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="glass-morphism rounded-full p-2 text-white hover:text-blue-400 transition-colors"
+        >
+          <Home className="h-6 w-6" />
+        </motion.div>
+      </Link>
+    </div>
+  </motion.div>
+)
+
+const FormHeader = () => (
+  <div className="relative px-12 pt-16 pb-8 text-center">
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+      className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+    >
+      <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
+        <div className="h-full w-full rounded-full bg-slate-950 p-2">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="h-full w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
+          />
+        </div>
+      </div>
+    </motion.div>
+    
+    <motion.h1
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="text-4xl font-bold tracking-tight text-white"
+    >
+      Welcome back
+    </motion.h1>
+    <motion.p
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="mt-4 text-lg text-gray-400"
+    >
+      Sign in to your account to continue
+    </motion.p>
+  </div>
+)
+
+const BackgroundEffects = () => (
+  <div className="absolute inset-0">
+    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 animate-gradient-xy" />
+    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
+    
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        rotate: [0, 90, 0],
+        opacity: [0.3, 0.2, 0.3],
+      }}
+      transition={{
+        duration: 20,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+      className="absolute -top-48 -left-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        rotate: [0, -90, 0],
+        opacity: [0.3, 0.2, 0.3],
+      }}
+      transition={{
+        duration: 15,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+      className="absolute -bottom-48 -right-48 h-96 w-96 rounded-full bg-purple-500/30 blur-3xl"
+    />
+  </div>
+)
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -89,44 +180,10 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
-      {/* Particle Background */}
+      <Header />
       <ParticleBackground />
+      <BackgroundEffects />
 
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 animate-gradient-xy" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
-        
-        {/* Animated Blobs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-            opacity: [0.3, 0.2, 0.3],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -top-48 -left-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, -90, 0],
-            opacity: [0.3, 0.2, 0.3],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute -bottom-48 -right-48 h-96 w-96 rounded-full bg-purple-500/30 blur-3xl"
-        />
-      </div>
-
-      {/* Main Content */}
       <div className="container relative z-10 mx-auto flex min-h-screen items-center justify-center px-4 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -139,44 +196,8 @@ export default function LoginPage() {
             transition={{ type: "spring", stiffness: 300 }}
             className="glass-morphism rounded-3xl overflow-hidden"
           >
-            {/* Enhanced Form Header */}
-            <div className="relative px-12 pt-16 pb-8 text-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              >
-                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
-                  <div className="h-full w-full rounded-full bg-slate-950 p-2">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="h-full w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.h1
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-4xl font-bold tracking-tight text-white"
-              >
-                Welcome back
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="mt-4 text-lg text-gray-400"
-              >
-                Sign in to your account to continue
-              </motion.p>
-            </div>
+            <FormHeader />
 
-            {/* Enhanced Form Fields */}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 p-12">
                 <motion.div
@@ -279,22 +300,22 @@ export default function LoginPage() {
                 </motion.div>
               </form>
             </Form>
-<div className="px-12 pb-8">
-  <div className="relative">
-    <div className="absolute inset-0 flex items-center">
-      <div className="w-full border-t border-white/10"></div>
-    </div>
-    <div className="relative flex justify-center text-sm">
-      <span className="px-2 bg-slate-950 text-gray-400">Or continue with</span>
-    </div>
-  </div>
 
-  <div className="mt-6">
-    <OAuthButtons callbackUrl={callbackUrl} />
-  </div>
-</div>
+            <div className="px-12 pb-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-slate-950 text-gray-400">Or continue with</span>
+                </div>
+              </div>
 
-            {/* Form Footer */}
+              <div className="mt-6">
+                <OAuthButtons callbackUrl={callbackUrl} />
+              </div>
+            </div>
+
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

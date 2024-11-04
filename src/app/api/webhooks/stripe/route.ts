@@ -1,74 +1,14 @@
+// src/app/api/webhooks/stripe/route.ts
 
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
+import { stripe } from "@/lib/stripe"
+import { prisma } from "@/lib/db"
 import Stripe from "stripe"
-import { prisma } from "@/lib/prisma"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-})
-
-async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
-  const customerId = subscription.customer as string
-  const priceId = subscription.items.data[0].price.id
-
-  const customer = await stripe.customers.retrieve(customerId)
-  const userId = customer.metadata.userId
-
-  await prisma.subscription.update({
-    where: { userId },
-    data: {
-      stripeSubscriptionId: subscription.id,
-      stripePriceId: priceId,
-      status: subscription.status,
-      interval: subscription.items.data[0].price.recurring?.interval || null,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      plan: getPlanFromPriceId(priceId),
-    },
-  })
-}
-
-async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const subscriptionData = await prisma.subscription.findUnique({
-    where: { stripeSubscriptionId: subscription.id },
-  })
-
-  if (!subscriptionData) return
-
-  await prisma.subscription.update({
-    where: { stripeSubscriptionId: subscription.id },
-    data: {
-      stripePriceId: subscription.items.data[0].price.id,
-      status: subscription.status,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    },
-  })
-}
-
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const subscriptionData = await prisma.subscription.findUnique({
-    where: { stripeSubscriptionId: subscription.id },
-  })
-
-  if (!subscriptionData) return
-
-  await prisma.subscription.update({
-    where: { stripeSubscriptionId: subscription.id },
-    data: {
-      status: "canceled",
-      plan: "free",
-      stripePriceId: null,
-      stripeSubscriptionId: null,
-    },
-  })
-}
-
-export async function POST(req: Request) {
-  const body = await req.text()
-  const signature = headers().get("Stripe-Signature")!
+export async function POST(request: Request) {
+  const body = await request.text()
+  const signature = headers().get("Stripe-Signature") as string
 
   let event: Stripe.Event
 
@@ -78,37 +18,176 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
-  } catch (error) {
-    console.error("Webhook signature verification failed")
-    return new NextResponse("Invalid signature", { status: 400 })
+  } catch (error: any) {
+    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
   }
 
   try {
     switch (event.type) {
-      case "customer.subscription.created":
-        await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string
+        )
+
+        if (session.metadata?.type === 'team') {
+          // Handle team subscription
+          await prisma.teamSubscription.upsert({
+            where: {
+              teamId: session.metadata.teamId,
+            },
+            create: {
+              teamId: session.metadata.teamId,
+              stripeCustomerId: subscription.customer as string,
+              stripeSubscriptionId: subscription.id,
+              stripePriceId: subscription.items.data[0].price.id,
+              status: subscription.status,
+              plan: session.metadata.plan || 'free',
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+              seats: parseInt(session.metadata.seats || '1'),
+              maxSeats: parseInt(session.metadata.maxSeats || '5'),
+            },
+            update: {
+              stripePriceId: subscription.items.data[0].price.id,
+              status: subscription.status,
+              plan: session.metadata.plan || 'free',
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+              seats: parseInt(session.metadata.seats || '1'),
+              maxSeats: parseInt(session.metadata.maxSeats || '5'),
+            },
+          })
+        } else {
+          // Handle individual subscription
+          await prisma.subscription.upsert({
+            where: {
+              userId: session.metadata?.userId!,
+            },
+            create: {
+              userId: session.metadata?.userId!,
+              stripeCustomerId: subscription.customer as string,
+              stripeSubscriptionId: subscription.id,
+              stripePriceId: subscription.items.data[0].price.id,
+              status: subscription.status,
+              plan: session.metadata?.plan || 'free',
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            },
+            update: {
+              stripePriceId: subscription.items.data[0].price.id,
+              status: subscription.status,
+              plan: session.metadata?.plan || 'free',
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            },
+          })
+        }
         break
-      
-      case "customer.subscription.updated":
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+      }
+
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription
+        const metadata = subscription.metadata
+
+        if (metadata?.type === 'team') {
+          await prisma.teamSubscription.update({
+            where: {
+              stripeSubscriptionId: subscription.id,
+            },
+            data: {
+              status: subscription.status,
+              stripePriceId: subscription.items.data[0].price.id,
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+              seats: parseInt(metadata.seats || '1'),
+              maxSeats: parseInt(metadata.maxSeats || '5'),
+            },
+          })
+        } else {
+          await prisma.subscription.update({
+            where: {
+              stripeSubscriptionId: subscription.id,
+            },
+            data: {
+              status: subscription.status,
+              stripePriceId: subscription.items.data[0].price.id,
+              currentPeriodStart: new Date(subscription.current_period_start * 1000),
+              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            },
+          })
+        }
         break
-      
-      case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+      }
+
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription
+        const metadata = subscription.metadata
+
+        if (metadata?.type === 'team') {
+          await prisma.teamSubscription.update({
+            where: {
+              stripeSubscriptionId: subscription.id,
+            },
+            data: {
+              status: 'canceled',
+              cancelAtPeriodEnd: false,
+            },
+          })
+        } else {
+          await prisma.subscription.update({
+            where: {
+              stripeSubscriptionId: subscription.id,
+            },
+            data: {
+              status: 'canceled',
+              cancelAtPeriodEnd: false,
+            },
+          })
+        }
         break
-      
-      case "invoice.payment_succeeded":
-        // Handle successful payments, update usage limits, etc.
+      }
+
+      case "customer.deleted": {
+        const customer = event.data.object as Stripe.Customer
+        const metadata = customer.metadata
+
+        if (metadata?.type === 'team') {
+          await prisma.teamSubscription.updateMany({
+            where: {
+              stripeCustomerId: customer.id,
+            },
+            data: {
+              stripeCustomerId: null,
+              stripeSubscriptionId: null,
+              status: 'canceled',
+            },
+          })
+        } else {
+          await prisma.subscription.updateMany({
+            where: {
+              stripeCustomerId: customer.id,
+            },
+            data: {
+              stripeCustomerId: null,
+              stripeSubscriptionId: null,
+              status: 'canceled',
+            },
+          })
+        }
         break
-      
-      case "invoice.payment_failed":
-        // Handle failed payments, send notifications, etc.
-        break
+      }
     }
 
     return new NextResponse(null, { status: 200 })
   } catch (error) {
-    console.error("Webhook handler failed:", error)
-    return new NextResponse("Webhook handler failed", { status: 500 })
+    console.error('Webhook error:', error)
+    return new NextResponse('Webhook handler failed', { status: 500 })
   }
 }
