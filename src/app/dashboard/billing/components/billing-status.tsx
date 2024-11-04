@@ -1,4 +1,3 @@
-// src/app/dashboard/billing/billing-status.tsx
 "use client"
 
 import { useEffect, useState } from "react"
