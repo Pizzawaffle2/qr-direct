@@ -1,5 +1,4 @@
 // src/services/qr-generator.ts
-import QRCodeStyling from 'ngx-qrcode-styling';
 import { QRCodeData } from '@/lib/types/qr-code';
 import { QRStyle } from '@/lib/types/qr-styles';
 

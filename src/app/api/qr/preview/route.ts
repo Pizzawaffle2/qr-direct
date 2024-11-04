@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { QRGenerator } from "@/lib/services/qr-generator"
-import { QRStyleOptions } from "@/lib/types/qr-styles"
+import { QRGenerator } from "@/services/qr-generator";
+import { QRStyleOptions } from "@/lib/types/qr-styles";
 import { QRCodeData } from "@/lib/types/qr-code"
 
 export async function POST(req: Request) {

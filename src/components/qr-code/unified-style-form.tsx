@@ -11,7 +11,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form"
 import {
   Select,
@@ -32,7 +31,6 @@ import {
   Palette,
   Grid,
   Image as ImageIcon,
-  Type,
   Sliders,
 } from "lucide-react"
 
