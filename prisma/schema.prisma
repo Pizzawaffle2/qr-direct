@@ -1,170 +1,341 @@
 generator client {
- provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
- provider = "postgresql"
- url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
+// Base Models
 model Account {
- id                String  @id @default(cuid())
- userId            String
- type              String
- provider          String
- providerAccountId String
- refresh_token     String? @db.Text
- access_token      String? @db.Text
- expires_at        Int?
- token_type        String?
- scope             String?
- id_token          String? @db.Text
- session_state     String?
- user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
- @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
- id           String   @id @default(cuid())
- sessionToken String   @unique
- userId       String
- expires      DateTime
- user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
- id                 String               @id @default(cuid())
- name               String?
- email              String?              @unique
- emailVerified      DateTime?
- password           String?
- image              String?
- bio                String?              @db.Text
- accounts           Account[]
- sessions           Session[]
- qrCodes            QRCode[]
- settings           Settings?
- categories         Category[]
- tags               Tag[]
- templates          Template[]
- notificationSettings NotificationSetting[]
- apiKeys            APIKey[]
- passwordResetToken PasswordResetToken?
+  id                 String               @id @default(cuid())
+  name               String?
+  email              String?              @unique
+  emailVerified      DateTime?
+  password           String?
+  image              String?
+  bio                String?              @db.Text
+  username           String?              @unique
+  accounts           Account[]
+  sessions           Session[]
+  qrCodes            QRCode[]
+  settings           Settings?
+  categories         Category[]
+  tags               Tag[]
+  templates          Template[]
+  notificationSettings NotificationSetting[]
+  apiKeys            APIKey[]
+  subscription       Subscription?
+  passwordResetToken PasswordResetToken?
+  verificationTokens VerificationToken[]
+  ownedTeams         Team[]               @relation("TeamOwner")
+  teamMemberships    TeamMember[]
+  usage              Usage[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 }
 
 model VerificationToken {
- identifier String
- token      String   @unique
- expires    DateTime
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  user       User     @relation(fields: [identifier], references: [email], onDelete: Cascade)
 
- @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model PasswordResetToken {
- id        String   @id @default(cuid())
- token     String   @unique
- expires   DateTime
- user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- userId    String   @unique
- createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expires   DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([token])
 }
 
-model NotificationSetting {
- id        String   @id @default(cuid())
- userId    String
- settingId String
- enabled   Boolean  @default(true)
- user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
+// Team Models
+model Team {
+  id            String            @id @default(cuid())
+  name          String
+  slug          String            @unique
+  plan          String            @default("free")
+  ownerId       String
+  owner         User              @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members       TeamMember[]
+  billingId     String?           @unique // Stripe Customer ID
+  subscription  TeamSubscription?
+  qrCodes       QRCode[]
+  templates     Template[]
+  categories    Category[]
+  tags          Tag[]
+  usage         Usage[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
- @@unique([userId, settingId])
- @@index([userId])
+  @@index([ownerId])
 }
 
-model APIKey {
- id        String    @id @default(cuid())
- name      String
- key       String    @unique
- userId    String
- user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
- lastUsed  DateTime?
- createdAt DateTime  @default(now())
- updatedAt DateTime  @updatedAt
- 
- @@index([userId])
- @@index([key])
+model TeamMember {
+  id        String           @id @default(cuid())
+  teamId    String
+  userId    String
+  role      TeamRole         @default(MEMBER)
+  status    TeamMemberStatus @default(PENDING)
+  team      Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitedBy String
+  invitedAt DateTime         @default(now())
+  joinedAt  DateTime?
+  expiresAt DateTime?
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
 }
 
+model TeamSubscription {
+  id                   String    @id @default(cuid())
+  teamId               String    @unique
+  team                 Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?   @unique
+  stripePriceId        String?
+  status               String    @default("active")
+  plan                 String    @default("free")
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  seats               Int       @default(1)
+  maxSeats            Int       @default(5)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([teamId])
+}
+
+// Subscription & Billing Models
+model Subscription {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId    String?   @unique
+  stripeSubscriptionId String?  @unique
+  stripePriceId       String?
+  status              String    @default("active")
+  plan                String    @default("free")
+  currentPeriodStart  DateTime?
+  currentPeriodEnd    DateTime?
+  cancelAtPeriodEnd   Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Usage {
+  id              String    @id @default(cuid())
+  userId          String?
+  teamId          String?
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team            Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  qrCodesCreated  Int       @default(0)
+  templatesCreated Int      @default(0)
+  apiCalls        Int       @default(0)
+  storage         Int       @default(0) // in bytes
+  scans           Int       @default(0)
+  period          DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([period])
+}
+
+// QR Code Models
 model QRCode {
- id               String   @id @default(cuid())
- title            String
- type             String
- content          Json
- backgroundColor  String   @default("#FFFFFF")
- foregroundColor  String   @default("#000000")
- created          DateTime @default(now())
- userId           String
- user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  title            String
+  type             String
+  content          Json
+  backgroundColor  String   @default("#FFFFFF")
+  foregroundColor  String   @default("#000000")
+  logo             String?
+  userId           String?
+  teamId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team             Team?    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  tags             Tag[]
+  category         Category? @relation(fields: [categoryId], references: [id])
+  categoryId       String?
+  analytics        Analytics[]
+  created          DateTime @default(now())
+  updated          DateTime @updatedAt
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([categoryId])
 }
 
-model Settings {
- id                    String  @id @default(cuid())
- userId                String  @unique
- theme                 String  @default("system")
- defaultBackgroundColor String  @default("#FFFFFF")
- defaultForegroundColor String  @default("#000000")
- errorCorrectionLevel  String  @default("M")
- autoDownload          Boolean @default(false)
- historyLimit         Int     @default(50)
- user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Analytics {
+  id        String   @id @default(cuid())
+  qrCodeId  String
+  qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  scans     Int      @default(0)
+  location  Json?
+  device    Json?
+  browser   Json?
+  date      DateTime @default(now())
+
+  @@index([qrCodeId])
+  @@index([date])
 }
 
+// Organization Models
 model Category {
- id          String     @id @default(cuid())
- name        String
- description String?
- color       String?
- order       Int        @default(0)
- templates   Template[]
- userId      String
- user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
- createdAt   DateTime   @default(now())
- updatedAt   DateTime   @updatedAt
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+  order       Int        @default(0)
+  userId      String?
+  teamId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  qrCodes     QRCode[]
+  templates   Template[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
- @@unique([name, userId])
- @@index([userId])
+  @@unique([name, userId])
+  @@unique([name, teamId])
+  @@index([userId])
+  @@index([teamId])
 }
 
 model Tag {
- id        String     @id @default(cuid())
- name      String
- userId    String
- user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
- templates Template[]
- createdAt DateTime   @default(now())
- updatedAt DateTime   @updatedAt
+  id        String     @id @default(cuid())
+  name      String
+  userId    String?
+  teamId    String?
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team?      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  qrCodes   QRCode[]
+  templates Template[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
- @@unique([name, userId])
- @@index([userId])
+  @@unique([name, userId])
+  @@unique([name, teamId])
+  @@index([userId])
+  @@index([teamId])
 }
 
 model Template {
- id          String    @id @default(cuid())
- name        String
- description String?
- style       Json
- preview     String?
- categoryId  String?
- category    Category? @relation(fields: [categoryId], references: [id])
- tags        Tag[]
- isPublic    Boolean   @default(false)
- userId      String
- user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
- createdAt   DateTime  @default(now())
- updatedAt   DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  style       Json
+  preview     String?
+  isPublic    Boolean   @default(false)
+  userId      String?
+  teamId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  tags        Tag[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
- @@index([categoryId])
- @@index([userId])
+  @@index([userId])
+  @@index([teamId])
+  @@index([categoryId])
+}
+
+// Settings & Configuration Models
+model Settings {
+  id                    String  @id @default(cuid())
+  userId                String  @unique
+  user                  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme                 String  @default("system")
+  defaultBackgroundColor String  @default("#FFFFFF")
+  defaultForegroundColor String  @default("#000000")
+  errorCorrectionLevel  String  @default("M")
+  autoDownload          Boolean @default(false)
+  historyLimit         Int     @default(50)
+  emailNotifications   Boolean @default(true)
+}
+
+model NotificationSetting {
+  id        String   @id @default(cuid())
+  userId    String
+  settingId String
+  enabled   Boolean  @default(true)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, settingId])
+  @@index([userId])
+}
+
+model APIKey {
+  id        String    @id @default(cuid())
+  name      String
+  key       String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastUsed  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([key])
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum TeamMemberStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
 }

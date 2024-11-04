@@ -1,158 +1,173 @@
 // File: src/components/qr-code/preview.tsx
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { QRCodeData, QRCodeOptions } from "@/lib/types/qr-code"
-import { QRGenerator } from "./qr-generator"
-import { Download, Share2, Loader2 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useToast } from "@/components/ui/use-toast"
-import { ShareDialog } from "@/components/ui/share-dialog"
+import { Loader2, Download, Save, Maximize2, QrCode } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { QRCodeData, QRStyleOptions } from "@/lib/types/qr-code"
+import { useQRStore } from "@/lib/store/qr-store"
+import { useElementSize } from "@/hooks/use-element-size"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 interface PreviewProps {
   data?: Partial<QRCodeData>
-  style?: QRCodeOptions
+  style?: QRStyleOptions
   isGenerating?: boolean
+  className?: string
 }
 
-export function QRPreview({ data, style, isGenerating = false }: PreviewProps) {
+export function QRPreview({ 
+  data,
+  style,
+  isGenerating = false,
+  className 
+}: PreviewProps) {
   const [qrCode, setQrCode] = useState<string | null>(null)
-  const [isSharing, setIsSharing] = useState(false)
   const [previewError, setPreviewError] = useState<string | null>(null)
-  const { toast } = useToast()
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { ref, width } = useElementSize()
+  const [previewSize, setPreviewSize] = useState(300)
 
+  // Update preview size based on container width
+  useEffect(() => {
+    if (width) {
+      setPreviewSize(Math.min(width - 40, 400)) // Max size of 400px
+    }
+  }, [width])
+
+  // Generate preview when data or style changes
   useEffect(() => {
     let timeoutId: NodeJS.Timeout
-    
-    const generatePreview = async () => {
-      // Clear previous error
-      setPreviewError(null)
 
-      // Check if we have enough data to generate a preview
-      if (!data || !style || Object.keys(data).length === 0) {
+    const generatePreview = async () => {
+      setPreviewError(null)
+      
+      if (!data || !style) {
+        setQrCode(null)
         return
       }
 
       try {
-        const previewData = {
-          id: 'preview',
-          created: new Date(),
-          ...data,
-        } as QRCodeData
+        const response = await fetch("/api/qr/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data, style }),
+        })
 
-        const qrDataUrl = await QRGenerator.generateQR(previewData, style)
-        setQrCode(qrDataUrl)
+        if (!response.ok) throw new Error("Failed to generate preview")
+        
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        setQrCode(url)
       } catch (error) {
-        console.error('Preview generation error:', error)
-        setPreviewError(error instanceof Error ? error.message : 'Failed to generate preview')
+        console.error("Preview error:", error)
+        setPreviewError("Failed to generate preview")
       }
     }
 
-    // Debounce the preview generation to avoid too many updates
+    // Debounce preview generation
     clearTimeout(timeoutId)
-    timeoutId = setTimeout(generatePreview, 200)
+    timeoutId = setTimeout(generatePreview, 300)
 
-    return () => clearTimeout(timeoutId)
+    return () => {
+      clearTimeout(timeoutId)
+      if (qrCode) URL.revokeObjectURL(qrCode)
+    }
   }, [data, style])
 
-  const handleDownload = () => {
-    if (!qrCode) return
-
-    const link = document.createElement("a")
-    link.href = qrCode
-    link.download = `qr-code-${Date.now()}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-
-    toast({
-      title: "Success",
-      description: "QR code downloaded successfully",
-    })
-  }
-
   return (
-    <div className="relative">
-      <Card className="p-6 bg-white dark:bg-gray-800 backdrop-blur-lg bg-opacity-50">
-        <AnimatePresence mode="wait">
-          {isGenerating ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center aspect-square"
-            >
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </motion.div>
-          ) : previewError ? (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center aspect-square text-destructive text-sm text-center px-4"
-            >
-              {previewError}
-            </motion.div>
-          ) : qrCode ? (
-            <motion.div
-              key="qr-code"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="aspect-square relative"
-            >
-              <img
-                src={qrCode}
-                alt="QR Code"
-                className="w-full h-full object-contain"
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex items-center justify-center aspect-square text-muted-foreground text-sm text-center"
-            >
-              Enter details to generate QR code
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {qrCode && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex gap-2 mt-4"
-          >
-            <Button
-              onClick={handleDownload}
-              className="flex-1"
-              variant="default"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-            <Button
-              onClick={() => setIsSharing(true)}
-              variant="outline"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </motion.div>
+    <>
+      <Card 
+        ref={ref}
+        className={cn(
+          "relative overflow-hidden bg-white dark:bg-slate-900/50 border-slate-800/50",
+          className
         )}
+      >
+        <div className="absolute top-2 right-2 z-10 flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setIsFullscreen(true)}
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="aspect-square p-4">
+          <AnimatePresence mode="wait">
+            {isGenerating ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-full flex items-center justify-center"
+              >
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </motion.div>
+            ) : previewError ? (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-full flex items-center justify-center text-destructive text-sm text-center px-4"
+              >
+                {previewError}
+              </motion.div>
+            ) : qrCode ? (
+              <motion.div
+                key="preview"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-full flex items-center justify-center"
+              >
+                <motion.img
+                  src={qrCode}
+                  alt="QR Code Preview"
+                  className="max-w-full max-h-full object-contain"
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="placeholder"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-full flex flex-col items-center justify-center gap-4 text-muted-foreground"
+              >
+                <QrCode className="h-12 w-12" />
+                <p className="text-sm text-center">
+                  Enter details to preview your QR code
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </Card>
 
-      <ShareDialog
-        open={isSharing}
-        onOpenChange={setIsSharing}
-        imageUrl={qrCode || undefined}
-      />
-    </div>
+      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
+        <DialogContent className="max-w-3xl">
+          <div className="aspect-square p-8">
+            {qrCode && (
+              <img
+                src={qrCode}
+                alt="QR Code Preview"
+                className="w-full h-full object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

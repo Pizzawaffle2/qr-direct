@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { OAuthButtons } from "@/components/auth/oauth-buttons"
 import {
   Form,
   FormControl,
@@ -278,6 +279,20 @@ export default function LoginPage() {
                 </motion.div>
               </form>
             </Form>
+<div className="px-12 pb-8">
+  <div className="relative">
+    <div className="absolute inset-0 flex items-center">
+      <div className="w-full border-t border-white/10"></div>
+    </div>
+    <div className="relative flex justify-center text-sm">
+      <span className="px-2 bg-slate-950 text-gray-400">Or continue with</span>
+    </div>
+  </div>
+
+  <div className="mt-6">
+    <OAuthButtons callbackUrl={callbackUrl} />
+  </div>
+</div>
 
             {/* Form Footer */}
             <motion.div
