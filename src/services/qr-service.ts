@@ -1,95 +1,119 @@
-// File: src/services/qr-service.ts
-import QRCode from 'qrcode';
+// src/services/qr-service.ts
+import sharp from 'sharp'
+import QRCode from 'qrcode'
+import { QRCodeData, QRStyleOptions } from '@/types/qr'
+import { prisma } from '@/lib/db/prisma'
+import { ApiError } from '@/lib/errors'
 
-interface QRStyleOptions {
-  backgroundColor: string;
-  foregroundColor: string;
-  margin: number;
-  errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H';
-  pattern?: string;
-  cornerSquareStyle?: string;
-  cornerDotStyle?: string;
-}
-
-type QRDataType = 'url' | 'email' | 'phone' | 'wifi' | 'vcard';
-
-export class QRCodeService {
-  private static formatVCard(data: any): string {
-    const vcard = [
-      'BEGIN:VCARD',
-      'VERSION:3.0',
-      `N:${data.lastName || ''};${data.firstName || ''};;;`,
-      `FN:${[data.firstName, data.lastName].filter(Boolean).join(' ')}`,
-      data.organization ? `ORG:${data.organization}` : '',
-      data.phone ? `TEL;TYPE=WORK:${data.phone}` : '',
-      data.mobile ? `TEL;TYPE=CELL:${data.mobile}` : '',
-      data.email ? `EMAIL:${data.email}` : '',
-      data.website ? `URL:${data.website}` : '',
-      data.address ? `ADR:;;${data.address};;;` : '',
-      data.note ? `NOTE:${data.note}` : '',
-      'END:VCARD'
-    ].filter(Boolean).join('\n');
-
-    return vcard;
-  }
-
-  private static formatWiFi(data: any): string {
-    const { ssid, password, encryption, hidden } = data;
-    return `WIFI:S:${ssid};T:${encryption};P:${password};H:${hidden ? 'true' : 'false'};;`;
-  }
-
-  private static formatEmail(data: any): string {
-    const { email, subject, body } = data;
-    const params = new URLSearchParams();
-    if (subject) params.append('subject', subject);
-    if (body) params.append('body', body);
-    
-    return `mailto:${email}${params.toString() ? '?' + params.toString() : ''}`;
-  }
-
-  private static formatPhone(data: any): string {
-    const { phone, phoneType } = data;
-    return `tel:${phone}`;
-  }
-
-  static async generateQRCode(data: any): Promise<string> {
+export class QRService {
+  static async create(userId: string, data: QRCodeData, style: QRStyleOptions) {
     try {
-      const qrOptions = {
-        errorCorrectionLevel: data.errorCorrectionLevel || 'M',
-        margin: data.margin || 4,
-        color: {
-          dark: data.foregroundColor || '#000000',
-          light: data.backgroundColor || '#FFFFFF',
+      // Create QR code record
+      const qrCode = await prisma.qRCode.create({
+        data: {
+          userId,
+          title: data.title || 'Untitled QR Code',
+          type: data.type,
+          content: data,
+          backgroundColor: style.backgroundColor || '#FFFFFF',
+          foregroundColor: style.foregroundColor || '#000000',
+          logo: style.logo,
         },
-        width: 1024, // High resolution for better quality
-      };
+      })
 
-      let content = '';
-      switch (data.type) {
-        case 'url':
-          content = data.url;
-          break;
-        case 'email':
-          content = this.formatEmail(data);
-          break;
-        case 'phone':
-          content = this.formatPhone(data);
-          break;
-        case 'wifi':
-          content = this.formatWiFi(data);
-          break;
-        case 'vcard':
-          content = this.formatVCard(data);
-          break;
-        default:
-          throw new Error('Unsupported QR code type');
-      }
+      // Generate QR code
+      const qrImage = await this.generateQR(data, style)
 
-      const qrCodeDataURL = await QRCode.toDataURL(content, qrOptions);
-      return qrCodeDataURL;
+      return { qrCode, image: qrImage }
     } catch (error) {
-      console.error('QR generation error:', error);
-      throw new Error('Failed to generate QR code');
+      console.error('QR creation error:', error)
+      throw new ApiError('Failed to create QR code', 500)
     }
   }
+
+  static async generateQR(data: QRCodeData, style: QRStyleOptions) {
+    try {
+      const qrData = this.formatQRData(data)
+      
+      const qrBuffer = await QRCode.toBuffer(qrData, {
+        width: style.size || 400,
+        margin: style.margin || 4,
+        color: {
+          dark: style.foregroundColor || '#000000',
+          light: style.backgroundColor || '#FFFFFF',
+        },
+        errorCorrectionLevel: style.errorCorrection || 'M',
+      })
+
+      if (style.logo) {
+        return this.addLogo(qrBuffer, style.logo, style.size || 400)
+      }
+
+      return qrBuffer
+    } catch (error) {
+      console.error('QR generation error:', error)
+      throw new ApiError('Failed to generate QR code', 500)
+    }
+  }
+
+  private static async addLogo(qrBuffer: Buffer, logoUrl: string, size: number) {
+    const logoSize = Math.floor(size * 0.2) // Logo takes 20% of QR code
+    const logoBuffer = await fetch(logoUrl).then(res => res.arrayBuffer())
+    
+    return sharp(qrBuffer)
+      .composite([{
+        input: Buffer.from(logoBuffer),
+        gravity: 'center',
+        blend: 'over',
+      }])
+      .toBuffer()
+  }
+
+  private static formatQRData(data: QRCodeData): string {
+    switch (data.type) {
+      case 'url':
+        return data.url
+      case 'text':
+        return data.text
+      case 'email':
+        return `mailto:${data.email}${data.subject ? `?subject=${data.subject}` : ''}`
+      case 'phone':
+        return `tel:${data.phone}`
+      case 'sms':
+        return `sms:${data.phone}${data.message ? `?body=${data.message}` : ''}`
+      case 'wifi':
+        return `WIFI:T:${data.networkType};S:${data.ssid};P:${data.password};H:${data.hidden};`
+      case 'location':
+        return `geo:${data.latitude},${data.longitude}`
+      default:
+        throw new ApiError('Unsupported QR code type', 400)
+    }
+  }
+}
+
+// src/types/qr.ts
+export interface QRCodeData {
+  type: 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi' | 'location'
+  title?: string
+  url?: string
+  text?: string
+  email?: string
+  subject?: string
+  phone?: string
+  message?: string
+  ssid?: string
+  password?: string
+  networkType?: 'WEP' | 'WPA' | 'nopass'
+  hidden?: boolean
+  latitude?: number
+  longitude?: number
+}
+
+export interface QRStyleOptions {
+  size?: number
+  margin?: number
+  backgroundColor?: string
+  foregroundColor?: string
+  errorCorrection?: 'L' | 'M' | 'Q' | 'H'
+  logo?: string
 }

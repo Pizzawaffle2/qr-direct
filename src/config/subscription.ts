@@ -1,77 +1,79 @@
 ﻿// src/config/subscription.ts
-export const SUBSCRIPTION_PLANS = {
+
+export const SUBSCRIPTION_FEATURES = {
     FREE: {
-      id: 'free',
-      name: 'Free',
-      description: 'Perfect for getting started',
-      price: 0,
-      priceDisplay: '$0',
-      interval: 'month',
-      features: [
-        'Up to 5 QR codes',
-        'Basic templates',
-        'Standard QR codes',
-        'Basic analytics',
-        'Community support'
-      ],
-      limits: {
-        qrCodes: 5,
-        templates: 2,
-        storage: 50 * 1024 * 1024, // 50MB
-        analytics: 'basic',
-        teamMembers: 1,
-      }
+      maxQRCodes: 5,
+      maxStorage: 50 * 1024 * 1024, // 50MB
+      features: ['Basic QR codes', 'Standard templates'],
+      qrTypes: ['url', 'text', 'phone'],
+      analytics: false,
+      customization: false,
     },
     PRO: {
-      id: 'pro',
-      name: 'Pro',
-      description: 'For professionals and small teams',
-      price: 10,
-      priceDisplay: '$10',
-      interval: 'month',
-      stripePriceId: process.env.STRIPE_PRO_PRICE_ID,
+      maxQRCodes: 100,
+      maxStorage: 500 * 1024 * 1024, // 500MB
       features: [
-        'Unlimited QR codes',
+        'Advanced QR codes',
         'Custom templates',
-        'Advanced QR styles',
-        'Detailed analytics',
-        'Priority support',
-        'API access',
-        'Team collaboration (up to 5)',
-        'Custom domains'
+        'Custom colors',
+        'Logo insertion',
+        'Basic analytics'
       ],
-      limits: {
-        qrCodes: -1, // unlimited
-        templates: 50,
-        storage: 500 * 1024 * 1024, // 500MB
-        analytics: 'advanced',
-        teamMembers: 5,
-      }
+      qrTypes: ['url', 'text', 'phone', 'email', 'wifi', 'vcard'],
+      analytics: true,
+      customization: true,
     },
     ENTERPRISE: {
-      id: 'enterprise',
-      name: 'Enterprise',
-      description: 'For large organizations',
-      price: 49,
-      priceDisplay: '$49',
-      interval: 'month',
-      stripePriceId: process.env.STRIPE_ENTERPRISE_PRICE_ID,
+      maxQRCodes: -1, // Unlimited
+      maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
       features: [
-        'Everything in Pro',
-        'Unlimited team members',
-        'White labeling',
-        'Advanced security',
-        'Custom integration',
-        'SLA guarantee',
-        'Dedicated support',
-        'Custom features'
+        'Unlimited QR codes',
+        'Advanced analytics',
+        'API access',
+        'Custom domains',
+        'Priority support'
       ],
-      limits: {
-        qrCodes: -1,
-        templates: -1,
-        storage: 5 * 1024 * 1024 * 1024, // 5GB
-        analytics: 'enterprise',
-        teamMembers: -1,
-      }
+      qrTypes: ['url', 'text', 'phone', 'email', 'wifi', 'vcard', 'location'],
+      analytics: true,
+      customization: true,
+      api: true,
     }
-  } as const
+  }
+  
+  // src/lib/stripe.ts
+  import Stripe from 'stripe'
+  
+  export const stripe = new Stripe(process.env.STRIPE_API_KEY!, {
+    apiVersion: '2023-10-16',
+    typescript: true,
+  })
+  
+  // Initialize products and prices in Stripe
+  export async function initializeStripePlans() {
+    // Create or update products
+    const products = {
+      pro: await stripe.products.create({
+        name: 'Pro Plan',
+        description: 'Professional features for serious users',
+      }),
+      enterprise: await stripe.products.create({
+        name: 'Enterprise Plan',
+        description: 'Advanced features for large organizations',
+      }),
+    }
+  
+    // Create prices
+    await stripe.prices.create({
+      product: products.pro.id,
+      unit_amount: 1000, // $10.00
+      currency: 'usd',
+      recurring: { interval: 'month' },
+    })
+  
+    await stripe.prices.create({
+      product: products.enterprise.id,
+      unit_amount: 4900, // $49.00
+      currency: 'usd',
+      recurring: { interval: 'month' },
+    })
+  }
