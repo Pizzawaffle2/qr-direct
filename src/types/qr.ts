@@ -90,19 +90,54 @@ export type QRCodeData =
   | VCardQRCodeData
   | LocationQRCodeData
 
-// Style options for QR code generation
-export interface QRStyleOptions {
-  size?: number
-  margin?: number
-  backgroundColor?: string
-  foregroundColor?: string
-  errorCorrection?: 'L' | 'M' | 'Q' | 'H'
-  logo?: string
-  gradient?: {
-    from: string
-    to: string
+  export interface QRStyleOptions {
+    // Basic Options
+    size: number
+    margin: number
+    errorCorrection: 'L' | 'M' | 'Q' | 'H'
+  
+    // Colors
+    foregroundColor: string
+    backgroundColor: string
+    gradientType?: 'linear' | 'radial'
+    gradientColors?: {
+      start: string
+      end: string
+      direction?: number // degrees for linear gradient
+    }
+  
+    // Pattern
+    dotStyle?: 'square' | 'rounded' | 'dots' | 'classy' | 'sharp'
+    cornerStyle?: 'square' | 'rounded' | 'dots'
+    cornerDotStyle?: 'square' | 'dot'
+  
+    // Frame
+    frame?: boolean
+    frameColor?: string
+    frameSize?: number
+    frameStyle?: 'basic' | 'modern' | 'vintage'
+    frameText?: string
+    frameTextColor?: string
+    
+    // Logo
+    logo?: string
+    logoSize?: number
+    logoPadding?: number
+    logoBackgroundColor?: string
+    logoOpacity?: number
+    
+    // Effects
+    shadow?: boolean
+    shadowColor?: string
+    shadowBlur?: number
+    shadowOffsetX?: number
+    shadowOffsetY?: number
+    
+    // Animation
+    animated?: boolean
+    animationType?: 'fade' | 'slide' | 'bounce'
+    animationDuration?: number
   }
-}
 
 // QR code metadata for storage
 export interface QRCodeMetadata {

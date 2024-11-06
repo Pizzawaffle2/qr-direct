@@ -1,117 +1,108 @@
-// File: src/components/qr-code-tabs.tsx
+// src/components/qr-code-tabs.tsx
+
 "use client"
 
-import { useState } from 'react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { URLForm } from './ui/url-form'
-import { VCardForm } from './ui/vcard-form'
-import { WiFiForm } from './ui/wifi-form'
-import { EmailForm } from './ui/email-form'
-import { PhoneForm } from './ui/phone-form'
-import { QRPreview } from './ui/preview'
-import { useQRCode } from '@/hooks/use-qr-code'
-import { useHistoryStore } from '@/lib/store/history-store'
-import { motion } from 'framer-motion'
-import { Globe, User, Wifi, Mail, Phone } from 'lucide-react'
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card } from "@/components/ui/card"
+import { 
+  Link, 
+  FileText, 
+  Wifi, 
+  Mail, 
+  Phone, 
+  MessageSquare, 
+  MapPin, 
+  Contact 
+} from "lucide-react"
+import { QRCodeData, QRStyleOptions } from "@/types/qr"
+import { QRPreview } from "@/components/qr/preview"
+import { URLForm } from "@/components/qr/forms/url-form"
+import { TextForm } from "@/components/qr/forms/text-form"
+import { WifiForm } from "@/components/qr/forms/wifi-form"
+import { EmailForm } from "@/components/qr/forms/email-form"
+import { PhoneForm } from "@/components/qr/forms/phone-form"
+import { SMSForm } from "@/components/qr/forms/sms-form"
+import { LocationForm } from "@/components/qr/forms/location-form"
+import { VCardForm } from "@/components/qr/forms/vcard-form"
+import { StyleEditor } from "@/components/qr/style-editor"
+
+const QR_TYPES = [
+  { id: 'url', icon: Link, label: 'URL', component: URLForm },
+  { id: 'text', icon: FileText, label: 'Text', component: TextForm },
+  { id: 'wifi', icon: Wifi, label: 'WiFi', component: WifiForm },
+  { id: 'email', icon: Mail, label: 'Email', component: EmailForm },
+  { id: 'phone', icon: Phone, label: 'Phone', component: PhoneForm },
+  { id: 'sms', icon: MessageSquare, label: 'SMS', component: SMSForm },
+  { id: 'location', icon: MapPin, label: 'Location', component: LocationForm },
+  { id: 'vcard', icon: Contact, label: 'vCard', component: VCardForm },
+] as const
 
 export function QRCodeTabs() {
-  const [activeTab, setActiveTab] = useState('url')
-  const { generateQRCode, isGenerating } = useQRCode()
-  const { addToHistory } = useHistoryStore()
+  const [activeTab, setActiveTab] = useState<string>('url')
+  const [qrData, setQrData] = useState<Partial<QRCodeData>>({ type: 'url' })
+  const [qrStyle, setQrStyle] = useState<QRStyleOptions>({
+    size: 300,
+    margin: 4,
+    foregroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
+    errorCorrection: 'M',
+  })
 
-  const tabs = [
-    { id: 'url', label: 'URL', icon: Globe },
-    { id: 'vcard', label: 'VCard', icon: User },
-    { id: 'wifi', label: 'WiFi', icon: Wifi },
-    { id: 'email', label: 'Email', icon: Mail },
-    { id: 'phone', label: 'Phone', icon: Phone },
-  ]
+  const ActiveForm = QR_TYPES.find(type => type.id === activeTab)?.component
 
-  const handleGenerate = async (data: any, type: string) => {
-    try {
-      const qrCode = await generateQRCode(data, type)
-      if (qrCode) {
-        addToHistory({
-          id: Date.now().toString(),
-          title: `${type.toUpperCase()} QR Code`,
-          url: qrCode,
-          type,
-          created: new Date().toISOString(),
-        })
-      }
-    } catch (error) {
-      console.error('Error generating QR code:', error)
-    }
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setQrData({ type: value })
+  }
+
+  const handleDataChange = (data: Partial<QRCodeData>) => {
+    setQrData({ ...data, type: activeTab })
   }
 
   return (
-    <div className="w-full">
-      <Tabs 
-        value={activeTab} 
-        onValueChange={setActiveTab} 
-        className="w-full max-w-screen-xl mx-auto"
-      >
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 bg-slate-900/50">
-            {tabs.map((tab) => (
+    <div className="grid md:grid-cols-2 gap-8">
+      <div className="space-y-8">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 h-auto gap-2">
+            {QR_TYPES.map(({ id, icon: Icon, label }) => (
               <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                key={id}
+                value={id}
+                className="flex flex-col items-center gap-1 py-2 data-[state=active]:bg-blue-500/20"
               >
-                <tab.icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{tab.label}</span>
+                <Icon className="h-4 w-4" />
+                <span className="text-xs">{label}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-        </div>
 
-        <div className="mt-8">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-            className="grid-cols-1 md:grid-cols-[1fr,400px] gap-8 px-4 sm:px-6 lg:px-8 mx-auto max-w-screen-xl"
-          >
-            <TabsContent 
-              value="url" 
-              className="mt-0 data-[state=active]:flex"
-            >
-              <URLForm onSubmit={(data) => handleGenerate(data, 'url')} />
-            </TabsContent>
+          <div className="mt-6">
+            {ActiveForm && (
+              <Card className="p-6">
+                <ActiveForm 
+                  value={qrData} 
+                  onChange={handleDataChange}
+                />
+              </Card>
+            )}
+          </div>
+        </Tabs>
 
-            <TabsContent 
-              value="vcard" 
-              className="mt-0 data-[state=active]:flex"
-            >
-              <VCardForm onSubmit={(data) => handleGenerate(data, 'vcard')} />
-            </TabsContent>
+        <Card className="p-6">
+          <StyleEditor
+            value={qrStyle}
+            onChange={setQrStyle}
+          />
+        </Card>
+      </div>
 
-            <TabsContent 
-              value="wifi" 
-              className="mt-0 data-[state=active]:flex"
-            >
-              <WiFiForm onSubmit={(data) => handleGenerate(data, 'wifi')} />
-            </TabsContent>
-
-            <TabsContent 
-              value="email" 
-              className="mt-0 data-[state=active]:flex"
-            >
-              <EmailForm onSubmit={(data) => handleGenerate(data, 'email')} />
-            </TabsContent>
-
-            <TabsContent 
-              value="phone" 
-              className="mt-0 data-[state=active]:flex"
-            >
-              <PhoneForm onSubmit={(data) => handleGenerate(data, 'phone')} />
-            </TabsContent>
-          </motion.div>
-        </div>
-      </Tabs>
+      <div className="flex flex-col gap-4">
+        <QRPreview
+          data={qrData}
+          style={qrStyle}
+        />
+      </div>
     </div>
   )
 }
