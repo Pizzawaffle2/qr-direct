@@ -113,6 +113,7 @@ export function ProfileForm({ user }: { user: any }) {
               accept="image/*"
               className="hidden"
               onChange={handleAvatarChange}
+              title="Upload your profile picture"
             />
           </div>
           <div>
@@ -127,7 +128,7 @@ export function ProfileForm({ user }: { user: any }) {
           <FormField
             control={form.control}
             name="name"
-            render={({ field }) => (
+            render={({ field }: { field: any }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
