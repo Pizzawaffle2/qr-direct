@@ -3,77 +3,100 @@
 export const DEFAULT_LOGOS = {
     basic: [
       {
-        id: 'default-logo-1',
-        name: 'Company Logo',
-        url: '/logos/company-logo.svg',
-        category: 'business',
-      },
-      {
-        id: 'default-logo-2',
+        id: 'app-store',
         name: 'App Store',
         url: '/logos/app-store.svg',
-        category: 'app',
+        category: 'store'
       },
       {
-        id: 'default-logo-3',
-        name: 'Play Store',
-        url: '/logos/play-store.svg',
-        category: 'app',
+        id: 'apple-music',
+        name: 'Apple Music',
+        url: '/logos/apple-music.svg',
+        category: 'music'
       },
       {
-        id: 'default-logo-4',
-        name: 'Website',
-        url: '/logos/website.svg',
-        category: 'web',
+        id: 'discord',
+        name: 'Discord',
+        url: '/logos/discord.svg',
+        category: 'social'
       },
       {
-        id: 'default-logo-5',
-        name: 'Instagram',
-        url: '/logos/instagram.svg',
-        category: 'social',
-      },
-      {
-        id: 'default-logo-6',
+        id: 'facebook',
         name: 'Facebook',
         url: '/logos/facebook.svg',
-        category: 'social',
+        category: 'social'
       },
       {
-        id: 'default-logo-7',
-        name: 'Twitter',
-        url: '/logos/twitter.svg',
-        category: 'social',
+        id: 'github',
+        name: 'GitHub',
+        url: '/logos/github.svg',
+        category: 'dev'
       },
       {
-        id: 'default-logo-8',
+        id: 'google-play',
+        name: 'Google Play',
+        url: '/logos/google-play.svg',
+        category: 'store'
+      },
+      {
+        id: 'instagram',
+        name: 'Instagram',
+        url: '/logos/instagram.svg',
+        category: 'social'
+      },
+      {
+        id: 'linkedin',
         name: 'LinkedIn',
         url: '/logos/linkedin.svg',
-        category: 'social',
+        category: 'social'
       },
       {
-        id: 'default-logo-9',
+        id: 'paypal',
+        name: 'PayPal',
+        url: '/logos/paypal.svg',
+        category: 'payment'
+      },
+      {
+        id: 'reddit',
+        name: 'Reddit',
+        url: '/logos/reddit.svg',
+        category: 'social'
+      },
+      {
+        id: 'spotify',
+        name: 'Spotify',
+        url: '/logos/spotify.svg',
+        category: 'music'
+      },
+      {
+        id: 'telegram',
+        name: 'Telegram',
+        url: '/logos/telegram.svg',
+        category: 'social'
+      },
+      {
+        id: 'tiktok',
+        name: 'TikTok',
+        url: '/logos/tiktok.svg',
+        category: 'social'
+      },
+      {
+        id: 'whatsapp',
+        name: 'WhatsApp',
+        url: '/logos/whatsapp.svg',
+        category: 'social'
+      },
+      {
+        id: 'x',
+        name: 'X (Twitter)',
+        url: '/logos/x.svg',
+        category: 'social'
+      },
+      {
+        id: 'youtube',
         name: 'YouTube',
         url: '/logos/youtube.svg',
-        category: 'social',
-      },
-      {
-        id: 'default-logo-10',
-        name: 'Email',
-        url: '/logos/email.svg',
-        category: 'contact',
-      },
-      {
-        id: 'default-logo-11',
-        name: 'Phone',
-        url: '/logos/phone.svg',
-        category: 'contact',
-      },
-      {
-        id: 'default-logo-12',
-        name: 'Location',
-        url: '/logos/location.svg',
-        category: 'contact',
-      },
-    ],
-  } as const
-  
+        category: 'social'
+      }
+    ]
+  } as const;

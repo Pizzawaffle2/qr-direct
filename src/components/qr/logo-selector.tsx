@@ -1,5 +1,4 @@
 // src/components/qr/logo-selector.tsx
-
 "use client"
 
 import { useState, useCallback } from "react"
@@ -32,6 +31,8 @@ import {
   Layers
 } from "lucide-react"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
+import { LogoPreview } from "./logo-preview" // Add this import
 
 interface LogoSelectorProps {
   value: {
@@ -122,14 +123,14 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
   const getLogoStyle = () => {
     const effects = value.logoEffects || {}
     const filters = []
-    
+
     if (effects.blur) filters.push(`blur(${effects.blur}px)`)
     if (effects.brightness) filters.push(`brightness(${effects.brightness}%)`)
     if (effects.contrast) filters.push(`contrast(${effects.contrast}%)`)
     if (effects.grayscale) filters.push('grayscale(1)')
     if (effects.invert) filters.push('invert(1)')
     if (effects.sepia) filters.push('sepia(1)')
-    
+
     return {
       filter: filters.join(' '),
       transform: `rotate(${value.logoRotation || 0}deg)`,
@@ -145,173 +146,283 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
     }
   }
 
+  const logoCategories = Array.from(
+    new Set(DEFAULT_LOGOS.basic.map((logo) => logo.category))
+  )
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="preset">Preset Logos</TabsTrigger>
-        <TabsTrigger value="upload">Upload Logo</TabsTrigger>
-        <TabsTrigger value="position">Position</TabsTrigger>
-        <TabsTrigger value="effects">Effects</TabsTrigger>
-        <TabsTrigger value="shape">Shape</TabsTrigger>
+      <TabsList className="grid grid-cols-2 lg:grid-cols-5">
+        <TabsTrigger value="preset" className="flex items-center gap-2">
+          <ImageIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">Presets</span>
+        </TabsTrigger>
+        <TabsTrigger value="upload" className="flex items-center gap-2">
+          <Upload className="h-4 w-4" />
+          <span className="hidden sm:inline">Upload</span>
+        </TabsTrigger>
+        <TabsTrigger value="position" className="flex items-center gap-2">
+          <Move className="h-4 w-4" />
+          <span className="hidden sm:inline">Position</span>
+        </TabsTrigger>
+        <TabsTrigger value="effects" className="flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4" />
+          <span className="hidden sm:inline">Effects</span>
+        </TabsTrigger>
+        <TabsTrigger value="style" className="flex items-center gap-2">
+          <Layers className="h-4 w-4" />
+          <span className="hidden sm:inline">Style</span>
+        </TabsTrigger>
       </TabsList>
 
-      {/* ... Previous Preset and Upload tabs content ... */}
+      <TabsContent value="preset">
+        <div className="space-y-4">
+          {logoCategories.map((category) => (
+            <div key={category} className="space-y-2">
+              <h3 className="text-sm font-medium capitalize">{category}</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {DEFAULT_LOGOS.basic
+                  .filter((logo) => logo.category === category)
+                  .map((logo) => (
+                    <Card
+                      key={logo.id}
+                      className={cn(
+                        "cursor-pointer transition-all hover:scale-105",
+                        value.logo === logo.url ? "ring-2 ring-primary" : ""
+                      )}
+                      onClick={() => onChange({ ...value, logo: logo.url })}
+                    >
+                      <CardContent className="p-2">
+                        <div className="aspect-square relative">
+                          <Image
+                            src={logo.url}
+                            alt={logo.name}
+                            fill
+                            className="object-contain p-2"
+                          />
+                        </div>
+                        <p className="text-xs text-center mt-1 truncate">
+                          {logo.name}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </TabsContent>
 
-      <TabsContent value="position" className="space-y-4">
-        <div className="grid gap-4">
-          <div className="space-y-2">
+      <TabsContent value="upload">
+        <div className="space-y-4">
+          <div className="grid place-items-center border-2 border-dashed rounded-lg p-8">
+            {uploadedLogo ? (
+              <div className="space-y-4 text-center">
+                <div className="relative w-32 h-32">
+                  <Image
+                    src={uploadedLogo}
+                    alt="Uploaded logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById("logo-upload")?.click()}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Change Logo</span>
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="logo-upload"
+                className="cursor-pointer text-center space-y-2"
+              >
+                <div className="w-32 h-32 rounded-lg border-2 border-dashed grid place-items-center">
+                  <div className="text-center">
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Upload Logo
+                    </p>
+                  </div>
+                </div>
+              </label>
+            )}
+          </div>
+          <input
+            id="logo-upload"
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) handleLogoUpload(file)
+            }}
+          />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="position">
+        <div className="space-y-6">
+          <div className="space-y-4">
             <Label>Position X ({value.logoPosition?.x || 50}%)</Label>
             <Slider
               value={[value.logoPosition?.x || 50]}
               min={0}
               max={100}
               step={1}
-              onValueChange={([x]) => onChange({
-                ...value,
-                logoPosition: { ...value.logoPosition, x }
-              })}
+              onValueChange={([x]) =>
+                onChange({
+                  ...value,
+                  logoPosition: { ...value.logoPosition, x },
+                })
+              }
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label>Position Y ({value.logoPosition?.y || 50}%)</Label>
             <Slider
               value={[value.logoPosition?.y || 50]}
               min={0}
               max={100}
               step={1}
-              onValueChange={([y]) => onChange({
-                ...value,
-                logoPosition: { ...value.logoPosition, y }
-              })}
+              onValueChange={([y]) =>
+                onChange({
+                  ...value,
+                  logoPosition: { ...value.logoPosition, y },
+                })
+              }
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label>Rotation ({value.logoRotation || 0}°)</Label>
             <Slider
               value={[value.logoRotation || 0]}
               min={0}
               max={360}
               step={1}
-              onValueChange={([logoRotation]) => onChange({
-                ...value,
-                logoRotation
-              })}
+              onValueChange={([logoRotation]) =>
+                onChange({
+                  ...value,
+                  logoRotation,
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-4">
+            <Label>Size ({value.logoSize || 20}%)</Label>
+            <Slider
+              value={[value.logoSize || 20]}
+              min={5}
+              max={40}
+              step={1}
+              onValueChange={([logoSize]) =>
+                onChange({
+                  ...value,
+                  logoSize,
+                })
+              }
             />
           </div>
         </div>
       </TabsContent>
 
-      <TabsContent value="effects" className="space-y-4">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label>Opacity ({(value.logoOpacity || 1) * 100}%)</Label>
+      <TabsContent value="effects">
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <Label>Opacity ({value.logoOpacity ? value.logoOpacity * 100 : 100}%)</Label>
             <Slider
               value={[value.logoOpacity ? value.logoOpacity * 100 : 100]}
               min={0}
               max={100}
               step={1}
-              onValueChange={([opacity]) => onChange({
-                ...value,
-                logoOpacity: opacity / 100
-              })}
+              onValueChange={([opacity]) =>
+                onChange({
+                  ...value,
+                  logoOpacity: opacity / 100,
+                })
+              }
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label>Blur ({value.logoEffects?.blur || 0}px)</Label>
             <Slider
               value={[value.logoEffects?.blur || 0]}
               min={0}
               max={10}
               step={0.1}
-              onValueChange={([blur]) => onChange({
-                ...value,
-                logoEffects: { ...value.logoEffects, blur }
-              })}
+              onValueChange={([blur]) =>
+                onChange({
+                  ...value,
+                  logoEffects: { ...value.logoEffects, blur },
+                })
+              }
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label>Brightness ({value.logoEffects?.brightness || 100}%)</Label>
             <Slider
               value={[value.logoEffects?.brightness || 100]}
               min={0}
               max={200}
               step={1}
-              onValueChange={([brightness]) => onChange({
-                ...value,
-                logoEffects: { ...value.logoEffects, brightness }
-              })}
+              onValueChange={([brightness]) =>
+                onChange({
+                  ...value,
+                  logoEffects: { ...value.logoEffects, brightness },
+                })
+              }
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Contrast ({value.logoEffects?.contrast || 100}%)</Label>
-            <Slider
-              value={[value.logoEffects?.contrast || 100]}
-              min={0}
-              max={200}
-              step={1}
-              onValueChange={([contrast]) => onChange({
-                ...value,
-                logoEffects: { ...value.logoEffects, contrast }
-              })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center justify-between space-x-2">
               <Label>Grayscale</Label>
               <Switch
                 checked={value.logoEffects?.grayscale || false}
-                onCheckedChange={(grayscale) => onChange({
-                  ...value,
-                  logoEffects: { ...value.logoEffects, grayscale }
-                })}
+                onCheckedChange={(grayscale) =>
+                  onChange({
+                    ...value,
+                    logoEffects: { ...value.logoEffects, grayscale },
+                  })
+                }
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between space-x-2">
               <Label>Invert</Label>
               <Switch
                 checked={value.logoEffects?.invert || false}
-                onCheckedChange={(invert) => onChange({
-                  ...value,
-                  logoEffects: { ...value.logoEffects, invert }
-                })}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Sepia</Label>
-              <Switch
-                checked={value.logoEffects?.sepia || false}
-                onCheckedChange={(sepia) => onChange({
-                  ...value,
-                  logoEffects: { ...value.logoEffects, sepia }
-                })}
+                onCheckedChange={(invert) =>
+                  onChange({
+                    ...value,
+                    logoEffects: { ...value.logoEffects, invert },
+                  })
+                }
               />
             </div>
           </div>
         </div>
       </TabsContent>
 
-      <TabsContent value="shape" className="space-y-4">
-        <div className="grid gap-4">
-          <div className="space-y-2">
+      <TabsContent value="style">
+        <div className="space-y-6">
+          <div className="space-y-4">
             <Label>Logo Shape</Label>
             <Select
               value={value.logoShape}
-              onValueChange={(logoShape) => onChange({
-                ...value,
-                logoShape
-              })}
+              onValueChange={(logoShape) =>
+                onChange({
+                  ...value,
+                  logoShape,
+                })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select shape" />
@@ -324,133 +435,188 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label>Border</Label>
-            <div className="grid gap-2">
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="Width"
-                  value={value.logoBorder?.width || 0}
-                  onChange={(e) => onChange({
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Border</Label>
+              <Switch
+                checked={!!value.logoBorder?.width}
+                onCheckedChange={(enabled) =>
+                  onChange({
                     ...value,
-                    logoBorder: {
-                      ...value.logoBorder,
-                      width: parseInt(e.target.value)
-                    }
-                  })}
-                />
-                <Select
-                  value={value.logoBorder?.style}
-                  onValueChange={(style) => onChange({
-                    ...value,
-                    logoBorder: { ...value.logoBorder, style }
-                  })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Style" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="solid">Solid</SelectItem>
-                    <SelectItem value="dashed">Dashed</SelectItem>
-                    <SelectItem value="dotted">Dotted</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="color"
-                  className="w-12"
-                  value={value.logoBorder?.color || '#000000'}
-                  onChange={(e) => onChange({
-                    ...value,
-                    logoBorder: {
-                      ...value.logoBorder,
-                      color: e.target.value
-                    }
-                  })}
-                />
-              </div>
+                    logoBorder: enabled
+                      ? { width: 2, style: "solid", color: "#000000" }
+                      : undefined,
+                  })
+                }
+              />
             </div>
+
+            {value.logoBorder && (
+              <div className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Width ({value.logoBorder.width}px)</Label>
+                    <Slider
+                      value={[value.logoBorder.width || 2]}
+                      min={1}
+                      max={10}
+                      step={1}
+                      onValueChange={([width]) =>
+                        onChange({
+                          ...value,
+                          logoBorder: { ...value.logoBorder, width },
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Style</Label>
+                    <Select
+                      value={value.logoBorder.style}
+                      onValueChange={(style) =>
+                        onChange({
+                          ...value,
+                          logoBorder: { ...value.logoBorder, style },
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Border style" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="dashed">Dashed</SelectItem>
+                        <SelectItem value="dotted">Dotted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div>
+                  <Label>Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      value={value.logoBorder.color || "#000000"}
+                      onChange={(e) =>
+                        onChange({
+                          ...value,
+                          logoBorder: { ...value.logoBorder, color: e.target.value },
+                        })
+                      }
+                      placeholder="#000000"
+                    />
+                    <Input
+                      type="color"
+                      className="w-12 p-1 h-10"
+                      value={value.logoBorder.color || "#000000"}
+                      onChange={(e) =>
+                        onChange({
+                          ...value,
+                          logoBorder: { ...value.logoBorder, color: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label>Shadow</Label>
               <Switch
                 checked={value.logoShadow?.enabled || false}
-                onCheckedChange={(enabled) => onChange({
-                  ...value,
-                  logoShadow: { ...value.logoShadow, enabled }
-                })}
+                onCheckedChange={(enabled) =>
+                  onChange({
+                    ...value,
+                    logoShadow: enabled
+                      ? {
+                          enabled: true,
+                          x: 0,
+                          y: 4,
+                          blur: 8,
+                          color: "rgba(0,0,0,0.5)",
+                        }
+                      : undefined,
+                  })
+                }
               />
             </div>
+
             {value.logoShadow?.enabled && (
-              <div className="space-y-2 mt-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-2">
-                    <Label>Offset X</Label>
+              <div className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Offset X ({value.logoShadow.x || 0}px)</Label>
                     <Slider
-                      value={[value.logoShadow?.x || 0]}
+                      value={[value.logoShadow.x || 0]}
                       min={-20}
                       max={20}
                       step={1}
-                      onValueChange={([x]) => onChange({
-                        ...value,
-                        logoShadow: { ...value.logoShadow, x }
-                      })}
+                      onValueChange={([x]) =>
+                        onChange({
+                          ...value,
+                          logoShadow: { ...value.logoShadow, x },
+                        })
+                      }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Offset Y</Label>
+                  <div>
+                    <Label>Offset Y ({value.logoShadow.y || 0}px)</Label>
                     <Slider
-                      value={[value.logoShadow?.y || 0]}
+                      value={[value.logoShadow.y || 0]}
                       min={-20}
                       max={20}
                       step={1}
-                      onValueChange={([y]) => onChange({
-                        ...value,
-                        logoShadow: { ...value.logoShadow, y }
-                      })}
+                      onValueChange={([y]) =>
+                        onChange({
+                          ...value,
+                          logoShadow: { ...value.logoShadow, y },
+                        })
+                      }
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Blur</Label>
+                <div>
+                  <Label>Blur ({value.logoShadow.blur || 0}px)</Label>
                   <Slider
-                    value={[value.logoShadow?.blur || 0]}
+                    value={[value.logoShadow.blur || 0]}
                     min={0}
                     max={20}
                     step={1}
-                    onValueChange={([blur]) => onChange({
-                      ...value,
-                      logoShadow: { ...value.logoShadow, blur }
-                    })}
+                    onValueChange={([blur]) =>
+                      onChange({
+                        ...value,
+                        logoShadow: { ...value.logoShadow, blur },
+                      })
+                    }
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Shadow Color</Label>
+                <div>
+                  <Label>Color</Label>
                   <div className="flex gap-2">
                     <Input
                       type="text"
-                      value={value.logoShadow?.color || 'rgba(0,0,0,0.5)'}
-                      onChange={(e) => onChange({
-                        ...value,
-                        logoShadow: {
-                          ...value.logoShadow,
-                          color: e.target.value
-                        }
-                      })}
+                      value={value.logoShadow.color || "rgba(0,0,0,0.5)"}
+                      onChange={(e) =>
+                        onChange({
+                          ...value,
+                          logoShadow: { ...value.logoShadow, color: e.target.value },
+                        })
+                      }
+                      placeholder="rgba(0,0,0,0.5)"
                     />
                     <Input
                       type="color"
-                      className="w-12"
-                      value={value.logoShadow?.color || '#000000'}
-                      onChange={(e) => onChange({
-                        ...value,
-                        logoShadow: {
-                          ...value.logoShadow,
-                          color: e.target.value
-                        }
-                      })}
+                      className="w-12 p-1 h-10"
+                      value={value.logoShadow.color || "#000000"}
+                      onChange={(e) =>
+                        onChange({
+                          ...value,
+                          logoShadow: { ...value.logoShadow, color: e.target.value },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -460,43 +626,8 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
         </div>
       </TabsContent>
 
-      {/* Preview Section */}
-      <div className="mt-6 p-4 border rounded-lg">
-        <h3 className="text-sm font-medium mb-4">Live Preview</h3>
-        <div className="aspect-square w-full max-w-[200px] mx-auto bg-gray-100 dark:bg-gray-800 rounded-lg relative">
-          {value.logo && (
-            <div
-              className="absolute"
-              style={{
-                top: `${value.logoPosition?.y || 50}%`,
-                left: `${value.logoPosition?.x || 50}%`,
-                transform: `translate(-50%, -50%) rotate(${value.logoRotation || 0}deg)`,
-                width: `${value.logoSize || 20}%`,
-                height: `${value.logoSize || 20}%`,
-              }}
-            >
-              <div
-                className="w-full h-full relative"
-                style={getLogoStyle()}
-              >
-                <Image
-                  src={value.logo}
-                  alt="Logo preview"
-                  fill
-                  className="object-contain"
-                  style={{
-                    padding: `${value.logoPadding || 0}px`,
-                    backgroundColor: value.logoBackgroundColor || 'transparent',
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Quick Actions */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-2">
         <Button
           variant="outline"
           size="sm"
@@ -508,8 +639,9 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
           })}
         >
           <RotateCcw className="h-4 w-4 mr-2" />
-          Reset Effects
+          <span>Reset Effects</span>
         </Button>
+
         <Button
           variant="outline"
           size="sm"
@@ -519,8 +651,9 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
           })}
         >
           <Move className="h-4 w-4 mr-2" />
-          Center Logo
+          <span>Center Logo</span>
         </Button>
+
         <Button
           variant="outline"
           size="sm"
@@ -542,99 +675,15 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
           })}
         >
           <Droplet className="h-4 w-4 mr-2" />
-          Apply Preset Style
+          <span>Apply Preset Style</span>
         </Button>
       </div>
 
-      {/* Advanced Options */}
-      <div className="mt-6">
-        <details className="text-sm">
-          <summary className="cursor-pointer font-medium">Advanced Options</summary>
-          <div className="mt-4 space-y-4">
-            <div className="space-y-2">
-              <Label>Logo Blend Mode</Label>
-              <Select
-                value={value.logoBlendMode}
-                onValueChange={(logoBlendMode) => onChange({
-                  ...value,
-                  logoBlendMode
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select blend mode" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="multiply">Multiply</SelectItem>
-                  <SelectItem value="screen">Screen</SelectItem>
-                  <SelectItem value="overlay">Overlay</SelectItem>
-                  <SelectItem value="darken">Darken</SelectItem>
-                  <SelectItem value="lighten">Lighten</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Maintain Aspect Ratio</Label>
-                <Switch
-                  checked={value.logoMaintainAspectRatio || true}
-                  onCheckedChange={(logoMaintainAspectRatio) => onChange({
-                    ...value,
-                    logoMaintainAspectRatio
-                  })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Apply Color Overlay</Label>
-                <Switch
-                  checked={value.logoColorOverlay?.enabled || false}
-                  onCheckedChange={(enabled) => onChange({
-                    ...value,
-                    logoColorOverlay: {
-                      ...value.logoColorOverlay,
-                      enabled,
-                      color: enabled ? (value.logoColorOverlay?.color || '#000000') : undefined,
-                      opacity: enabled ? (value.logoColorOverlay?.opacity || 0.5) : undefined,
-                    }
-                  })}
-                />
-              </div>
-              {value.logoColorOverlay?.enabled && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  <Input
-                    type="color"
-                    value={value.logoColorOverlay?.color || '#000000'}
-                    onChange={(e) => onChange({
-                      ...value,
-                      logoColorOverlay: {
-                        ...value.logoColorOverlay,
-                        color: e.target.value
-                      }
-                    })}
-                  />
-                  <Slider
-                    value={[value.logoColorOverlay?.opacity || 0.5]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={([opacity]) => onChange({
-                      ...value,
-                      logoColorOverlay: {
-                        ...value.logoColorOverlay,
-                        opacity
-                      }
-                    })}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </details>
-      </div>
-    </Tabs>
-  )
+{/* Preview - always show it, the component handles empty state */}
+<LogoPreview 
+  value={value}
+  showGrid={true}
+/>
+</Tabs>
+)
 }
