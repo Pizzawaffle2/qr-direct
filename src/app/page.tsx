@@ -27,6 +27,10 @@ import { ParticleBackground } from "@/components/ui/particle-background"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { SUBSCRIPTION_PLANS } from "@/config/subscription"
+import { CalendarGrid } from "@/components/calendar/calendar-grid";
+import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
+import { CalendarExport } from "@/components/calendar/calendar-export";
+import { useRef, useState } from "react";
 
 const features = [
   { 
@@ -67,6 +71,17 @@ const features = [
   }
 ]
 
+const calendarRef = useRef<HTMLDivElement>(null);
+const [month, setMonth] = useState(new Date().getMonth());
+const [year, setYear] = useState(new Date().getFullYear());
+const [theme, setTheme] = useState("default");
+const [frame, setFrame] = useState("none");
+const [font, setFont] = useState("arial");
+
+const handleThemeChange = (selectedTheme: string) => setTheme(selectedTheme);
+const handleFrameChange = (selectedFrame: string) => setFrame(selectedFrame);
+const handleFontChange = (selectedFont: string) => setFont(selectedFont);
+
 const stats = [
   { 
     label: "QR Codes Generated", 
@@ -93,11 +108,11 @@ export default function Home() {
     <ParallaxProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 overflow-hidden">
         <ParticleBackground />
-        
+
         <div className="container mx-auto px-4 py-24">
           {/* Hero Section */}
           <Parallax translateY={[-20, 20]}>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-4xl mx-auto mb-20"
@@ -108,8 +123,8 @@ export default function Home() {
                 transition={{ delay: 0.2 }}
                 className="mb-6"
               >
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="px-4 py-1 border-blue-400/20 bg-blue-400/10"
                 >
                   <Zap className="mr-2 h-4 w-4 text-blue-400" />
@@ -123,19 +138,19 @@ export default function Home() {
                 </span>
                 <br />
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                  QR Codes Instantly
+                  QR Codes and Calendars Instantly
                 </span>
               </h1>
-              
+
               <p className="text-xl text-gray-300 mb-8">
-                Generate beautiful, trackable QR codes that perfectly match your brand. 
-                Used by over 50,000 businesses worldwide.
+                Generate beautiful, trackable QR codes and customized printable calendars for your brand.
+                Trusted by over 50,000 businesses worldwide.
               </p>
 
               {!session ? (
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    size="lg" 
+                  <Button
+                    size="lg"
                     className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500"
                     asChild
                   >
@@ -149,7 +164,7 @@ export default function Home() {
                   </Button>
                 </div>
               ) : (
-                <Button 
+                <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-indigo-600"
                   asChild
@@ -171,6 +186,40 @@ export default function Home() {
           >
             <div className="glass-morphism rounded-3xl p-8">
               <QRCodeTabs />
+            </div>
+          </motion.div>
+
+          {/* Calendar Generator Section */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-32"
+          >
+            <div className="glass-morphism rounded-3xl p-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-white">
+                Create Your Custom Calendar
+              </h2>
+              <CalendarToolbar
+                onThemeChange={handleThemeChange}
+                onFrameChange={handleFrameChange}
+                onFontChange={handleFontChange}
+              />
+              <div
+                ref={calendarRef}
+                className={`my-4 p-4 border rounded ${theme === "holiday" ? "bg-red-100" : "bg-white"} ${
+                  font === "serif" ? "font-serif" : font === "monospace" ? "font-mono" : "font-sans"
+                }`}
+                style={{
+                  borderImage: frame !== "none" ? `url(/images/frames/${frame}.png) 30 stretch` : "none",
+                }}
+              >
+                <CalendarGrid
+                  month={month}
+                  year={year}
+                  onSelectDate={(date) => console.log("Selected date:", date)}
+                />
+              </div>
+              <CalendarExport calendarRef={calendarRef} />
             </div>
           </motion.div>
 

@@ -1,5 +1,4 @@
 // src/components/qr/preview.tsx
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -8,15 +7,16 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2, Download, Maximize2, QrCode } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { QRCodeData, QRStyleOptions } from "@/types/qr"
+import { QRCodeData, QRStyleOptions, LogoSettings } from "@/types/qr"
 import { useElementSize } from "@/hooks/use-element-size"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { generateQR } from "@/lib/actions/qr"
+import { generateQR } from "@/lib/actions/qr"  // Assuming generateQR returns base QR code image
 
 interface PreviewProps {
   data?: Partial<QRCodeData>
   style?: QRStyleOptions
+  logoData?: Partial<LogoSettings> // New logo data prop
   isGenerating?: boolean
   className?: string
 }
@@ -24,6 +24,7 @@ interface PreviewProps {
 export function QRPreview({ 
   data,
   style,
+  logoData,
   isGenerating = false,
   className 
 }: PreviewProps) {
@@ -142,7 +143,7 @@ export function QRPreview({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-full flex items-center justify-center"
+                className="relative h-full flex items-center justify-center"
               >
                 <motion.img
                   src={qrCode}
@@ -152,6 +153,27 @@ export function QRPreview({
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
+
+                {logoData?.logo && (
+                  <motion.div
+                    style={{
+                      position: "absolute",
+                      width: `${logoData.logoSize || 20}%`,
+                      height: `${logoData.logoSize || 20}%`,
+                      top: `${logoData.logoPosition?.y || 50}%`,
+                      left: `${logoData.logoPosition?.x || 50}%`,
+                      transform: `translate(-50%, -50%) rotate(${logoData.logoRotation || 0}deg)`,
+                      opacity: logoData.logoOpacity || 1,
+                      filter: logoData.logoEffects ? 'brightness(0.8) contrast(1.2)' : undefined,
+                    }}
+                  >
+                    <img
+                      src={logoData.logo}
+                      alt="Logo Overlay"
+                      className="object-contain w-full h-full"
+                    />
+                  </motion.div>
+                )}
               </motion.div>
             ) : (
               <motion.div

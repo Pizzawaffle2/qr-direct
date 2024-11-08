@@ -69,9 +69,10 @@ interface LogoSelectorProps {
     }
   }
   onChange: (value: any) => void
+  onLogoChange: (logoData: Partial<LogoSettings>) => void // new prop for QRPreview
 }
 
-export function LogoSelector({ value, onChange }: LogoSelectorProps) {
+export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProps) {
   const [activeTab, setActiveTab] = useState("preset")
   const [uploadedLogo, setUploadedLogo] = useState<string>()
 
@@ -83,9 +84,11 @@ export function LogoSelector({ value, onChange }: LogoSelectorProps) {
       const uploadedUrl = reader.result as string
       setUploadedLogo(uploadedUrl)
       onChange({ ...value, logo: uploadedUrl })
+      onChange(newLogoData) // set new logo data
+      onLogoChange(newLogoData)
     }
     reader.readAsDataURL(optimizedImage)
-  }, [value, onChange])
+  }, [value, onChange, onLogoChange])
 
   const optimizeImage = async (file: File): Promise<Blob> => {
     return new Promise((resolve) => {
