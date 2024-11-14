@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { LogoSelector } from "./logo-selector"
 import {
   Select,
   SelectContent,
@@ -344,17 +343,6 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </SelectContent>
           </Select>
         </div>
-      </TabsContent>
-      <TabsContent value="logo">
-        <LogoSelector
-          value={{
-            logo: value.logo,
-            logoSize: value.logoSize,
-            logoPadding: value.logoPadding,
-            logoBackgroundColor: value.logoBackgroundColor,
-          }}
-          onChange={(logoOptions) => handleStyleChange(logoOptions)}
-        />
       </TabsContent>
     </Tabs>
   )
