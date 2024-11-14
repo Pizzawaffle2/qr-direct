@@ -1,48 +1,48 @@
 export const PATHS = {
-    public: [
-      '/',
-      '/pricing',
-      '/about',
-      '/contact',
-      '/blog',
-      '/terms',
-      '/privacy',
+  assets: [
+    '/_next',
+    '/favicon.ico',
+    '/public',
+    '/images',
+    '/assets',
+  ],
+  public: [
+    '/',
+    '/about',
+    '/pricing',
+    '/contact',
+    '/blog',
+    '/features',
+    '/privacy',
+    '/terms',
+  ],
+  auth: [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+  ],
+  api: [
+    '/api/health',
+    '/api/webhooks',
+    '/api/public',
+  ],
+  dashboard: [
+    '/dashboard',
+    '/settings',
+    '/profile',
+  ],
+  subscription: {
+    pro: [
+      '/dashboard/pro',
+      '/api/pro',
+      '/features/pro',
     ],
-    auth: [
-      '/login',
-      '/register',
-      '/forgot-password',
-      '/reset-password',
-      '/verify-email',
+    enterprise: [
+      '/dashboard/enterprise',
+      '/api/enterprise',
+      '/features/enterprise',
     ],
-    api: [
-      '/api/auth',
-      '/api/webhooks',
-      '/api/qr/public',
-    ],
-    assets: [
-      '/_next',
-      '/favicon.ico',
-      '/robots.txt',
-      '/sitemap.xml',
-      '/manifest.json',
-    ],
-    dashboard: [
-      '/dashboard',
-      '/settings',
-      '/billing',
-      '/team',
-      '/qr',
-    ],
-    subscription: {
-      pro: [
-        '/api/advanced',
-        '/dashboard/analytics',
-        '/dashboard/team',
-      ],
-      enterprise: [
-        '/api/enterprise',
-        '/dashboard/white-label',
-      ],
-    },
-  } as const
+  },
+} as const;

@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Variables */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -25,6 +24,16 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    --space-unit: 0.25rem;
+    --space-xs: calc(var(--space-unit) * 2);
+    --space-sm: calc(var(--space-unit) * 4);
+    --space-md: calc(var(--space-unit) * 6);
+    --space-lg: calc(var(--space-unit) * 8);
+    --transition-fast: 200ms ease-out;
+    --transition-base: 300ms ease-out;
+    --transition-slow: 500ms ease-out;
+    --glow-strength: 0.2;
+    --shadow-strength: 0.1;
   }
 
   .dark {
@@ -50,7 +59,6 @@
   }
 }
 
-/* Base Styles */
 @layer base {
   * {
     @apply border-border;
@@ -61,95 +69,44 @@
   }
 }
 
-/* Animations */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slide-in-up {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
+@layer components {
+  .glass-morphism {
+    @apply backdrop-blur-md bg-white/10 border border-white/10;
   }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+
+  .category-dot {
+    width: var(--space-xs);
+    height: var(--space-xs);
+    border-radius: 50%;
+    transition: transform var(--transition-fast);
+  }
+  
+  .category-dot:hover {
+    transform: scale(1.2);
   }
 }
 
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes wave {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* Utility Classes */
 @layer utilities {
-  /* Animation Utilities */
-  .animate-fade-in {
-    animation: fade-in 1s ease-out;
-  }
-
-  .animate-slide-in-up {
-    animation: slide-in-up 1s ease-out;
-  }
-
-  .animate-gradient {
-    background-size: 200% 200%;
-    animation: gradient 8s ease infinite;
-  }
-
-  .wave-animation {
-    animation: wave 8s ease-in-out infinite;
-  }
-
-  /* Visual Effects */
-  .glass-effect {
-    @apply backdrop-blur-lg bg-white/80 dark:bg-gray-900/80;
-  }
-
   .neon-glow {
-    @apply transition-all duration-300;
-    text-shadow: 0 0 10px theme('colors.primary.500/50');
-    box-shadow: 0 0 10px theme('colors.primary.500/30'),
-                0 0 20px theme('colors.primary.500/20'),
-                0 0 30px theme('colors.primary.500/10');
+    box-shadow: 
+      0 0 10px rgba(0, 255, 255, var(--glow-strength)),
+      0 0 20px rgba(0, 255, 255, calc(var(--glow-strength) * 0.5)),
+      0 0 30px rgba(0, 255, 255, calc(var(--glow-strength) * 0.25));
   }
 
-  .neon-border {
-    @apply transition-all duration-300;
-    box-shadow: 0 0 10px theme('colors.primary.500/30');
+  .hover-lift {
+    transition: transform var(--transition-fast);
   }
 
-  /* Background Patterns */
-  .bg-dot-pattern {
-    background-image: radial-gradient(
-      circle at center,
-      rgba(255, 255, 255, 0.2) 2px,
-      transparent 2px
-    );
-    background-size: 24px 24px;
+  .hover-lift:hover {
+    transform: translateY(calc(var(--space-unit) * -1));
   }
-}
 
-/* Particle System */
-.particle {
-  pointer-events: none;
-  will-change: transform;
-  transition: opacity 0.3s ease;
-}
+  .container-narrow {
+    @apply container max-w-4xl mx-auto px-4;
+  }
 
-.particle:hover {
-  opacity: 0.8;
+  .container-wide {
+    @apply container max-w-7xl mx-auto px-4;
+  }
 }

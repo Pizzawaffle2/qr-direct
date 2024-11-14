@@ -1,80 +1,44 @@
 // src/components/qr/forms/phone-form.tsx
-"use client"
+import { useState } from 'react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { QRCodeData } from "@/types/qr"
-
-const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  phone: z.string()
-    .min(1, "Phone number is required")
-    .regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"),
-})
-
-interface PhoneFormProps {
-  value: Partial<QRCodeData>
-  onChange: (value: Partial<QRCodeData>) => void
+interface QRCodeData {
+  type: 'phone';
+  phone: string;
 }
 
-export function PhoneForm({ value, onChange }: PhoneFormProps) {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      title: value.title || "",
-      phone: value.phone || "",
-    },
-  })
+interface PhoneFormProps {
+  initialData?: QRCodeData;
+  onChange: (data: QRCodeData) => void;
+}
 
-  const onSubmit = (data: z.infer<typeof schema>) => {
-    onChange(data)
-  }
+export function PhoneForm({ initialData, onChange }: PhoneFormProps) {
+  const [phone, setPhone] = useState(initialData?.phone || '');
+
+  const handleChange = (newPhone: string) => {
+    setPhone(newPhone);
+    onChange({
+      type: 'phone',
+      phone: newPhone,
+    });
+  };
 
   return (
-    <Form {...form}>
-      <form onChange={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Phone QR Code" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="phone">Phone Number</Label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="+1 (234) 567-8901"
+          value={phone}
+          onChange={(e) => handleChange(e.target.value)}
         />
-
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input 
-                  type="tel" 
-                  placeholder="+1234567890" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
-  )
+        <p className="text-sm text-muted-foreground">
+          Include country code for international numbers
+        </p>
+      </div>
+    </div>
+  );
 }

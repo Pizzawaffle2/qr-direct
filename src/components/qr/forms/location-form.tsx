@@ -1,148 +1,93 @@
+import { useCallback, useState } from 'react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-// src/components/qr/forms/location-form.tsx
-"use client"
-
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { MapPin } from "lucide-react"
-import { QRCodeData } from "@/types/qr"
-
-const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  name: z.string().optional(),
-})
-
-interface LocationFormProps {
-  value: Partial<QRCodeData>
-  onChange: (value: Partial<QRCodeData>) => void
+interface LocationFormData {
+  type: 'location';
+  latitude: number;
+  longitude: number;
+  name: string;
 }
 
-export function LocationForm({ value, onChange }: LocationFormProps) {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      title: value.title || "",
-      latitude: value.latitude || 0,
-      longitude: value.longitude || 0,
-      name: value.name || "",
-    },
-  })
+function LocationForm({ 
+  initialData, 
+  onChange 
+}: {
+  initialData?: LocationFormData;
+  onChange: (data: LocationFormData) => void;
+}) {
+  const [data, setData] = useState<LocationFormData>({
+    type: 'location',
+    latitude: initialData?.latitude ?? 0,
+    longitude: initialData?.longitude ?? 0,
+    name: initialData?.name ?? '',
+  });
 
-  const onSubmit = (data: z.infer<typeof schema>) => {
-    onChange(data)
-  }
+  const handleChange = useCallback((
+    updates: Partial<LocationFormData>
+  ) => {
+    const newData = { ...data, ...updates };
+    setData(newData);
+    onChange(newData);
+  }, [data, onChange]);
 
-  const getCurrentLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        form.setValue("latitude", position.coords.latitude)
-        form.setValue("longitude", position.coords.longitude)
-        form.handleSubmit(onSubmit)()
-      })
+  const handleNumberInput = useCallback((
+    field: 'latitude' | 'longitude',
+    value: string
+  ) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      handleChange({ [field]: numValue });
     }
-  }
+  }, [handleChange]);
 
   return (
-    <Form {...form}>
-      <form onChange={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Location QR Code" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={getCurrentLocation}
-          >
-            <MapPin className="mr-2 h-4 w-4" />
-            Get Current Location
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="latitude"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Latitude</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    step="any"
-                    placeholder="0.000000"
-                    {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="longitude"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Longitude</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number"
-                    step="any"
-                    placeholder="0.000000"
-                    {...field}
-                    onChange={e => field.onChange(parseFloat(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="latitude">Latitude</Label>
+          <Input
+            id="latitude"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberInput('latitude', e.target.value)}
+            type="number"
+            step="0.000001"
+            value={data.latitude}
+            min="-90"
+            max="90"
+            required
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Location Name (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., My Office" {...field} />
-              </FormControl>
-              <FormDescription>
-                A memorable name for this location
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+        <div className="space-y-2">
+          <Label htmlFor="longitude">Longitude</Label>
+          <Input
+            id="longitude"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberInput('longitude', e.target.value)}
+            type="number"
+            step="0.000001"
+            value={data.longitude}
+            min="-180"
+            max="180"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="name">Location Name (Optional)</Label>
+        <Input
+          id="name"
+          placeholder="e.g., My Office"
+          value={data.name}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange({ name: e.target.value })}
+          maxLength={100}
         />
-      </form>
-    </Form>
-  )
-}
+      </div>
+
+      {/* You could add a map component here for visual selection */}
+      <div className="rounded-md border p-4 text-center text-sm text-muted-foreground">
+        Map selection coming soon...
+      </div>
+    </div>
+    );
+  }

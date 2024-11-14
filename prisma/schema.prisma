@@ -63,6 +63,12 @@ model User {
   usage              Usage[]
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  stripeCustomerId              String?   @unique
+  subscriptionStatus            String?
+  subscriptionTier             String?
+  subscriptionId               String?
+  subscriptionCurrentPeriodEnd DateTime?
+  qrCodesGenerated            Int       @default(0)
 }
 
 model VerificationToken {

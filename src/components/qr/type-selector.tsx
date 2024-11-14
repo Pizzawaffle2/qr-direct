@@ -1,81 +1,40 @@
-// src/components/qr/type-selector.tsx
-"use client"
+"use client";
 
-import { QRCodeData } from "@/types/qr"
-import { Card } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button";
+import * as Icons from "lucide-react";
+import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface TypeSelectorProps {
-  value: Partial<QRCodeData>
-  onChange: (value: Partial<QRCodeData>) => void
+interface QRTypeSelectorProps {
+  types: Record<string, { name: string; icon: keyof typeof Icons }>;
+  selectedType: string;
+  onChange: (type: string) => void;
 }
 
-export function TypeSelector({ value, onChange }: TypeSelectorProps) {
-  const handleTypeChange = (type: string) => {
-    onChange({ type: type as QRCodeData["type"] })
-  }
-
+export function QRTypeSelector({
+  types,
+  selectedType,
+  onChange,
+}: QRTypeSelectorProps) {
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label>QR Code Type</Label>
-        <Select
-          value={value.type}
-          onValueChange={handleTypeChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="url">URL</SelectItem>
-            <SelectItem value="text">Text</SelectItem>
-            <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="phone">Phone</SelectItem>
-            <SelectItem value="sms">SMS</SelectItem>
-            <SelectItem value="wifi">WiFi</SelectItem>
-            <SelectItem value="location">Location</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {value.type && (
-        <Card className="p-4 space-y-4">
-          {value.type === "url" && (
-            <div className="space-y-2">
-              <Label>URL</Label>
-              <Input
-                type="url"
-                placeholder="https://example.com"
-                value={value.url || ""}
-                onChange={(e) => onChange({ ...value, url: e.target.value })}
-              />
-            </div>
-          )}
-
-          {value.type === "text" && (
-            <div className="space-y-2">
-              <Label>Text</Label>
-              <Textarea
-                placeholder="Enter your text"
-                value={value.text || ""}
-                onChange={(e) => onChange({ ...value, text: e.target.value })}
-              />
-            </div>
-          )}
-
-          {/* Add other type-specific fields */}
-        </Card>
-      )}
+    <div>
+      {Object.entries(types).map(([key, { name, icon }]: [string, { name: string; icon: keyof typeof Icons }]) => {
+        const Icon = Icons[icon];
+        return (
+          <Button
+            key={key}
+            variant={selectedType === key ? "default" : "outline"}
+            className={cn(
+              "flex flex-col h-auto gap-2 p-4",
+              selectedType === key && "bg-primary text-primary-foreground"
+            )}
+            onClick={() => onChange(key)}
+          >
+            <Icon className="h-6 w-6" />
+            <span>{name}</span>
+          </Button>
+        );
+      })}
     </div>
-  )
+  );
 }

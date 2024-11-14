@@ -1,102 +1,59 @@
+import { useState, useCallback, ChangeEvent } from 'react';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-// src/components/qr/forms/sms-form.tsx
-"use client"
+interface QRCodeData extends SMSFormData {}
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { QRCodeData } from "@/types/qr"
-
-const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  phone: z.string()
-    .min(1, "Phone number is required")
-    .regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number"),
-  message: z.string().optional(),
-})
-
-interface SMSFormProps {
-  value: Partial<QRCodeData>
-  onChange: (value: Partial<QRCodeData>) => void
+interface SMSFormData {
+  type: 'sms';
+  phone: string;
+  message: string;
 }
 
-export function SMSForm({ value, onChange }: SMSFormProps) {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      title: value.title || "",
-      phone: value.phone || "",
-      message: value.message || "",
-    },
-  })
+function SMSForm({ 
+  initialData, 
+  onChange 
+}: {
+  initialData?: QRCodeData;
+  onChange: (data: QRCodeData) => void;
+}) {
+  const [data, setData] = useState<SMSFormData>({
+    type: 'sms',
+    phone: initialData?.phone || '',
+    message: initialData?.message || '',
+  });
 
-  const onSubmit = (data: z.infer<typeof schema>) => {
-    onChange(data)
-  }
+  const handleChange = useCallback((
+    updates: Partial<SMSFormData>
+  ) => {
+    const newData = { ...data, ...updates };
+    setData(newData);
+    onChange(newData);
+  }, [data, onChange]);
 
   return (
-    <Form {...form}>
-      <form onChange={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input placeholder="SMS QR Code" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="phone">Phone Number</Label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="+1 (234) 567-8901"
+          value={data.phone}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange({ phone: e.target.value })}
         />
-
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input 
-                  type="tel" 
-                  placeholder="+1234567890" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="message">Message (Optional)</Label>
+        <Textarea
+          id="message"
+          placeholder="Enter your message"
+          value={data.message}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => handleChange({ message: e.target.value })}
+          className="min-h-[100px]"
         />
-
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Message (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter your message..."
-                  className="min-h-[100px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
-  )
+      </div>
+    </div>
+  );
 }

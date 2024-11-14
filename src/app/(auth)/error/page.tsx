@@ -1,116 +1,75 @@
-"use client"
+'use client';
 
-import { useSearchParams } from "next/navigation"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { AlertCircle } from "lucide-react"
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
-export default function AuthError() {
-  const searchParams = useSearchParams()
-  const error = searchParams.get('error')
-
-  const errorMessages: { [key: string]: { title: string; description: string } } = {
-    Configuration: {
-      title: "Server Configuration Error",
-      description: "There is a problem with the server configuration. Please try again later.",
-    },
-    AccessDenied: {
-      title: "Access Denied",
-      description: "You do not have permission to sign in. Please contact support if you believe this is a mistake.",
-    },
-    Verification: {
-      title: "Verification Failed",
-      description: "The verification code has expired or has already been used. Please request a new verification code.",
-    },
-    CredentialsSignin: {
-      title: "Invalid Credentials",
-      description: "The email or password you entered is incorrect. Please try again.",
-    },
-    Default: {
-      title: "Authentication Error",
-      description: "An error occurred during authentication. Please try again.",
-    },
+const getErrorMessage = (error: string | null) => {
+  switch (error) {
+    case 'OAuthAccountNotLinked':
+      return {
+        title: 'Account Already Exists',
+        message: 'An account with this email already exists using a different sign-in method. Please sign in using your original method.',
+        action: '/login'
+      };
+    case 'AccessDenied':
+      return {
+        title: 'Access Denied',
+        message: 'You do not have permission to sign in. Please contact support if you think this is a mistake.',
+        action: '/login'
+      };
+    case 'CredentialsSignin':
+      return {
+        title: 'Invalid Credentials',
+        message: 'The email or password you entered is incorrect. Please try again.',
+        action: '/login'
+      };
+    case 'EmailSignin':
+      return {
+        title: 'Email Sign In Failed',
+        message: 'The email sign in link is invalid or has expired. Please try again.',
+        action: '/login'
+      };
+    default:
+      return {
+        title: 'Authentication Error',
+        message: 'An error occurred during authentication. Please try again.',
+        action: '/login'
+      };
   }
+};
 
-  const { title, description } = errorMessages[error || 'Default']
+export default function AuthErrorPage() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
+  const { title, message, action } = getErrorMessage(error);
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-red-500/10 via-transparent to-purple-500/10 animate-gradient-xy" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-white">Authentication Error</h1>
       </div>
 
-      <div className="container relative z-10 mx-auto flex min-h-screen items-center justify-center px-4 py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <Card className="relative overflow-hidden bg-slate-900/50 border-slate-800/50">
-            <div className="px-12 pt-16 pb-8">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              >
-                <div className="h-20 w-20 rounded-full bg-gradient-to-r from-red-500 to-purple-500 p-1">
-                  <div className="h-full w-full rounded-full bg-slate-950 p-2">
-                    <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-purple-500">
-                      <AlertCircle className="h-8 w-8 text-white" />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>{title}</AlertTitle>
+        <AlertDescription>{message}</AlertDescription>
+      </Alert>
 
-              <div className="space-y-2 text-center">
-                <motion.h1
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-2xl font-bold text-red-500"
-                >
-                  {title}
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-sm text-gray-400"
-                >
-                  {description}
-                </motion.p>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="mt-8 space-y-4"
-              >
-                <Button
-                  asChild
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500"
-                >
-                  <Link href="/login">Try Again</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full border-white/10 bg-white/5 hover:bg-white/10"
-                >
-                  <Link href="/">Return Home</Link>
-                </Button>
-              </motion.div>
-            </div>
-          </Card>
-        </motion.div>
+      <div className="flex flex-col gap-4">
+        <Button asChild>
+          <Link href={action}>
+            Try Again
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/">
+            Return Home
+          </Link>
+        </Button>
       </div>
     </div>
-  )
+  );
 }

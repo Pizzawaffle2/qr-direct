@@ -32,3 +32,15 @@ export interface QRStyleOptions {
   lightColor?: string
   errorCorrection?: 'L' | 'M' | 'Q' | 'H'
 }
+
+export type QRCodeRecord = {
+
+  id: string;
+
+  url: string;
+
+  title: string;
+
+  created: string;
+
+};

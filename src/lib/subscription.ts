@@ -1,164 +1,91 @@
 // src/lib/subscription.ts
+import stripe from './stripe'
+import { prisma } from './db/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../../app/api/auth/[...nextauth]/authOptions'
 
-import { prisma } from "@/lib/db"
+export const SUBSCRIPTION_TIERS = {
+  FREE: 'free',
+  PRO: 'pro',
+  BUSINESS: 'business',
+} as const
 
-export type SubscriptionPlan = 'free' | 'pro' | 'enterprise'
+export type SubscriptionTier = keyof typeof SUBSCRIPTION_TIERS
 
-interface SubscriptionLimits {
-  maxQRCodes: number
-  maxTemplates: number
-  maxStorage: number // in bytes
-  maxTeamMembers: number
-  maxApiCalls: number
-  features: string[]
-}
-
-const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
-  free: {
-    maxQRCodes: 5,
-    maxTemplates: 1,
-    maxStorage: 5 * 1024 * 1024, // 5MB
-    maxTeamMembers: 1,
-    maxApiCalls: 100,
-    features: ['basic_qr', 'basic_analytics'],
+export const TIER_LIMITS = {
+  [SUBSCRIPTION_TIERS.FREE]: {
+    qrCodesPerMonth: 10,
+    customBranding: false,
+    analytics: false,
   },
-  pro: {
-    maxQRCodes: 100,
-    maxTemplates: 10,
-    maxStorage: 100 * 1024 * 1024, // 100MB
-    maxTeamMembers: 5,
-    maxApiCalls: 10000,
-    features: ['basic_qr', 'custom_design', 'advanced_analytics', 'api_access'],
+  [SUBSCRIPTION_TIERS.PRO]: {
+    qrCodesPerMonth: 100,
+    customBranding: true,
+    analytics: true,
   },
-  enterprise: {
-    maxQRCodes: -1, // unlimited
-    maxTemplates: -1,
-    maxStorage: 1024 * 1024 * 1024, // 1GB
-    maxTeamMembers: -1,
-    maxApiCalls: -1,
-    features: ['basic_qr', 'custom_design', 'advanced_analytics', 'api_access', 'priority_support', 'custom_domain'],
+  [SUBSCRIPTION_TIERS.BUSINESS]: {
+    qrCodesPerMonth: -1, // unlimited
+    customBranding: true,
+    analytics: true,
   },
 }
 
-export async function getUserSubscription(userId: string) {
-  const subscription = await prisma.subscription.findUnique({
-    where: { userId },
+export async function createStripeCheckoutSession(priceId: string) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) throw new Error('Not authenticated')
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
   })
 
-  if (!subscription) {
-    return {
-      ...PLAN_LIMITS.free,
-      plan: 'free' as SubscriptionPlan,
-      isActive: true,
-    }
+  if (!user) throw new Error('User not found')
+
+  let stripeCustomerId = user.stripeCustomerId
+
+  if (!stripeCustomerId) {
+    const customer = await stripe.customers.create({
+      email: session.user.email,
+      metadata: {
+        userId: user.id,
+      },
+    })
+    stripeCustomerId = customer.id
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { stripeCustomerId },
+    })
   }
 
-  const isActive = 
-    subscription.status === "active" && 
-    subscription.currentPeriodEnd &&
-    subscription.currentPeriodEnd.getTime() > Date.now()
+  const checkoutSession = await stripe.checkout.sessions.create({
+    customer: stripeCustomerId,
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?success=true`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?canceled=true`,
+    metadata: {
+      userId: user.id,
+    },
+  })
 
-  return {
-    ...subscription,
-    ...PLAN_LIMITS[subscription.plan as SubscriptionPlan],
-    isActive,
-  }
+  return checkoutSession.url
 }
 
-export async function getTeamSubscription(teamId: string) {
-  const subscription = await prisma.teamSubscription.findUnique({
-    where: { teamId },
+export async function createStripePortalSession() {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.email) throw new Error('Not authenticated')
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
   })
 
-  if (!subscription) {
-    return {
-      ...PLAN_LIMITS.free,
-      plan: 'free' as SubscriptionPlan,
-      isActive: true,
-    }
-  }
+  if (!user?.stripeCustomerId) throw new Error('No Stripe customer found')
 
-  const isActive = 
-    subscription.status === "active" && 
-    subscription.currentPeriodEnd &&
-    subscription.currentPeriodEnd.getTime() > Date.now()
-
-  return {
-    ...subscription,
-    ...PLAN_LIMITS[subscription.plan as SubscriptionPlan],
-    isActive,
-  }
-}
-
-export async function canPerformAction(
-  userId: string | undefined,
-  teamId: string | undefined,
-  action: keyof SubscriptionLimits
-) {
-  if (!userId && !teamId) return false
-
-  const subscription = teamId 
-    ? await getTeamSubscription(teamId)
-    : await getUserSubscription(userId!)
-
-  if (!subscription.isActive) return false
-
-  const currentUsage = await prisma.usage.findFirst({
-    where: {
-      OR: [
-        { userId: userId || undefined },
-        { teamId: teamId || undefined },
-      ],
-      period: {
-        gte: new Date(new Date().setDate(1)), // Start of current month
-      },
-    },
+  const portalSession = await stripe.billingPortal.sessions.create({
+    customer: user.stripeCustomerId,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing`,
   })
 
-  if (!currentUsage) return true
-
-  switch (action) {
-    case 'maxQRCodes':
-      return subscription.maxQRCodes === -1 || currentUsage.qrCodesCreated < subscription.maxQRCodes
-    case 'maxTemplates':
-      return subscription.maxTemplates === -1 || currentUsage.templatesCreated < subscription.maxTemplates
-    case 'maxStorage':
-      return subscription.maxStorage === -1 || currentUsage.storage < subscription.maxStorage
-    case 'maxApiCalls':
-      return subscription.maxApiCalls === -1 || currentUsage.apiCalls < subscription.maxApiCalls
-    default:
-      return false
-  }
-}
-
-export async function incrementUsage(
-  userId: string | undefined,
-  teamId: string | undefined,
-  action: keyof Pick<Usage, 'qrCodesCreated' | 'templatesCreated' | 'apiCalls' | 'storage' | 'scans'>,
-  amount: number = 1
-) {
-  if (!userId && !teamId) return
-
-  const period = new Date(new Date().setDate(1)) // Start of current month
-
-  await prisma.usage.upsert({
-    where: {
-      userId_teamId_period: {
-        userId: userId || null,
-        teamId: teamId || null,
-        period,
-      },
-    },
-    create: {
-      userId: userId || null,
-      teamId: teamId || null,
-      period,
-      [action]: amount,
-    },
-    update: {
-      [action]: {
-        increment: amount,
-      },
-    },
-  })
+  return portalSession.url
 }
