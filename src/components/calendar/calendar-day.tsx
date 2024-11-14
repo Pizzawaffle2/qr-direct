@@ -28,6 +28,8 @@ export const CalendarDay: React.FC<CalendarDayProps> = ({
         <span className="text-sm font-medium">{day}</span>
         {isEditing && (
           <button
+            type="button"
+            title="Add new event"
             onClick={() => setShowAdd(true)}
             className="p-1 rounded-full hover:bg-gray-200 transition-colors print:hidden"
           >
