@@ -55,11 +55,11 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden border-r bg-gray-100/40 md:block dark:bg-gray-800/40">
+    <div className="hidden md:block border-r bg-white/80 backdrop-blur-sm shadow-sm dark:bg-gray-800/40">
       <div className="space-y-4 py-4 w-60">
         <div className="px-3 py-2">
           <div className="space-y-1">
-            <h2 className="mb-2 px-4 text-xl font-semibold tracking-tight">
+            <h2 className="mb-2 px-4 text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
               Navigation
             </h2>
             <nav className="space-y-1">
@@ -68,7 +68,7 @@ export function DashboardNav() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center px-3 py-2 text-sm font-medium rounded-md",
+                    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200",
                     pathname === item.href
                       ? "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
                       : "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"

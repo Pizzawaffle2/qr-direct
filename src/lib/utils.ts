@@ -19,7 +19,6 @@ export function formatDate(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     throw new Error('Invalid date provided to formatDate');
   }
-
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -37,7 +36,6 @@ export function formatTime(date: Date): string {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     throw new Error('Invalid date provided to formatTime');
   }
-
   return new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
@@ -52,4 +50,37 @@ export function formatTime(date: Date): string {
  */
 export function isValidDate(date: Date): boolean {
   return date instanceof Date && !isNaN(date.getTime());
+}
+
+/**
+ * Converts a relative path to an absolute URL using the app's base URL
+ * @param path - Relative path to convert
+ * @returns Absolute URL string
+ */
+export function absoluteUrl(path: string): string {
+  // Return just the path in client-side context
+  if (typeof window !== 'undefined') return path;
+  
+  // Get base URL from environment or use default
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // Combine base URL with path
+  return `${baseUrl}${normalizedPath}`;
+}
+
+/**
+ * Creates a URL with query parameters
+ * @param base - Base URL
+ * @param params - Object of query parameters
+ * @returns URL string with query parameters
+ */
+export function createUrl(base: string, params: Record<string, string | number | boolean>): string {
+  const url = new URL(absoluteUrl(base));
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.set(key, String(value));
+  });
+  return url.toString();
 }

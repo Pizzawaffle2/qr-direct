@@ -2,18 +2,29 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Check, CreditCard } from "lucide-react"
-import { PLANS, type Plan, type BillingInterval } from "@/lib/config/pricing"
+import { PLANS } from "@/lib/config/pricing"
+
+type Plan = {
+  id: string
+  name: string
+  description: string
+  prices: { monthly: number; yearly: number }
+  stripeIds: { monthly?: string; yearly?: string }
+  limits: { qrCodes: number; templates: number }
+  features: Array<{ name: string; enabled?: boolean }>
+}
+
+type BillingInterval = "monthly" | "yearly"
 
 interface BillingPageProps {
   subscription: {
     plan: string
     status: string
-    interval?: string
+    interval?: "monthly" | "yearly"
     currentPeriodEnd?: Date
     cancelAtPeriodEnd: boolean
   }
@@ -22,6 +33,10 @@ interface BillingPageProps {
     templatesCreated: number
     apiCalls: number
   }
+}
+
+function getPrice(prices: { monthly: number; yearly: number }, interval: string): number {
+  return prices[interval as keyof typeof prices];
 }
 
 export default function BillingPage({ subscription, usage }: BillingPageProps) {
@@ -118,7 +133,7 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
               {currentPlan.description}
             </p>
           </div>
-          <div className="text-right">
+          <div>
             <p className="text-2xl font-bold">
               ${currentPlan.prices[subscription.interval || "monthly"]}
               <span className="text-base font-normal text-muted-foreground">

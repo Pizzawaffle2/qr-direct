@@ -31,38 +31,17 @@ export function ParticleBackground() {
       {Array.from({ length: 50 }).map((_, i) => (
         <motion.div
           key={i}
-          className="particle absolute rounded-full bg-white/20"
-          initial={{
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            scale: Math.random() * 0.5 + 0.5,
-            opacity: Math.random() * 0.3 + 0.1,
-          }}
+          className="absolute w-2 h-2 bg-white rounded-full"
           animate={{
-            x: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-            ],
-            y: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-            ],
+            x: mouseRef.current.x * window.innerWidth,
+            y: mouseRef.current.y * window.innerHeight,
           }}
           transition={{
-            duration: Math.random() * 10 + 20,
+            duration: 2,
+            ease: "easeInOut",
             repeat: Infinity,
-            ease: "linear",
+            repeatType: "reverse",
           }}
-          style={{
-            width: `${Math.random() * 10 + 5}px`,
-            height: `${Math.random() * 10 + 5}px`,
-          }}
-          drag
-          dragConstraints={containerRef}
-          dragElastic={0.1}
-          whileHover={{ scale: 2 }}
         />
       ))}
     </div>

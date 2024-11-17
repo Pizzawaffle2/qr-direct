@@ -1,5 +1,7 @@
 // src/types/qr.ts
 
+import { LucideIcon } from 'lucide-react';
+
 export type QRCodeType = 
   | 'url' 
   | 'text' 
@@ -8,75 +10,87 @@ export type QRCodeType =
   | 'sms' 
   | 'wifi' 
   | 'vcard' 
-  | 'location'
+  | 'location';
 
 // Base QR Code data interface
-interface BaseQRCodeData {
-  type: QRCodeType
-  title?: string
+export interface BaseQRCodeData {
+  type: QRCodeType;
 }
 
+
+export const ERROR_CORRECTION_LEVELS = {
+
+  L: { label: 'Low', description: '7% error recovery' },
+
+  M: { label: 'Medium', description: '15% error recovery' },
+
+  Q: { label: 'Quartile', description: '25% error recovery' },
+
+  H: { label: 'High', description: '30% error recovery' }
+
+} as const;
+
 // URL QR Code
-interface URLQRCodeData extends BaseQRCodeData {
-  type: 'url'
-  url: string
+export interface URLQRCodeData extends BaseQRCodeData {
+  type: 'url';
+  url: string;
 }
 
 // Text QR Code
-interface TextQRCodeData extends BaseQRCodeData {
-  type: 'text'
-  text: string
+export interface TextQRCodeData extends BaseQRCodeData {
+  type: 'text';
+  text: string;
 }
 
 // Email QR Code
-interface EmailQRCodeData extends BaseQRCodeData {
-  type: 'email'
-  email: string
-  subject?: string
-  body?: string
+export interface EmailQRCodeData extends BaseQRCodeData {
+  type: 'email';
+  email: string;
+  subject?: string;
+  body?: string;
 }
 
 // Phone QR Code
-interface PhoneQRCodeData extends BaseQRCodeData {
-  type: 'phone'
-  phone: string
+export interface PhoneQRCodeData extends BaseQRCodeData {
+  type: 'phone';
+  phone: string;
 }
 
 // SMS QR Code
-interface SMSQRCodeData extends BaseQRCodeData {
-  type: 'sms'
-  phone: string
-  message?: string
+export interface SMSQRCodeData extends BaseQRCodeData {
+  type: 'sms';
+  phone: string;
+  message?: string;
 }
 
 // WiFi QR Code
-interface WiFiQRCodeData extends BaseQRCodeData {
-  type: 'wifi'
-  ssid: string
-  password?: string
-  networkType: 'WEP' | 'WPA' | 'nopass'
-  hidden: boolean
+export interface WiFiQRCodeData extends BaseQRCodeData {
+  type: 'wifi';
+  ssid: string;
+  password?: string;
+  networkType: 'WEP' | 'WPA' | 'nopass';
+  hidden: boolean;
 }
 
 // vCard QR Code
-interface VCardQRCodeData extends BaseQRCodeData {
-  type: 'vcard'
-  firstName: string
-  lastName?: string
-  organization?: string
-  title?: string
-  email?: string
-  phone?: string
-  website?: string
-  address?: string
+export interface VCardQRCodeData extends BaseQRCodeData {
+  type: 'vcard';
+  firstName: string;
+  lastName?: string;
+  organization?: string;
+  title?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
 }
 
 // Location QR Code
-interface LocationQRCodeData extends BaseQRCodeData {
-  type: 'location'
-  latitude: number
-  longitude: number
-  name?: string
+export interface LocationQRCodeData extends BaseQRCodeData {
+  type: 'location';
+  latitude: number;
+  longitude: number;
+  name?: string;
 }
 
 // Union type of all QR code data types
@@ -88,173 +102,50 @@ export type QRCodeData =
   | SMSQRCodeData
   | WiFiQRCodeData
   | VCardQRCodeData
-  | LocationQRCodeData
+  | LocationQRCodeData;
 
-  export interface QRStyleOptions {
-    // Basic Options
-    size: number
-    margin: number
-    errorCorrection: 'L' | 'M' | 'Q' | 'H'
-  
-    // Colors
-    foregroundColor: string
-    backgroundColor: string
-    gradientType?: 'linear' | 'radial'
-    gradientColors?: {
-      start: string
-      end: string
-      direction?: number // degrees for linear gradient
-    }
-  
-    // Pattern
-    dotStyle?: 'square' | 'rounded' | 'dots' | 'classy' | 'sharp'
-    cornerStyle?: 'square' | 'rounded' | 'dots'
-    cornerDotStyle?: 'square' | 'dot'
-  
-    // Frame
-    frame?: boolean
-    frameColor?: string
-    frameSize?: number
-    frameStyle?: 'basic' | 'modern' | 'vintage'
-    frameText?: string
-    frameTextColor?: string
-    
-    // Logo
-    logo?: string
-    logoSize?: number
-    logoPadding?: number
-    logoBackgroundColor?: string
-    logoOpacity?: number
-    
-    // Effects
-    shadow?: boolean
-    shadowColor?: string
-    shadowBlur?: number
-    shadowOffsetX?: number
-    shadowOffsetY?: number
-    
-    // Animation
-    animated?: boolean
-    animationType?: 'fade' | 'slide' | 'bounce'
-    animationDuration?: number
-  }
-
-// QR code metadata for storage
-export interface QRCodeMetadata {
-  id: string
-  userId: string
-  title: string
-  type: QRCodeType
-  data: QRCodeData
-  style: QRStyleOptions
-  scans: number
-  created: Date
-  updated: Date
+// Style Options
+export interface QRStyleOptions {
+  shadowColor?: string;
+  shadowBlur?: number;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  animated?: boolean;
+  animationType?: 'fade' | 'slide' | 'bounce';
+  animationDuration?: number;
+  size: number;
+  margin: number;
+  errorCorrection: 'L' | 'M' | 'Q' | 'H';
+  foregroundColor: string;
+  backgroundColor: string;
+  dotStyle?: 'square' | 'dots' | 'rounded' | 'classy' | 'sharp';
+  cornerStyle?: 'square' | 'dots' | 'rounded';
+  frame?: boolean;
+  frameStyle?: 'basic' | 'modern' | 'vintage';
+  frameColor?: string;
+  frameText?: string;
+  frameTextColor?: string;
+  frameSize?: number;
+  gradientType?: 'linear' | 'radial';
+  gradientColors?: {
+    start: string;
+    end: string;
+    direction?: number;
+  };
+  logo?: string;
+  logoSize?: number;
+  logoPadding?: number;
+  logoBackgroundColor?: string;
+  logoOpacity?: number;
 }
 
-// Analytics data
-export interface QRCodeAnalytics {
-  scans: number
-  uniqueScans: number
-  locations: {
-    country: string
-    count: number
-  }[]
-  devices: {
-    type: string
-    count: number
-  }[]
-  browsers: {
-    name: string
-    count: number
-  }[]
-  timeRanges: {
-    date: string
-    count: number
-  }[]
+// QR Type Info
+export interface QRTypeInfo {
+  name: string;
+  description: string;
+  icon: LucideIcon;
 }
 
-// Template interface
-export interface QRCodeTemplate {
-  id: string
-  name: string
-  description?: string
-  style: QRStyleOptions
-  previewData: QRCodeData
-  isPublic: boolean
-  userId: string
-  created: Date
-  updated: Date
-}
-
-// History item interface
-export interface QRCodeHistoryItem {
-  id: string
-  url: string
-  title: string
-  type: QRCodeType
-  created: Date
-}
-
-// Export constants
-export const QR_CODE_SIZES = {
-  min: 100,
-  max: 2000,
-  default: 400,
-} as const
-
-export const QR_CODE_MARGINS = {
-  min: 0,
-  max: 10,
-  default: 4,
-} as const
-
-export const ERROR_CORRECTION_LEVELS = {
-  L: { value: 'L', label: 'Low (7%)', description: 'Best for clean environments' },
-  M: { value: 'M', label: 'Medium (15%)', description: 'Balanced protection' },
-  Q: { value: 'Q', label: 'High (25%)', description: 'For minor damage resistance' },
-  H: { value: 'H', label: 'Highest (30%)', description: 'Best damage resistance' },
-} as const
-
-export const QR_CODE_TYPES = {
-  url: {
-    name: 'URL',
-    description: 'Create QR code for website links',
-    icon: 'Link'
-  },
-  text: {
-    name: 'Text',
-    description: 'Create QR code for plain text',
-    icon: 'Type'
-  },
-  email: {
-    name: 'Email',
-    description: 'Create QR code for email address',
-    icon: 'Mail'
-  },
-  phone: {
-    name: 'Phone',
-    description: 'Create QR code for phone numbers',
-    icon: 'Phone'
-  },
-  sms: {
-    name: 'SMS',
-    description: 'Create QR code for text messages',
-    icon: 'MessageSquare'
-  },
-  wifi: {
-    name: 'WiFi',
-    description: 'Create QR code for WiFi networks',
-    icon: 'Wifi'
-  },
-  vcard: {
-    name: 'vCard',
-    description: 'Create QR code for contact information',
-    icon: 'Contact'
-  },
-  location: {
-    name: 'Location',
-    description: 'Create QR code for geographic locations',
-    icon: 'MapPin'
-  },
-} as const
+export type QRTypes = {
+  [K in QRCodeType]: QRTypeInfo;
+};

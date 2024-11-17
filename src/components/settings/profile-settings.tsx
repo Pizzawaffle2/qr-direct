@@ -1,6 +1,18 @@
+// src/components/settings/profile-settings.tsx
 "use client";
 
-import { User } from "next-auth";
+enum UserRole {
+  USER = "USER",
+  ADMIN = "ADMIN"
+}
+
+enum SubscriptionStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  TRIAL = "TRIAL"
+}
+
+import { User as NextAuthUser } from "next-auth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -34,6 +46,15 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+interface User {
+  id: string;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  lastLoginAt: Date; // Ensure this property is included
+}
 interface ProfileSettingsProps {
   user: User;
 }
@@ -84,72 +105,17 @@ export function ProfileSettings({ user }: ProfileSettingsProps) {
     <Card>
       <CardHeader>
         <CardTitle>Profile</CardTitle>
-        <CardDescription>
-          Manage your public profile information
-        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public username.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="bio"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Tell us a little bit about yourself"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Brief description for your profile. URLs are hyperlinked.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save changes"}
-            </Button>
-          </form>
-        </Form>
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <label htmlFor="name">Name</label>
+          <Input id="name" type="text" defaultValue={user.name || ''} />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="email">Email</label>
+          <Input id="email" type="email" defaultValue={user.email || ''} />
+        </div>
+        <Button type="submit">Save Changes</Button>
       </CardContent>
     </Card>
   );

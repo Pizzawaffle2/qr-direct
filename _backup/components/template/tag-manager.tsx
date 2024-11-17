@@ -117,6 +117,8 @@ export function TagManager({ onSelect, selected }: TagManagerProps) {
             <Badge key={tag.id} variant="secondary">
               {tag.name}
               <button
+                type="button"
+                title="Remove tag"
                 className="ml-1 hover:text-destructive"
                 onClick={() => onSelect(selected.filter(id => id !== tag.id))}
               >

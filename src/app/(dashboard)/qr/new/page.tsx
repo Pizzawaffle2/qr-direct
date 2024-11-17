@@ -4,7 +4,7 @@
 import { useSession } from "next-auth/react"
 import { QRCreator } from "@/components/qr/creator"
 import { Card } from "@/components/ui/card"
-import { SubscriptionRequired } from "@/components/subscription/subscription-required"
+import { SubscriptionRequired } from "@/components/auth/subscription-required"
 
 export default function NewQRPage() {
   const { data: session } = useSession()

@@ -43,7 +43,7 @@ const getErrorMessage = (error: string | null) => {
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams?.get('error');
   const { title, message, action } = getErrorMessage(error);
 
   return (

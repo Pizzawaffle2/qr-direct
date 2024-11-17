@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { useToast } from "@/components/ui/use-toast"
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -15,50 +15,50 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Shield, Key, Smartphone } from "lucide-react"
+} from "@/components/ui/dialog";
+import { Shield, Key, Smartphone } from "lucide-react";
 
 export function SecuritySettings() {
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false)
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
-  const { toast } = useToast()
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const { toast } = useToast();
 
   const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       // Add your password change logic here
       toast({
         title: "Password updated",
         description: "Your password has been changed successfully.",
-      })
-      setShowPasswordDialog(false)
+      });
+      setShowPasswordDialog(false);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handle2FAToggle = async (enabled: boolean) => {
     try {
       // Add your 2FA toggle logic here
-      setIs2FAEnabled(enabled)
+      setIs2FAEnabled(enabled);
       toast({
         title: enabled ? "2FA Enabled" : "2FA Disabled",
         description: enabled
           ? "Two-factor authentication has been enabled."
           : "Two-factor authentication has been disabled.",
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update 2FA settings.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   return (
     <Card>
@@ -175,5 +175,5 @@ export function SecuritySettings() {
         </DialogContent>
       </Dialog>
     </Card>
-  )
+  );
 }

@@ -7,8 +7,8 @@ import { Github, Mail } from 'lucide-react';
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/';
-  const error = searchParams.get('error');
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
+  const error = searchParams?.get('error');
 
   const handleSignIn = async (provider: string) => {
     try {

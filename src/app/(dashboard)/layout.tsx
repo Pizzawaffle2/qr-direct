@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth/config";
-import { DashboardHeader } from "@/components/dashboard/header";
+import { Header } from "@/components/dashboard/header";
 import { DashboardNav } from "@/components/dashboard/nav";
-import { DashboardFooter } from "@/components/dashboard/footer";
+import { Footer } from "@/components/dashboard/footer";
 
 export default async function DashboardLayout({
   children,
@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <DashboardHeader user={session.user} />
+      <Header user={{...session.user, lastLoginAt: new Date()}} />
 
       {/* Main Content */}
       <div className="flex-1 flex">
@@ -33,7 +33,7 @@ export default async function DashboardLayout({
       </div>
 
       {/* Footer */}
-      <DashboardFooter />
+      <Footer />
     </div>
   );
 }

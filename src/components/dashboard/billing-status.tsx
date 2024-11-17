@@ -16,6 +16,10 @@ import {
   Clock
 } from "lucide-react";
 
+interface BillingError {
+  message: string;
+}
+
 export function BillingStatus() {
   const router = useRouter();
   const { toast } = useToast();
@@ -24,26 +28,29 @@ export function BillingStatus() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
-    async function fetchSubscription() {
+    const fetchSubscription = async () => {
       try {
         setIsLoading(true);
         const response = await fetch('/api/user/subscription');
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch subscription');
+          const error = await response.json() as BillingError;
+          throw new Error(error.message || 'Failed to fetch subscription');
         }
+        
         const data = await response.json();
         setSubscription(data);
       } catch (error) {
         console.error('Failed to fetch subscription:', error);
         toast({
           title: "Error",
-          description: "Failed to load subscription details",
+          description: error instanceof Error ? error.message : 'Failed to load subscription details',
           variant: "destructive",
         });
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     fetchSubscription();
   }, [toast]);
@@ -59,18 +66,22 @@ export function BillingStatus() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create portal session');
+        const error = await response.json() as BillingError;
+        throw new Error(error.message || 'Failed to create portal session');
       }
 
       const data = await response.json();
-      if (data.url) {
-        router.push(data.url);
+      
+      if (!data?.url) {
+        throw new Error('No portal URL received');
       }
+
+      window.location.href = data.url;
     } catch (error) {
       console.error('Failed to manage subscription:', error);
       toast({
         title: "Error",
-        description: "Failed to access subscription management",
+        description: error instanceof Error ? error.message : 'Failed to access subscription management',
         variant: "destructive",
       });
     } finally {
@@ -129,10 +140,12 @@ export function BillingStatus() {
     }
   };
 
-  const daysLeft = Math.ceil(
-    (new Date(subscription.currentPeriodEnd).getTime() - new Date().getTime()) / 
-    (1000 * 60 * 60 * 24)
-  );
+  const daysLeft = subscription.currentPeriodEnd 
+    ? Math.ceil(
+        (new Date(subscription.currentPeriodEnd).getTime() - new Date().getTime()) / 
+        (1000 * 60 * 60 * 24)
+      )
+    : 0;
 
   const progressValue = Math.max(0, Math.min(100, (1 - (daysLeft / 30)) * 100));
 
@@ -146,7 +159,9 @@ export function BillingStatus() {
             <p className="text-sm text-muted-foreground">
               {subscription.cancelAtPeriodEnd
                 ? "Cancels at end of billing period"
-                : `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`}
+                : subscription.currentPeriodEnd 
+                  ? `Renews ${new Date(subscription.currentPeriodEnd).toLocaleDateString()}`
+                  : "No renewal date set"}
             </p>
           </div>
         </div>
@@ -159,13 +174,15 @@ export function BillingStatus() {
         </Button>
       </div>
 
-      <div className="mt-4">
-        <div className="flex items-center justify-between text-sm mb-2">
-          <span className="text-muted-foreground">Billing period</span>
-          <span>{daysLeft} days left</span>
+      {subscription.currentPeriodEnd && (
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span className="text-muted-foreground">Billing period</span>
+            <span>{daysLeft} days left</span>
+          </div>
+          <Progress value={progressValue} className="h-2" />
         </div>
-        <Progress value={progressValue} className="h-2" />
-      </div>
+      )}
     </Card>
   );
 }

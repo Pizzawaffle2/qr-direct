@@ -1,87 +1,103 @@
-// src/components/qr/creator.tsx
-"use client"
+  "use client"
 
-import { useState } from "react"
-import { TypeSelector } from "./type-selector"
-import { StyleEditor } from "./style-editor"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { Loader2, Download, Save } from "lucide-react"
-import { QRCodeData, QRStyleOptions } from "@/types/qr"
-import { QRPreview } from "./preview"
+  import { useState } from "react"
+  import { QRTypeSelector } from "./type-selector"
+  import { StyleEditor } from "./style-editor"
+  import { Button } from "@/components/ui/button"
+  import { useToast } from "@/components/ui/use-toast"
+  import { Loader2, Download, Save } from "lucide-react"
+  import { QRCodeData, QRStyleOptions } from "@/types/qr"
+  import QRPreview from "./preview"
 
-export function QRCreator() {
-  const [qrData, setQrData] = useState<Partial<QRCodeData>>({})
-  const [style, setStyle] = useState<QRStyleOptions>({
-    size: 400,
-    margin: 4,
-    backgroundColor: "#FFFFFF",
-    foregroundColor: "#000000",
-    errorCorrection: "M",
-  })
-  const [isGenerating, setIsGenerating] = useState(false)
-  const { toast } = useToast()
+  const QR_TYPES = {
+    url: { name: "URL", icon: "Link" },
+    text: { name: "Text", icon: "Type" },
+    email: { name: "Email", icon: "Mail" },
+    phone: { name: "Phone", icon: "Phone" },
+    sms: { name: "SMS", icon: "MessageSquare" },
+    wifi: { name: "WiFi", icon: "Wifi" },
+    location: { name: "Location", icon: "MapPin" },
+    event: { name: "Event", icon: "Calendar" }
+  } as const
+  
+  export function QRCreator() {
+    const [qrData, setQrData] = useState<Partial<QRCodeData>>({})
+    const [style, setStyle] = useState<QRStyleOptions>({
+      size: 400,
+      margin: 4,
+      backgroundColor: "#FFFFFF",
+      foregroundColor: "#000000",
+      errorCorrection: "M",
+    })
+    const [isGenerating, setIsGenerating] = useState(false)
+    const { toast } = useToast()
 
-  const handleGenerate = async () => {
-    try {
-      setIsGenerating(true)
-      const response = await fetch("/api/qr/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: qrData, style }),
-      })
+    const handleGenerate = async () => {
+      // Validate required data before proceeding
+      if (!qrData.type) {
+        toast({
+          title: "Error",
+          description: "Please select a QR code type",
+          variant: "destructive",
+        })
+        return
+      }
 
-      if (!response.ok) throw new Error("Failed to generate QR code")
+      try {
+        setIsGenerating(true)
+        const response = await fetch("/api/qr/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data: qrData, style }),
+        })
 
-      const result = await response.json()
-      toast({
-        title: "Success",
-        description: "QR code generated successfully",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate QR code",
-        variant: "destructive",
-      })
-    } finally {
-      setIsGenerating(false)
+        if (!response.ok) {
+          throw new Error(`Failed to generate QR code: ${response.statusText}`)
+        }
+
+        const result = await response.json()
+        
+        // Only show success toast if we have a valid result
+        if (result) {
+          toast({
+            title: "Success",
+            description: "QR code generated successfully",
+          })
+        }
+      } catch (error) {
+        console.error('QR generation error:', error)
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to generate QR code",
+          variant: "destructive"
+        })
+      } finally {
+        setIsGenerating(false)
+      }
     }
-  }
 
-  return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="space-y-6">
-        <TypeSelector
-          value={qrData}
-          onChange={setQrData}
+    return (
+      <div className="space-y-4">
+        <QRTypeSelector 
+          selectedType={qrData.type || ''} 
+          types={QR_TYPES}
+          onChange={(type) => setQrData((prev) => ({ ...prev, type: type as QRCodeData['type'] }))} 
         />
-        <StyleEditor
-          value={style}
-          onChange={setStyle}
-        />
-        <div className="flex gap-4">
-          <Button
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="w-full"
+        <StyleEditor value={style} onChange={setStyle} />
+        <QRPreview data={qrData} style={style} />
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleGenerate} 
+            disabled={isGenerating || !qrData.type}
           >
             {isGenerating ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Generate"
+              <Save className="mr-2 h-4 w-4" />
             )}
+            Generate QR Code
           </Button>
         </div>
       </div>
-      
-      <div>
-        <QRPreview
-          data={qrData}
-          style={style}
-          isGenerating={isGenerating}
-        />
-      </div>
-    </div>
-  )
-}
+    )
+  }

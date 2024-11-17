@@ -8,7 +8,7 @@ interface MonthGridProps {
   month: number;
   events: Record<number, CalendarEvent[]>;
   weather: Record<number, WeatherData>;
-  onAddEvent: (day: number, event: string) => void;
+  onAddEvent: (day: number, event: CalendarEvent) => void;
   isEditing: boolean;
 }
 
@@ -53,6 +53,8 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
               events={events[day] || []}
               weather={weather[day]}
               onAddEvent={(event) => onAddEvent(day, event)}
+              onRemoveEvent={() => {}}
+              onUpdateEvents={() => {}}
               isEditing={isEditing}
             />
           )}

@@ -1,0 +1,29 @@
+/* src/components/preview.module.css */
+.frame {
+  border-color: var(--qr-frame-color);
+  background-color: var(--qr-background-color);
+}
+
+.frameText {
+  color: var(--qr-frame-text-color);
+}
+
+.qrContainer {
+  background-color: var(--qr-background-color);
+  background-image: var(--qr-gradient);
+}
+
+.qrContainer.withShadow {
+  box-shadow: var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur) var(--qr-shadow-color);
+}
+
+.qrCode {
+  color: var(--qr-foreground-color);
+}
+
+.logo {
+  width: var(--qr-logo-size);
+  padding: var(--qr-logo-padding);
+  background-color: var(--qr-logo-background);
+  opacity: var(--qr-logo-opacity);
+}

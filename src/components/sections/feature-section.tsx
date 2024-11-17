@@ -1,54 +1,100 @@
-import { QrCode, Calendar, BarChart3, Shield } from 'lucide-react';
+"use client";
+
+import { motion } from "framer-motion";
+import { 
+  Paintbrush, 
+  BarChart2, 
+  Zap, 
+  Smartphone, 
+  Shield, 
+  QrCode,
+  Download,
+  Share2,
+  Palette
+} from "lucide-react";
 
 const features = [
   {
-    icon: QrCode,
-    title: 'Advanced QR Codes',
-    description: 'Create dynamic QR codes with custom designs, tracking, and analytics.',
+    icon: Paintbrush,
+    title: "Custom Design",
+    description: "Create unique QR codes with custom colors, patterns, and frames",
   },
   {
-    icon: Calendar,
-    title: 'Custom Calendars',
-    description: 'Generate professional calendars with your branding and events.',
+    icon: BarChart2,
+    title: "Analytics",
+    description: "Track scans, locations, and engagement in real-time",
   },
   {
-    icon: BarChart3,
-    title: 'Detailed Analytics',
-    description: 'Track scans, engagement, and user behavior in real-time.',
+    icon: Zap,
+    title: "Dynamic Content",
+    description: "Update QR code content anytime without reprinting",
+  },
+  {
+    icon: Smartphone,
+    title: "Mobile Optimized",
+    description: "Perfect scanning experience on all devices",
   },
   {
     icon: Shield,
-    title: 'Enterprise Security',
-    description: 'Bank-level security with encrypted data and access controls.',
+    title: "Secure & Reliable",
+    description: "Enterprise-grade security and 99.9% uptime",
+  },
+  {
+    icon: Download,
+    title: "Easy Export",
+    description: "Download in multiple formats including SVG and PNG",
+  },
+  {
+    icon: Share2,
+    title: "Team Sharing",
+    description: "Collaborate with team members and share assets",
+  },
+  {
+    icon: Palette,
+    title: "Templates",
+    description: "Choose from professionally designed templates",
   },
 ];
 
 export function FeatureSection() {
   return (
-    <div className="space-y-16">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">
-          Everything You Need
-        </h2>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-          Powerful features to help you manage your QR codes and calendars effectively
-        </p>
+    <div className="py-12">
+      <div className="text-center mb-16">
+        <motion.h2 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl font-bold sm:text-4xl mb-4"
+        >
+          Everything You Need to Create
+          <br />
+          <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+            Professional QR Codes
+          </span>
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-muted-foreground mx-auto max-w-2xl"
+        >
+          All the tools and features you need to create, manage, and track your QR codes in one place.
+        </motion.p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {features.map((feature) => (
-          <div
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {features.map((feature, index) => (
+          <motion.div
             key={feature.title}
-            className="p-6 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-colors"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="relative rounded-lg border bg-card p-6 shadow-lg hover:shadow-xl transition-shadow"
           >
-            <feature.icon className="h-12 w-12 text-blue-400 mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              {feature.title}
-            </h3>
-            <p className="text-gray-400">
-              {feature.description}
-            </p>
-          </div>
+            <feature.icon className="h-12 w-12 mb-4 text-blue-500" />
+            <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+            <p className="text-sm text-muted-foreground">{feature.description}</p>
+          </motion.div>
         ))}
       </div>
     </div>

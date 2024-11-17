@@ -1,92 +1,155 @@
-// src/components/calendar/calendar-day.tsx
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { CalendarEvent, WeatherData } from '@/types/calendar';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { WeatherData, CalendarEvent } from '@/types/calendar';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandInput, CommandList, CommandGroup, CommandItem } from '@/components/ui/command';
+import { Textarea } from '@/components/ui/textarea';
+import { Plus, X, Menu } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-interface CalendarDayProps {
-  day: number;
-  events: CalendarEvent[];
-  weather?: WeatherData;
-  onAddEvent: (event: string) => void;
-  isEditing: boolean;
+interface CalendarEventType {
+  id: string;
+  title: string;
+  date: string;
+  type: 'event' | 'reminder';
 }
 
+export interface CalendarDayProps {
+  day: number;
+  events: CalendarEvent[];
+  weather: WeatherData;
+  onAddEvent: (event: CalendarEvent) => void;
+  isEditing: boolean;
+  onRemoveEvent: (id: string) => void;
+  onUpdateEvents: (events: CalendarEvent[]) => void;
+}
 export const CalendarDay: React.FC<CalendarDayProps> = ({
   day,
   events,
-  weather,
-  onAddEvent,
-  isEditing
+  isEditing,
+  onRemoveEvent,
+  onUpdateEvents,
+  onAddEvent
 }) => {
-  const [showAdd, setShowAdd] = useState(false);
-  const [newEvent, setNewEvent] = useState('');
+  const [quickAdd, setQuickAdd] = useState('');
+  const [isAddingText, setIsAddingText] = useState(false);
+  const quickAddRef = useRef<HTMLInputElement>(null);
+
+  const addQuickEvent = () => {
+    onAddEvent({
+      id: crypto.randomUUID(),
+      title: quickAdd,
+      date: new Date(),
+      type: 'event'
+    });
+    
+    setQuickAdd('');
+  };
+
+  const onUpdateEvent = (id: string, updatedEvent: { title: string }) => {
+    const updatedEvents = events.map(event => 
+      event.id === id ? { ...event, ...updatedEvent } : event
+    );
+    onUpdateEvents(updatedEvents);
+  };
 
   return (
-    <div className="relative min-h-24 p-1 border border-gray-200 hover:bg-gray-50 transition-colors">
-      <div className="flex justify-between items-start">
+    <div className="h-full p-2 hover:bg-gray-50/50 group">
+      <div className="flex items-center justify-between mb-1">
         <span className="text-sm font-medium">{day}</span>
         {isEditing && (
-          <button
-            type="button"
-            title="Add new event"
-            onClick={() => setShowAdd(true)}
-            className="p-1 rounded-full hover:bg-gray-200 transition-colors print:hidden"
-          >
-            <Plus className="h-3 w-3" />
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <Command>
+                <CommandInput 
+                  placeholder="Type an event..."
+                  value={quickAdd}
+                  onValueChange={setQuickAdd}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') addQuickEvent();
+                  }}
+                />
+                <CommandList>
+                  <CommandGroup heading="Quick Actions">
+                    <CommandItem onSelect={() => setIsAddingText(true)}>
+                      <Menu className="mr-2 h-4 w-4" />
+                      Add detailed note
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         )}
       </div>
-      
-      {weather && (
-        <div className="text-xs text-gray-500 mt-1">
-          {weather.icon} {weather.temp}°
-        </div>
-      )}
-      
-      <div className="space-y-1 mt-2">
+
+      {/* Events display */}
+      <div className="space-y-1">
         <AnimatePresence>
-          {events?.map((event, idx) => (
+          {events.map((event) => (
             <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="text-xs p-1 rounded bg-blue-100 text-blue-800"
+              key={event.id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className={cn(
+                "relative group/event text-sm p-1.5 rounded-sm",
+                "hover:ring-1 hover:ring-gray-200 hover:bg-white/50",
+                event.type === 'reminder' ? "bg-gray-50" : "bg-blue-50/50"
+              )}
             >
-              {event.title}
+              <div className="flex items-start gap-1 min-h-[20px]">
+                {event.type === 'event' ? (
+                  <Textarea
+                    value={event.title}
+                    onChange={(e) => onUpdateEvent(event.id, { title: e.target.value })}
+                    className="min-h-[60px] text-xs resize-none bg-transparent"
+                    placeholder="Add note..."
+                    disabled={!isEditing}
+                  />
+                ) : (
+                  <span className="text-xs">{event.title}</span>
+                )}
+              </div>
+              {isEditing && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onRemoveEvent(event.id)}
+                  className="absolute -right-1 -top-1 h-5 w-5 p-0 opacity-0 group-hover/event:opacity-100"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>
-      </div>
 
-      {showAdd && (
-        <div className="absolute inset-0 bg-white p-2 shadow-lg z-10">
+        {/* Quick add input - visible on hover when editing */}
+        {isEditing && !events.length && (
           <input
-            autoFocus
+            ref={quickAddRef}
             type="text"
-            value={newEvent}
-            onChange={(e) => setNewEvent(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && newEvent.trim()) {
-                onAddEvent(newEvent);
-                setNewEvent('');
-                setShowAdd(false);
-              }
+            placeholder="Click to add..."
+            className="w-full text-xs px-1.5 py-1 bg-transparent border-0 focus:ring-0 placeholder:text-gray-400 cursor-text"
+            value={quickAdd}
+            onChange={(e) => setQuickAdd(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') addQuickEvent();
             }}
-            className="w-full text-sm p-1 border rounded"
-            placeholder="Add event..."
           />
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => setShowAdd(false)}
-              className="text-xs text-gray-500 hover:text-gray-700"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ export function QRTypeSelector({
   return (
     <div>
       {Object.entries(types).map(([key, { name, icon }]: [string, { name: string; icon: keyof typeof Icons }]) => {
-        const Icon = Icons[icon];
+        const Icon: LucideIcon = Icons[icon] as LucideIcon;
         return (
           <Button
             key={key}
@@ -30,7 +30,7 @@ export function QRTypeSelector({
             )}
             onClick={() => onChange(key)}
           >
-            <Icon className="h-6 w-6" />
+            {Icon && <Icon className="h-6 w-6" />}
             <span>{name}</span>
           </Button>
         );

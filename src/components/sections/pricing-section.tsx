@@ -1,89 +1,124 @@
-import { Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Check } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
-    name: 'Free',
-    price: '0',
-    description: 'Perfect for getting started',
+    name: "Basic",
+    price: "Free",
+    description: "Perfect for getting started",
     features: [
-      'Up to 10 QR codes',
-      'Basic analytics',
-      'Standard templates',
-      'Email support',
+      "Basic QR code generation",
+      "Standard templates",
+      "Basic analytics",
+      "PNG downloads",
     ],
+    cta: "Get Started",
+    popular: false
   },
   {
-    name: 'Pro',
-    price: '29',
-    description: 'Best for professionals',
+    name: "Pro",
+    price: "$14",
+    period: "per month",
+    description: "Best for professionals",
     features: [
-      'Unlimited QR codes',
-      'Advanced analytics',
-      'Custom templates',
-      'Priority support',
-      'Custom branding',
-      'API access',
+      "Everything in Basic",
+      "Custom design options",
+      "Advanced analytics",
+      "Team collaboration"
     ],
+    cta: "Start Free Trial",
+    popular: true
   },
   {
-    name: 'Enterprise',
-    price: 'Custom',
-    description: 'For large organizations',
+    name: "Enterprise",
+    price: "Custom",
+    description: "For large organizations",
     features: [
-      'Everything in Pro',
-      'Dedicated support',
-      'SLA guarantees',
-      'Custom integrations',
-      'Team management',
-      'Advanced security',
+      "Everything in Pro",
+      "Custom branding",
+      "API access",
+      "Custom integrations",
     ],
-  },
+    cta: "Contact Sales",
+    popular: false
+  }
 ];
 
 export function PricingSection() {
   return (
-    <div className="space-y-16">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">
+    <div className="py-12">
+      <div className="text-center mb-16">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-3xl font-bold sm:text-4xl mb-4"
+        >
           Simple, Transparent Pricing
-        </h2>
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-          Choose the perfect plan for your needs
-        </p>
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-muted-foreground mx-auto max-w-2xl"
+        >
+          Choose the perfect plan for your needs. All plans include core features.
+        </motion.p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {plans.map((plan) => (
-          <div
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {plans.map((plan, index) => (
+          <motion.div
             key={plan.name}
-            className="p-8 rounded-lg bg-white/5 border border-white/10 space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className={`relative rounded-lg border ${
+              plan.popular ? 'border-blue-500 shadow-blue-500/25' : ''
+            } bg-card p-8 shadow-lg`}
           >
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {plan.name}
-              </h3>
-              <p className="text-gray-400">{plan.description}</p>
+            {plan.popular && (
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <div className="rounded-full bg-blue-500 px-4 py-1 text-xs font-semibold">
+                  Most Popular
+                </div>
+              </div>
+            )}
+
+            <div className="mb-6">
+              <h3 className="text-xl font-bold">{plan.name}</h3>
+              <div className="mt-2">
+                <span className="text-4xl font-bold">{plan.price}</span>
+                {plan.period && (
+                  <span className="text-muted-foreground"> {plan.period}</span>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {plan.description}
+              </p>
             </div>
 
-            <div className="text-4xl font-bold text-white">
-              ${plan.price}
-              {plan.price !== 'Custom' && <span className="text-lg">/mo</span>}
-            </div>
-
-            <ul className="space-y-4">
+            <ul className="mb-6 space-y-4">
               {plan.features.map((feature) => (
-                <li key={feature} className="flex items-center text-gray-300">
-                  <Check className="h-5 w-5 text-blue-400 mr-2" />
-                  {feature}
+                <li key={feature} className="flex items-center">
+                  <Check className="mr-3 h-4 w-4 text-green-500" />
+                  <span className="text-sm">{feature}</span>
                 </li>
               ))}
             </ul>
 
-            <Button className="w-full" variant={plan.name === 'Pro' ? 'default' : 'outline'}>
-              Get Started
+            <Button 
+              className="w-full" 
+              variant={plan.popular ? "default" : "outline"}
+              asChild
+            >
+              <Link href="/signup">{plan.cta}</Link>
             </Button>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

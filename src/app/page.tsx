@@ -28,13 +28,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="py-24 bg-slate-950">
-        <div className="container mx-auto px-4">
-          <TestimonialSection />
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-slate-950 to-indigo-950">
         <div className="container mx-auto px-4">

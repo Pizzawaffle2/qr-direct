@@ -1,4 +1,3 @@
-
 // src/components/calendar/constants.ts
 import { ThemeOptionType, FrameOptionType, FontOptionType, ThemeOption, FrameOption, FontOption } from './types' // Ensure this file exists and is correctly referenced
 
@@ -205,3 +204,16 @@ export const FONT_CLASSES = {
 // Usage example:
 // import { useCallback } from 'react'
 // import { cn } from '@/lib/utils'
+
+// src/types/calendar.ts
+export interface LocalCalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  type: 'event' | 'reminder';
+}
+
+export interface WeatherData {
+  temperature: number;
+  condition: string;
+}
