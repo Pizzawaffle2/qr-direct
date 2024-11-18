@@ -1,254 +1,237 @@
 import NextAuth, { type NextAuthOptions, DefaultSession, Session } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import GitHubProvider from "next-auth/providers/github"
-import LinkedInProvider from "next-auth/providers/linkedin"
+// import LinkedInProvider from "next-auth/providers/linkedin"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/db/prisma"
 import { JWT } from "next-auth/jwt"
+import { UserRole, SubscriptionStatus, SubscriptionTier } from "@/types/user"
+import { USER_ROLE, SUBSCRIPTION_STATUS, SUBSCRIPTION_TIER } from "@/constants/user"
+import EmailProvider from 'next-auth/providers/email';
 
-// Extend the built-in session types
-declare module "next-auth" {
+
+// Extended User type with additional safety features
+interface ExtendedUser {
+  id: string;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+  stripeCustomerId?: string | null;
+  subscriptionTier?: SubscriptionTier;
+  emailVerified?: Date | null;
+  lastLogin?: Date;
+  failedLoginAttempts?: number;
+  lockedUntil?: Date | null;
+}
+
+
+// Type extensions
+declare module 'next-auth' {
+  interface User extends ExtendedUser {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+
   interface Session extends DefaultSession {
-    user: {
-      id: string
-      role: UserRole
-      subscriptionStatus: SubscriptionStatus
-      // Extend this with any other user properties you need
-    } & DefaultSession["user"]
-  }
-
-  interface User {
-    id: string
-    role: UserRole
-    subscriptionStatus: SubscriptionStatus
-    lastLoginAt: Date
-    // Add other user properties here
-  }
+      user: {
+        id: string;
+        role: UserRole;
+        subscriptionStatus: SubscriptionStatus;
+        subscriptionTier?: SubscriptionTier;
+        stripeCustomerId?: string;
+      } & DefaultSession["user"];
+    }
 }
 
-// Extend JWT type
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
-    id: string
-    role: UserRole
-    subscriptionStatus: SubscriptionStatus
-    // Add other token properties here
+      id: string;
+      role: UserRole;
+      subscriptionStatus: SubscriptionStatus;
+      stripeCustomerId?: string | null;
+      subscriptionTier?: SubscriptionTier | null;
+      emailVerified?: Date | null;
+      iat: number;
+      exp: number;
   }
 }
 
-// Enums for type safety
-export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
-  MODERATOR = "MODERATOR"
-}
+// Enhanced helper functions with error handling and logging
+const getUserData = async (userId: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+      stripeCustomerId: true,
+      subscriptionStatus: true,
+      subscriptionTier: true,
+      role: true,
+      emailVerified: true,
+      lastLoginAt: true,
+      lockedUntil: true,
+      failedLoginAttempts: true
+      }
+    });
 
-export enum SubscriptionStatus {
-  FREE = "FREE",
-  PRO = "PRO",
-  ENTERPRISE = "ENTERPRISE"
-}
+    if (!user) {
+      console.warn(`User not found: ${userId}`);
+      return null;
+    }
 
-export enum AuthProvider {
-  GOOGLE = "google",
-  GITHUB = "github",
-  LINKEDIN = "linkedin"
-}
+    // Check if account is locked
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      console.warn(`Account locked for user: ${userId}`);
+      throw new Error('Account is temporarily locked');
+    }
+    return user;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    throw error;
+  }
+};
+const getDefaultUserData = () => ({
+  role: USER_ROLE.USER,
+  subscriptionStatus: SUBSCRIPTION_STATUS.INACTIVE,
+  subscriptionTier: SUBSCRIPTION_TIER.FREE,
+  stripeCustomerId: null,
+  failedLoginAttempts: 0,
+  lockedUntil: null
+});
 
-// Type for provider-specific profile data
-interface ProviderProfile {
-  provider: AuthProvider
-  providerId: string
-  email: string
-  name?: string
-  image?: string
-  metadata?: Record<string, any>
-}
-
-/**
- * Configuration options for NextAuth
- */
+// Enhanced auth configuration with additional security measures
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  
   providers: [
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: Number(process.env.EMAIL_SERVER_PORT),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD
+        },
+        secure: process.env.NODE_ENV === 'production'
+      },
+      from: process.env.EMAIL_FROM
+    }),
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
-        }
-      }
-    }),
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-    LinkedInProvider({
-      clientId: process.env.LINKEDIN_CLIENT_ID!,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
-    })
-  ],
-
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-    verifyRequest: '/auth/verify',
-  },
-
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
-  },
-
-  callbacks: {
-    async jwt({ token, user, account }): Promise<JWT> {
-      try {
-        // Initial sign in
-        if (account && user) {
-          token.id = user.id
-          token.role = user.role
-          token.subscriptionStatus = user.subscriptionStatus
-          
-          // Update last login timestamp
-          await prisma.user.update({
-            data: { lastLoginAt: new Date() }
-          })
-        }
-
-        // Return previous token if it hasn't expired
-        return token
-      } catch (error) {
-        console.error('JWT callback error:', error)
-        return token
-      }
-    },
-
-    async session({ session, token }): Promise<Session> {
-      try {
-        if (session.user) {
-          session.user.id = token.id
-          session.user.role = token.role
-          session.user.subscriptionStatus = token.subscriptionStatus
-        }
-        return session
-      } catch (error) {
-        console.error('Session callback error:', error)
-        return session
-      }
-    },
-
-    async signIn({ user, account, profile }): Promise<boolean> {
-      try {
-        if (!user.email) {
-          throw new Error('Email is required for authentication')
-        }
-
-        const providerData: ProviderProfile = {
-          provider: account?.provider as AuthProvider,
-          providerId: profile?.sub || '',
-          email: user.email,
-          name: user.name || '',
-          image: user.image || '',
-          metadata: profile
-        }
-
-        // Update or create user with provider data
-        await updateUserProfile(user.email, providerData)
-
-        return true
-      } catch (error) {
-        console.error('Sign in callback error:', error)
-        await logAuthError(user.email ?? null, account?.provider, error)
-        return false
+    clientId: process.env.GOOGLE_CLIENT_ID!,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    authorization: {
+      params: {
+        prompt: "consent",
+        access_type: "offline",
+        response_type: "code"
       }
     }
-  },
-
-  events: {
-    async signIn({ user, account, isNewUser }) {
-        await prisma.userActivity.create({
-          data: {
-            userId: user.id,
-            type: isNewUser ? 'SIGN_UP' : 'SIGN_IN',
-            provider: account?.provider,
-            metadata: {
-              isNewUser,
-              userAgent: process.env.USER_AGENT,
-              timestamp: new Date()
-            }
-          }
-        })
-      } catch (error: any) {
-        console.error('Sign in event error:', error)
-      }
-    },
-
-    async signOut({ token }: { token: JWT }) {
-      try {
-        await prisma.userActivity.create({
-          data: {
-            userId: token.id,
-            type: 'SIGN_OUT',
-            metadata: {
-              timestamp: new Date()
-            }
-          }
-        })
-      } catch (error: any) {
-        console.error('Sign out event error:', error)
-      }
-    }
-  },
-
-  debug: process.env.NODE_ENV === 'development'
-}
-
-/**
- * Helper function to update user profile
- */
-async function updateUserProfile(email: string, providerData: ProviderProfile): Promise<void> {
-  await prisma.user.upsert({
-    where: { email },
-    update: {
-      name: providerData.name,
-      image: providerData.image,
-      role: UserRole.USER,
-      subscriptionStatus: SubscriptionStatus.FREE,
-      email: providerData.email,
-      name: providerData.name,
-      image: providerData.image,
-      emailVerified: new Date(),
-    },
-    create: {
-      email: providerData.email,
-      name: providerData.name,
-      image: providerData.image,
-      emailVerified: new Date(),
-      role: UserRole.USER,
-      subscriptionStatus: SubscriptionStatus.FREE,
-      profile: {
-        create: {
-          provider: providerData.provider,
-          providerId: providerData.providerId,
-          metadata: providerData.metadata
-        }
+  }),
+  GitHubProvider({
+    clientId: process.env.GITHUB_CLIENT_ID!,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    authorization: {
+      params: {
+        prompt: "consent"
       }
     }
   })
-}
+],
+callbacks: {
+  async signIn({ user, account }) {
+    try {
+      // Check if email is verified for email provider
+      if (account?.provider === 'email' && !user.emailVerified) {
+        return false;
+      }
 
-/**
- * Helper function to log authentication errors
- */
-async function logAuthError(email: string | null, provider: string | undefined, error: unknown): Promise<void> {
-  console.error(`Auth error for ${email} with provider ${provider}:`, error)
-}
+      // Update last login time
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() }
+      });
 
-// Create and export the auth handler
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+      return true;
+    } catch (error) {
+      console.error('Sign in callback error:', error);
+      return false;
+    }
+  },
+
+  async jwt({ token, user, account }): Promise<JWT> {
+    try {
+      // Initial sign in
+      if (account && user) {
+        const extendedUser = user as unknown as ExtendedUser;
+        return {
+          ...token,
+          id: extendedUser.id,
+          role: extendedUser.role,
+          stripeCustomerId: extendedUser.stripeCustomerId,
+          subscriptionStatus: extendedUser.subscriptionStatus,
+          subscriptionTier: extendedUser.subscriptionTier,
+          emailVerified: extendedUser.emailVerified
+        };
+      }
+
+      // Subsequent calls
+      const userData = await getUserData(token.sub!);
+      
+      if (userData) {
+        return {
+          ...token,
+          role: userData.role as UserRole,
+          stripeCustomerId: userData.stripeCustomerId,
+          subscriptionStatus: userData.subscriptionStatus as SubscriptionStatus,
+          subscriptionTier: userData.subscriptionTier as SubscriptionTier,
+          emailVerified: userData.emailVerified,
+          id: token.sub || ''
+        };
+      }
+    } catch (error) {
+      console.error('JWT callback error:', error);
+    }
+    return {
+      ...token,
+      ...getDefaultUserData(),
+      role: USER_ROLE.USER as UserRole,
+      subscriptionStatus: SUBSCRIPTION_STATUS.INACTIVE as SubscriptionStatus,
+      subscriptionTier: SUBSCRIPTION_TIER.FREE as SubscriptionTier,
+      stripeCustomerId: null,
+      failedLoginAttempts: 0,
+      lockedUntil: null
+    };
+  }
+},
+
+pages: {
+  signIn: '/auth/signin',
+  error: '/auth/error',
+  verifyRequest: '/auth/verify',
+  newUser: '/auth/new-user'
+},
+
+session: {
+  strategy: 'jwt',
+  maxAge: 7 * 24 * 60 * 60, // 7 days
+  updateAge: 24 * 60 * 60 // 24 hours
+},
+
+secret: process.env.NEXTAUTH_SECRET,
+debug: process.env.NODE_ENV === 'development',
+
+events: {
+  async signIn({ user }) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { 
+        lastLoginAt: new Date(),
+        lockedUntil: null
+      }
+    });
+  },
+  async signOut() {
+    // Clean up any necessary session data
+  }
+}
+};
+
+export default NextAuth(authOptions);

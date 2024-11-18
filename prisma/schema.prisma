@@ -58,9 +58,14 @@ model User {
   subscription       Subscription?
   passwordResetToken PasswordResetToken?
   verificationTokens VerificationToken[]
+  lastLoginAt   DateTime @default(now())
+  lastLogin           DateTime?
+  failedLoginAttempts Int      @default(0)
+  lockedUntil         DateTime?
   ownedTeams         Team[]               @relation("TeamOwner")
   teamMemberships    TeamMember[]
   usage              Usage[]
+  role      String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   stripeCustomerId              String?   @unique
@@ -304,6 +309,8 @@ model Settings {
   autoDownload          Boolean @default(false)
   historyLimit         Int     @default(50)
   emailNotifications   Boolean @default(true)
+  preferences Json?
+  name       String? 
 }
 
 model NotificationSetting {
@@ -319,6 +326,22 @@ model NotificationSetting {
   @@index([userId])
 }
 
+model UserActivity {
+
+  id        String   @id @default(cuid())
+
+  userId    String
+
+  type      String
+
+  provider  String?
+
+  metadata  Json
+
+  timestamp DateTime @default(now())
+
+}
+
 model APIKey {
   id        String    @id @default(cuid())
   name      String
@@ -331,6 +354,14 @@ model APIKey {
   
   @@index([userId])
   @@index([key])
+}
+
+enum UserRole {
+
+  USER
+
+  ADMIN
+
 }
 
 enum TeamRole {

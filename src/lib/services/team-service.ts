@@ -10,7 +10,7 @@ import {
   Prisma,
   User
 } from "@prisma/client"
-import { sendTeamInvitation } from "@/lib/email/team-invitation"
+import { sendTeamInvitation } from "@/lib/email/team-invitation.server"
 import { ApiError } from "@/lib/errors"
 
 // Types
@@ -137,7 +137,10 @@ export class TeamService {
       // Get or create user
       const user = await prisma.user.upsert({
         where: { email },
-        create: { email },
+        create: { 
+          email,
+          role: 'USER'
+        },
         update: {},
       })
 
@@ -167,7 +170,7 @@ export class TeamService {
         },
       })
 
-      if (!team) {
+      if (!team || !team.subscription) {
         throw new ApiError('Team not found', 404)
       }
 
@@ -243,6 +246,10 @@ export class TeamService {
         m => m.status === TeamMemberStatus.ACTIVE
       ).length
 
+      if (!invitation.team.subscription) {
+        throw new ApiError('Team subscription not found', 404)
+      }
+
       if (activeMembers >= invitation.team.subscription.maxSeats) {
         throw new ApiError('Team has reached maximum seats', 400)
       }
@@ -316,9 +323,11 @@ export class TeamService {
       })
 
       // Update Stripe quantity if subscription exists
-      if (team.subscription.stripeSubscriptionId) {
+      if (team.subscription?.stripeSubscriptionId) {
         await stripe.subscriptions.update(team.subscription.stripeSubscriptionId, {
-          quantity: team.members.length - 1,
+          items: [{
+            quantity: team.members.length - 1,
+          }],
         })
       }
     } catch (error) {
@@ -387,21 +396,45 @@ export class TeamService {
     }
   }
 
-  private static async generateUniqueSlug(name: string) {
-    const baseSlug = name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
+private static async generateUniqueSlug(name: string) {
+  const baseSlug = name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 
-    let slug = baseSlug
-    let counter = 1
+  let slug = baseSlug
+  let counter = 1
 
-    while (await prisma.team.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${counter}`
-      counter++
+  while (await prisma.team.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  return slug
+}
+
+static async getUserTeams(userId: string) {
+    try {
+      const teamMembers = await prisma.teamMember.findMany({
+        where: {
+          userId,
+          status: TeamMemberStatus.ACTIVE
+        },
+        include: {
+          team: {
+            include: {
+              members: true,
+              subscription: true
+            }
+          }
+        }
+      });
+      
+      return teamMembers.map(member => member.team);
+    } catch (error) {
+      console.error('Get user teams error:', error);
+      throw new ApiError('Failed to fetch user teams', 500);
     }
-
-    return slug
   }
 }

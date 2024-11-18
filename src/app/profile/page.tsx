@@ -16,7 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Photograph, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +27,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -146,14 +148,29 @@ export default function ProfilePage() {
                       className="cursor-pointer flex items-center justify-center"
                       whileHover={{ scale: 1.05 }}
                     >
-                      <Photograph className="mr-2 h-4 w-4" />
-                      {image ? "Change Photo" : "Upload Photo"}
-                      <Input
-                        type="file"
-                        id="image"
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
+                      <div className="flex items-center">
+                        <label
+                          htmlFor="image"
+                          className="flex cursor-pointer items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                        >
+                          <Image 
+                            src="/icons/photo.svg"
+                            width={16}
+                            height={16}
+                            className="mr-2" 
+                            alt="Upload photo icon" 
+                          />
+                          {image ? "Change Photo" : "Upload Photo"}
+                          <input
+                            type="file"
+                            id="image"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
                     </motion.label>
                   </Button>
                 </div>

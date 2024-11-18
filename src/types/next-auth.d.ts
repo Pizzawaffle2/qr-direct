@@ -1,7 +1,7 @@
 import 'next-auth';
 import { DefaultSession, DefaultUser } from 'next-auth';
 
-interface IUser extends DefaultUser {
+interface User extends DefaultUser {
   subscriptionTier?: string | null;
   subscriptionStatus?: 'active' | 'inactive' | null;
 }

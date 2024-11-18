@@ -1,33 +1,62 @@
 // pages/api/subscription/index.ts
-import { NextApiRequest, NextApiResponse } from 'next'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth'
-import { stripe } from '@/lib/stripe'
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { stripe } from '@/lib/stripe';
+import { ApiError } from '@/lib/api-error';
+
+interface SubscriptionResponse {
+  subscription: any | null;
+  error?: string;
+}
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<SubscriptionResponse>
 ) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
-  const session = await getServerSession(req, res, authOptions)
-  if (!session?.user) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
-
   try {
-    const subscription = await stripe.subscriptions.list({
+    // Validate request method
+    if (req.method !== 'GET') {
+      throw new ApiError(405, 'Method not allowed');
+    }
+
+    // Validate authentication
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user) {
+      throw new ApiError(401, 'Unauthorized');
+    }
+
+    // Validate stripe customer ID
+    if (!session.user.stripeCustomerId) {
+      throw new ApiError(400, 'No Stripe customer ID found');
+    }
+
+    // Fetch subscription
+    const subscriptions = await stripe.subscriptions.list({
       customer: session.user.stripeCustomerId,
       status: 'active',
+      expand: ['data.default_payment_method'],
       limit: 1,
-    })
-    
+    });
+
     return res.status(200).json({
-      subscription: subscription.data[0] || null
-    })
+      subscription: subscriptions.data[0] || null
+    });
+
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to fetch subscription' })
+    console.error('Subscription fetch error:', error);
+    
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({ 
+        subscription: null,
+        error: error.message 
+      });
+    }
+
+    const message = error instanceof Error ? error.message : 'Failed to fetch subscription';
+    return res.status(500).json({ 
+      subscription: null,
+      error: message 
+    });
   }
 }

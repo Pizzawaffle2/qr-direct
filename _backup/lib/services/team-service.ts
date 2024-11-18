@@ -10,7 +10,7 @@ import {
   Prisma,
   User
 } from "@prisma/client"
-import { sendTeamInvitation } from "@/lib/email/team-invitation"
+import { sendTeamInvitation } from "@/lib/email/team-invitation.server"
 import { ApiError } from "@/lib/errors"
 
 // Types

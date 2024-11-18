@@ -1,61 +1,40 @@
 // types/user.ts
-import { DefaultSession } from "next-auth"
+import { DefaultSession } from "next-auth";
 
-/**
- * Defines the possible roles a user can have in the system
- */
-export enum UserRole {
-  USER = "user",
-  ADMIN = "admin"
-}
+export type UserRole = 'user' | 'admin';
 
-/**
- * Subscription status types
- */
-export type SubscriptionStatus = 'active' | 'inactive'
+export type SubscriptionStatus = 'active' | 'inactive' | 'past_due' | 'cancelled';
 
-/**
- * Available subscription tiers
- */
-export enum SubscriptionTier {
-  FREE = "free",
-  PRO = "pro"
-}
+export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
 
-/**
- * Represents a user's subscription details
- */
 export interface UserSubscription {
-  status: SubscriptionStatus
-  tier?: SubscriptionTier
-  currentPeriodEnd?: string
-  cancelAtPeriodEnd: boolean
+  status: SubscriptionStatus;
+  tier?: SubscriptionTier;
+  currentPeriodEnd?: string;
+  cancelAtPeriodEnd?: boolean;
 }
 
-/**
- * Base user properties
- */
-export interface BaseUser {
-  id: string
-  email: string
-  name?: string
-  image?: string
-  role: UserRole
-  lastLoginAt: Date
+export interface User {
+  id: string;
+  email: string;
+  emailVerified?: Date;
+  name?: string;
+  image?: string;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+  subscriptionTier?: SubscriptionTier;
+  subscription?: UserSubscription;
+  stripeCustomerId?: string; // Ensure this property is included
 }
 
-/**
- * Complete user model with subscription information
- */
-/**
- * Extends NextAuth Session type to include custom user properties
- */
 declare module 'next-auth' {
-  interface Session extends DefaultSession {
+  interface Session {
     user: {
-      id: string
-      role: UserRole
-      subscriptionStatus: SubscriptionStatus
+      id: string;
+      role: UserRole;
+      subscriptionStatus: SubscriptionStatus;
+      subscriptionTier?: SubscriptionTier;
+      stripeCustomerId?: string;
     } & DefaultSession["user"]
   }
 }

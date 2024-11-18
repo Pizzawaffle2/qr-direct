@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { VerificationService } from '@/lib/services/verification-service';
+import { VerificationService } from '@/services/verification-service';
 
 export async function POST(req: Request) {
   try {

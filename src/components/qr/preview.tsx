@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import Image from "next/image";
 import { 
   Paintbrush, 
   Image as ImageIcon, 
@@ -17,11 +18,9 @@ import { cn } from "@/lib/utils";
 import { 
   QRCodeData, 
   QRStyleOptions, 
-  ERROR_CORRECTION_LEVELS,
-  QRCodeType // Import QRCodeType
+  ERROR_CORRECTION_LEVELS
 } from "@/types/qr";
 import { QRCodeSVG } from "qrcode.react";
-import styles from "./preview.module.css";
 
 const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyleOptions }) => {
   const style = useMemo(() => ({
@@ -207,29 +206,6 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
     }
   }, [data]);
 
-  const getCustomCells = (cells: boolean[][]) => {
-    return cells.map((row, i) => 
-      row.map((cell, j) => {
-        if (!cell) return null;
-        
-        const isCorner = (
-          (i < 7 && j < 7) || 
-          (i < 7 && j >= cells.length - 7) || 
-          (i >= cells.length - 7 && j < 7)
-        );
-
-        if (isCorner) {
-          return style.cornerStyle === 'dots' ? 'circle' :
-                 style.cornerStyle === 'rounded' ? 'rounded' : 'square';
-        }
-
-        return style.dotStyle === 'dots' ? 'circle' :
-               style.dotStyle === 'rounded' ? 'rounded' :
-               style.dotStyle === 'classy' ? 'classy' :
-               style.dotStyle === 'sharp' ? 'sharp' : 'square';
-      })
-    );
-  };
 
   return (
     <div className={cn("space-y-4", rawStyle.animated && getAnimationClasses())}>
@@ -274,12 +250,12 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
               <div 
                 className={cn(
                   "w-full h-full rounded-lg flex items-center justify-center",
-                  style.shadow && "shadow-lg"
+                  (style.shadowColor || style.shadowBlur || style.shadowOffsetX || style.shadowOffsetY) && "shadow-lg"
                 )}
                 style={{
                   backgroundColor: 'var(--qr-background-color)',
                   backgroundImage: 'var(--qr-gradient)',
-                  boxShadow: style.shadow ? 
+                  boxShadow: (style.shadowColor || style.shadowBlur || style.shadowOffsetX || style.shadowOffsetY) ? 
                     'var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur) var(--qr-shadow-color)' : 
                     undefined
                 }}
@@ -310,10 +286,12 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
                       opacity: 'var(--qr-logo-opacity)'
                     }}
                   >
-                    <img 
+                    <Image 
                       src={style.logo} 
                       alt="QR Logo" 
                       className="w-full h-full object-contain"
+                      width={100}
+                      height={100}
                     />
                   </div>
                 )}

@@ -67,7 +67,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="billing">
-            <BillingManagement />
+            <BillingManagement subscription={user.subscription} usage={user.usage} />
           </TabsContent>
         </Tabs>
       </main>

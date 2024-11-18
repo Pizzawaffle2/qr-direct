@@ -11,9 +11,9 @@ import {
   Monitor, 
   Tablet,
   Chrome,
-  BrowserFirefox,
-  BrowserSafari,
-  QrCode
+  QrCode,
+  Firefox as BrowserFirefox, // Changed
+  Safari as BrowserSafari 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,8 +37,8 @@ export default function AnalyticsPage() {
     ],
     browsers: [
       { name: "Chrome", value: 45, icon: Chrome },
-      { name: "Safari", value: 30, icon: BrowserSafari },
-      { name: "Firefox", value: 25, icon: BrowserFirefox }
+      { name: "Safari", value: 30, icon: Safari },
+      { name: "Firefox", value: 25, icon: Firefox }
     ],
     locations: [
       { name: "United States", value: 40 },

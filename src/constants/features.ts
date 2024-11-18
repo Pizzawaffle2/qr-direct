@@ -6,6 +6,13 @@ import {
     Users, 
     Zap 
   } from "lucide-react"
+
+interface Feature {
+  icon: React.ComponentType;
+  title: string;
+  description: string;
+  color: string;
+}
   
   
   export const FEATURES: Feature[] = [
