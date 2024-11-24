@@ -1,7 +1,7 @@
 // services/userService.ts
-import { prisma } from '@/lib/prisma';
-import { User } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import {prisma } from '@/lib/prisma';
+import {User } from '@prisma/client';
+import {Prisma } from '@prisma/client';
 
 export class UserNotFoundError extends Error {
   constructor(id: string) {
@@ -17,7 +17,7 @@ export const getUserById = async (id: string): Promise<User | null> => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     return user;
@@ -43,7 +43,7 @@ export const getUserWithFields = async (
   try {
     return await prisma.user.findUnique({
       where: { id },
-      select
+      select,
     });
   } catch (error) {
     console.error('Error fetching user with fields:', error);

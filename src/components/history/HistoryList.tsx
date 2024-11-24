@@ -1,10 +1,10 @@
 // components/history/HistoryList.tsx
-import { motion } from 'framer-motion';
+import {motion } from 'framer-motion';
 import Image from 'next/image';
-import { format } from 'date-fns';
-import { Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import {format } from 'date-fns';
+import {Download } from 'lucide-react';
+import {Button } from '@/components/ui/button';
+import {useToast } from '@/components/ui/use-toast';
 
 interface HistoryItem {
   id: string;
@@ -38,7 +38,7 @@ export function HistoryList({ history, limit = 3 }: HistoryListProps) {
         title: 'Success',
         description: 'QR Code downloaded successfully',
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to download QR Code',
@@ -48,14 +48,9 @@ export function HistoryList({ history, limit = 3 }: HistoryListProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {history.slice(0, limit).map((item, index) => (
-        <HistoryCard
-          key={item.id}
-          item={item}
-          index={index}
-          onDownload={handleDownload}
-        />
+        <HistoryCard key={item.id} item={item} index={index} onDownload={handleDownload} />
       ))}
     </div>
   );
@@ -74,9 +69,9 @@ function HistoryCard({ item, index, onDownload }: HistoryCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="glass-morphism p-4 rounded-xl"
+      className="glass-morphism rounded-xl p-4"
     >
-      <div className="aspect-square relative mb-4">
+      <div className="relative mb-4 aspect-square">
         <Image
           src={item.url}
           alt={item.title || 'QR Code'}
@@ -89,16 +84,11 @@ function HistoryCard({ item, index, onDownload }: HistoryCardProps) {
         />
       </div>
 
-      <h3 
-        className="text-white font-medium mb-2 line-clamp-1" 
-        title={item.title}
-      >
+      <h3 className="mb-2 line-clamp-1 font-medium text-white" title={item.title}>
         {item.title}
       </h3>
 
-      <p className="text-sm text-gray-400 mb-4">
-        Created {format(new Date(item.created), 'PPp')}
-      </p>
+      <p className="mb-4 text-sm text-gray-400">Created {format(new Date(item.created), &apos;PPp&apos;)}</p>
 
       <Button
         variant="default"

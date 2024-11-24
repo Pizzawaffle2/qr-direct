@@ -1,50 +1,50 @@
-"use client"
+'use client';
 
-import { signIn } from "next-auth/react"
-import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
-import { Github, Mail, Linkedin, Apple } from "lucide-react"
-import { useState } from "react"
-import { Loader2 } from "lucide-react"
+import {signIn } from 'next-auth/react';
+import {Button } from '@/components/ui/button';
+import {motion } from 'framer-motion';
+import {Github, Mail, Linkedin, Apple } from 'lucide-react';
+import {useState } from 'react';
+import {Loader2 } from 'lucide-react';
 
 interface OAuthButtonsProps {
-  callbackUrl?: string
+  callbackUrl?: string;
 }
 
-export function OAuthButtons({ callbackUrl = "/" }: OAuthButtonsProps) {
-  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
+export function OAuthButtons({ callbackUrl = '/' }: OAuthButtonsProps) {
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
 
   const handleOAuthSignIn = async (provider: string) => {
     try {
-      setIsLoading(prev => ({ ...prev, [provider]: true }))
-      await signIn(provider, { callbackUrl })
+      setIsLoading((prev) => ({ ...prev, [provider]: true }));
+      await signIn(provider, { callbackUrl });
     } catch (error) {
-      console.error("OAuth error:", error)
+      console.error('OAuth error:', error);
     } finally {
-      setIsLoading(prev => ({ ...prev, [provider]: false }))
+      setIsLoading((prev) => ({ ...prev, [provider]: false }));
     }
-  }
+  };
 
   const oauthProviders = [
     {
-      id: "google",
-      name: "Google",
+      id: 'google',
+      name: 'Google',
       icon: Mail,
-      className: "bg-red-500 hover:bg-red-600",
+      className: 'bg-red-500 hover:bg-red-600',
     },
     {
-      id: "github",
-      name: "GitHub",
+      id: 'github',
+      name: 'GitHub',
       icon: Github,
-      className: "bg-gray-800 hover:bg-gray-900",
+      className: 'bg-gray-800 hover:bg-gray-900',
     },
     {
-      id: "linkedin",
-      name: "LinkedIn",
+      id: 'linkedin',
+      name: 'LinkedIn',
       icon: Linkedin,
-      className: "bg-blue-600 hover:bg-blue-700",
+      className: 'bg-blue-600 hover:bg-blue-700',
     },
-  ]
+  ];
 
   return (
     <div className="grid gap-3">
@@ -59,7 +59,7 @@ export function OAuthButtons({ callbackUrl = "/" }: OAuthButtonsProps) {
           <Button
             type="button"
             variant="outline"
-            className={`w-full h-11 ${provider.className} text-white border-0`}
+            className={`h-11 w-full ${provider.className} border-0 text-white`}
             onClick={() => handleOAuthSignIn(provider.id)}
             disabled={isLoading[provider.id]}
           >
@@ -67,7 +67,7 @@ export function OAuthButtons({ callbackUrl = "/" }: OAuthButtonsProps) {
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                <provider.icon className="h-5 w-5 mr-2" />
+                <provider.icon className="mr-2 h-5 w-5" />
                 Continue with {provider.name}
               </>
             )}
@@ -75,5 +75,5 @@ export function OAuthButtons({ callbackUrl = "/" }: OAuthButtonsProps) {
         </motion.div>
       ))}
     </div>
-  )
+  );
 }

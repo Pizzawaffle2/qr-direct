@@ -1,8 +1,8 @@
 // File: src/app/api/email/preview/route.ts
-import { NextResponse } from 'next/server';
-import { render } from '@react-email/render';
-import { VerificationEmail } from '@/emails/verification-email';
-import { PasswordResetEmail } from '@/emails/password-reset-email';
+import {NextResponse } from 'next/server';
+import {render } from '@react-email/render';
+import {VerificationEmail } from '@/emails/verification-email';
+import {PasswordResetEmail } from '@/emails/password-reset-email';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);

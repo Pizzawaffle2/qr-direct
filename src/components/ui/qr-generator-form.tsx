@@ -1,28 +1,26 @@
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import {useState } from 'react';
+import {useForm } from 'react-hook-form';
+import {zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useQRCode } from '@/hooks/use-qr-code';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
+import {useQRCode } from '@/hooks/use-qr-code';
+import {Button } from '@/components/ui/button';
+import {Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
+import {Input } from '@/components/ui/input';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { QRCodeType } from '@/lib/types/qr-code';
+import {QRCodeType } from '@/lib/types/qr-code';
 
 const formSchema = z.object({
   type: z.enum(['url', 'text', 'email', 'phone', 'wifi', 'vcard']),
@@ -54,12 +52,12 @@ export function QRCodeGeneratorForm() {
         ...values,
       });
     } catch (err) {
-      console.error('Error generating QR code:', err);
+      console.error('Error generating QR code:&apos;, err);
     }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className="mx-auto w-full max-w-2xl p-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -101,10 +99,7 @@ export function QRCodeGeneratorForm() {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder={getPlaceholder(selectedType)} 
-                    {...field} 
-                  />
+                  <Input placeholder={getPlaceholder(selectedType)} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -141,29 +136,18 @@ export function QRCodeGeneratorForm() {
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isGenerating}
-          >
-            {isGenerating ? 'Generating...' : 'Generate QR Code'}
+          <Button type="submit" className="w-full" disabled={isGenerating}>
+            {isGenerating ? &apos;Generating...' : 'Generate QR Code'}
           </Button>
         </form>
       </Form>
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-50 text-red-600 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className="mt-4 rounded bg-red-50 p-4 text-red-600">{error}</div>}
 
       {qrCode && (
         <div className="mt-6 flex flex-col items-center">
           <img src={qrCode} alt="Generated QR Code" className="max-w-xs" />
-          <Button 
-            onClick={() => window.open(qrCode, '_blank')}
-            className="mt-4"
-          >
+          <Button onClick={() => window.open(qrCode, &apos;_blank&apos;)} className="mt-4">
             Download QR Code
           </Button>
         </div>

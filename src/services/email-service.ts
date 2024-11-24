@@ -1,8 +1,8 @@
 // File: src/services/email-service.ts
-import { Resend } from 'resend';
-import { render } from '@react-email/render';
-import { VerificationEmail } from '@/emails/verification-email';
-import { PasswordResetEmail } from '@/emails/password-reset-email';
+import {Resend } from 'resend';
+import {render } from '@react-email/render';
+import {VerificationEmail } from '@/emails/verification-email';
+import {PasswordResetEmail } from '@/emails/password-reset-email';
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY environment variable is not set');
@@ -17,7 +17,7 @@ class EmailService {
 
     try {
       const html = render(VerificationEmail({ verificationUrl }));
-      
+
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: email,

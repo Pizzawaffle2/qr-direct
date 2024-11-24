@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save } from 'lucide-react';
-import { CategoryService } from '@/services/category-service';
-import { CategoryDialog } from '../category-dialog';
-import { CategorySelect } from '../category-select';
-import { CategoryActions } from '../category-actions';
-import { useToast } from '@/components/ui/use-toast';
-import { type Category } from '@/types/category';
+import {useState, useEffect } from 'react';
+import {Plus, Edit2, Trash2, Save } from 'lucide-react';
+import {CategoryService } from '@/services/category-service';
+import {CategoryDialog } from '../category-dialog';
+import {CategorySelect } from '../category-select';
+import {CategoryActions } from '../category-actions';
+import {useToast } from '@/components/ui/use-toast';
+import {type Category } from '@/types/category';
 
 interface CategoryManagerProps {
   onSelect: (categoryId: string | null) => void;
@@ -28,7 +28,7 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
     try {
       const data = await CategoryService.getCategories();
       setCategories(data);
-    } catch (error) {
+    } catch (_error) {
       showErrorToast('Failed to load categories');
     }
   };
@@ -47,7 +47,7 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
 
       closeDialog();
       fetchCategories();
-    } catch (error) {
+    } catch (_error) {
       showErrorToast('Failed to save category');
     }
   };
@@ -56,10 +56,10 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
     try {
       await CategoryService.deleteCategory(id);
       showSuccessToast('Category deleted successfully');
-      
+
       if (selected === id) onSelect(null);
       fetchCategories();
-    } catch (error) {
+    } catch (_error) {
       showErrorToast('Failed to delete category');
     }
   };
@@ -85,16 +85,8 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center space-x-2">
-        <CategorySelect
-          categories={categories}
-          selected={selected}
-          onSelect={onSelect}
-        />
-        <button
-          className="btn-icon"
-          onClick={() => openEditDialog()}
-          aria-label="Add new category"
-        >
+        <CategorySelect categories={categories} selected={selected} onSelect={onSelect} />
+        <button className="btn-icon" onClick={() => openEditDialog()} aria-label="Add new category">
           <Plus className="h-4 w-4" />
         </button>
       </div>
@@ -102,7 +94,7 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
       {selected && (
         <CategoryActions
           onEdit={() => {
-            const category = categories.find(c => c.id === selected);
+            const category = categories.find((c) => c.id === selected);
             openEditDialog(category);
           }}
           onDelete={() => handleDeleteCategory(selected)}

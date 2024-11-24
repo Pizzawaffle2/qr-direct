@@ -1,45 +1,48 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Star } from "lucide-react";
-import Image from "next/image";
+import {motion } from 'framer-motion';
+import {Star } from 'lucide-react';
+import Image from 'next/image';
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    role: "Marketing Director",
-    company: "TechCorp",
-    image: "/testimonials/sarah.jpg",
-    content: "The QR code customization options are amazing. We've seen a 50% increase in engagement since switching to this platform.",
-    rating: 5
+    name: 'Sarah Johnson',
+    role: 'Marketing Director',
+    company: 'TechCorp',
+    image: '/testimonials/sarah.jpg',
+    content:
+      "The QR code customization options are amazing. We've seen a 50% increase in engagement since switching to this platform.",
+    rating: 5,
   },
   {
-    name: "Michael Chen",
-    role: "Small Business Owner",
-    company: "Local Cafe",
-    image: "/testimonials/michael.jpg",
-    content: "Easy to use and the analytics help us track our menu QR code performance. Highly recommended!",
-    rating: 5
+    name: 'Michael Chen',
+    role: 'Small Business Owner',
+    company: 'Local Cafe',
+    image: '/testimonials/michael.jpg',
+    content:
+      'Easy to use and the analytics help us track our menu QR code performance. Highly recommended!',
+    rating: 5,
   },
   {
-    name: "Emily Rodriguez",
-    role: "Event Manager",
-    company: "EventPro",
-    image: "/testimonials/emily.jpg",
-    content: "The dynamic QR codes are perfect for our events. Being able to update content on the fly is a game-changer.",
-    rating: 5
-  }
+    name: 'Emily Rodriguez',
+    role: 'Event Manager',
+    company: 'EventPro',
+    image: '/testimonials/emily.jpg',
+    content:
+      'The dynamic QR codes are perfect for our events. Being able to update content on the fly is a game-changer.',
+    rating: 5,
+  },
 ];
 
 export function TestimonialSection() {
   return (
     <div className="py-12">
-      <div className="text-center mb-16">
+      <div className="mb-16 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold sm:text-4xl mb-4"
+          className="mb-4 text-3xl font-bold sm:text-4xl"
         >
           Trusted by Thousands of Users
         </motion.h2>
@@ -47,7 +50,7 @@ export function TestimonialSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-muted-foreground mx-auto max-w-2xl"
+          className="mx-auto max-w-2xl text-muted-foreground"
         >
           See what our customers are saying about their experience.
         </motion.p>
@@ -71,13 +74,11 @@ export function TestimonialSection() {
                 />
               ))}
             </div>
-            
-            <p className="mb-4 text-sm text-muted-foreground">
-              "{testimonial.content}"
-            </p>
+
+            <p className="mb-4 text-sm text-muted-foreground">"{testimonial.content}"</p>
 
             <div className="flex items-center">
-              <div className="relative h-12 w-12 rounded-full overflow-hidden">
+              <div className="relative h-12 w-12 overflow-hidden rounded-full">
                 <Image
                   src={testimonial.image}
                   alt={testimonial.name}
@@ -103,13 +104,13 @@ export function TestimonialSection() {
         transition={{ duration: 0.5, delay: 0.4 }}
         className="mt-16 text-center"
       >
-        <p className="text-sm text-muted-foreground mb-4">Trusted by companies worldwide</p>
+        <p className="mb-4 text-sm text-muted-foreground">Trusted by companies worldwide</p>
         <div className="flex flex-wrap justify-center gap-8 opacity-50">
           {/* Add company logos here */}
-          <div className="h-8 w-32 bg-muted rounded" />
-          <div className="h-8 w-32 bg-muted rounded" />
-          <div className="h-8 w-32 bg-muted rounded" />
-          <div className="h-8 w-32 bg-muted rounded" />
+          <div className="h-8 w-32 rounded bg-muted" />
+          <div className="h-8 w-32 rounded bg-muted" />
+          <div className="h-8 w-32 rounded bg-muted" />
+          <div className="h-8 w-32 rounded bg-muted" />
         </div>
       </motion.div>
     </div>

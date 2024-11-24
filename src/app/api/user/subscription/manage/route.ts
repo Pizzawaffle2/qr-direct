@@ -1,19 +1,16 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import {NextResponse } from 'next/server';
+import {getServerSession } from 'next-auth/next';
+import {authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
-import { absoluteUrl } from '@/lib/utils';
+import {stripe } from '@/lib/stripe';
+import {absoluteUrl } from '@/lib/utils';
 
 export async function POST() {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { message: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -21,10 +18,7 @@ export async function POST() {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
     const returnUrl = absoluteUrl('/dashboard/billing');
@@ -60,10 +54,7 @@ export async function POST() {
 
     // Create Stripe billing portal session for existing subscribers
     if (!user.stripeCustomerId) {
-      return NextResponse.json(
-        { message: 'No associated Stripe customer' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'No associated Stripe customer' }, { status: 400 });
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
@@ -74,9 +65,6 @@ export async function POST() {
     return NextResponse.json({ url: portalSession.url });
   } catch (error) {
     console.error('Subscription management error:', error);
-    return NextResponse.json(
-      { message: 'Failed to create portal session' },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'Failed to create portal session' }, { status: 500 });
   }
 }

@@ -6,11 +6,11 @@ import { emailService } from '@/services/email-service';
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
-    
+
     // Generate verification token
     const token = randomBytes(32).toString('hex');
     const hashedToken = createHash('sha256').update(token).digest('hex');
-    
+
     // Store token in VerificationToken table
     await prisma.verificationToken.create({
       data: {

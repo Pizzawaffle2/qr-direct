@@ -1,26 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
+import {useState, useCallback, useMemo, useEffect } from 'react';
+import {useRouter } from 'next/navigation';
+import {format } from 'date-fns';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Calendar,
+} from '@/components/ui/select';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {Calendar,
   Plus,
   Search,
   Filter,
@@ -30,16 +22,14 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-} from "lucide-react";
-import {
-  DropdownMenu,
+} from 'lucide-react';
+import {DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
+} from '@/components/ui/dropdown-menu';
+import {AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -47,8 +37,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useToast } from "@/components/ui/use-toast";
+} from '@/components/ui/alert-dialog';
+import {useToast } from '@/components/ui/use-toast';
 
 export interface CalendarItem {
   id: string;
@@ -86,38 +76,41 @@ export default function CalendarsPage() {
       setIsLoading(true);
       const response = await fetch('/api/calendars');
       if (!response.ok) throw new Error('Failed to fetch calendars');
-      const data = await response.json();
-      setCalendars(data);
-    } catch (error) {
+      const data: CalendarResponse = await response.json();
+      if (data.error) throw new Error(data.error);
+      setCalendars(Array.isArray(data.data) ? data.data : []);
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to load calendars. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to load calendars. Please try again.',
+        variant: 'destructive',
       });
+      setCalendars([]);
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
 
+  // Fetch calendars on component mount
+  useEffect(() => {
+    fetchCalendars();
+  }, [fetchCalendars]);
+
   // Filter and sort calendars
   const filteredCalendars = useMemo(() => {
     return calendars
-      .filter(calendar => {
+      .filter((calendar) => {
         const matchesSearch = calendar.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === 'all' || calendar.type === filterType;
         return matchesSearch && matchesType;
       })
       .sort((a, b) => {
-        const aValue = sortBy === 'created' ? a.created 
-          : sortBy === 'modified' ? a.lastModified 
-          : a.downloads;
-        const bValue = sortBy === 'created' ? b.created 
-          : sortBy === 'modified' ? b.lastModified 
-          : b.downloads;
-        
-        return sortOrder === 'asc' 
-          ? aValue > bValue ? 1 : -1
-          : aValue < bValue ? 1 : -1;
+        const aValue =
+          sortBy === 'created' ? a.created : sortBy === 'modified' ? a.lastModified : a.downloads;
+        const bValue =
+          sortBy === 'created' ? b.created : sortBy === 'modified' ? b.lastModified : b.downloads;
+
+        return sortOrder === 'asc' ? (aValue > bValue ? 1 : -1) : aValue < bValue ? 1 : -1;
       });
   }, [calendars, searchQuery, filterType, sortBy, sortOrder]);
 
@@ -130,18 +123,18 @@ export default function CalendarsPage() {
 
       if (!response.ok) throw new Error('Failed to delete calendar');
 
-      setCalendars(prev => prev.filter(cal => cal.id !== id));
+      setCalendars((prev) => prev.filter((cal) => cal.id !== id));
       setDeleteId(null);
-      
+
       toast({
-        title: "Calendar deleted",
-        description: "The calendar has been successfully deleted.",
+        title: 'Calendar deleted',
+        description: 'The calendar has been successfully deleted.',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to delete calendar. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete calendar. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -151,7 +144,7 @@ export default function CalendarsPage() {
     try {
       const response = await fetch(`/api/calendars/${calendar.id}/download`);
       if (!response.ok) throw new Error('Failed to download calendar');
-      
+
       // Handle the download response
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -164,21 +157,19 @@ export default function CalendarsPage() {
       document.body.removeChild(a);
 
       // Update download count
-      setCalendars(prev => prev.map(cal => 
-        cal.id === calendar.id 
-          ? { ...cal, downloads: cal.downloads + 1 }
-          : cal
-      ));
+      setCalendars((prev) =>
+        prev.map((cal) => (cal.id === calendar.id ? { ...cal, downloads: cal.downloads + 1 } : cal))
+      );
 
       toast({
-        title: "Download started",
-        description: "Your calendar is being downloaded.",
+        title: 'Download started',
+        description: 'Your calendar is being downloaded.',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to download calendar. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to download calendar. Please try again.',
+        variant: 'destructive&apos;,
       });
     }
   };
@@ -194,7 +185,7 @@ export default function CalendarsPage() {
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-semibold truncate">{calendar.title}</h3>
+            <h3 className="truncate font-semibold">{calendar.title}</h3>
             <p className="text-sm text-muted-foreground">
               {calendar.month} {calendar.year}
             </p>
@@ -215,10 +206,7 @@ export default function CalendarsPage() {
                 Download
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => setDeleteId(calendar.id)}
-                className="text-red-600"
-              >
+              <DropdownMenuItem onClick={() => setDeleteId(calendar.id)} className="text-red-600">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
@@ -241,16 +229,12 @@ export default function CalendarsPage() {
         <div className="text-sm text-muted-foreground">
           {calendar.month} {calendar.year} • {calendar.type}
         </div>
-        <div className="text-xs text-muted-foreground mt-1">
-          Last modified {format(new Date(calendar.lastModified), 'MMM d, yyyy')}
+        <div className="mt-1 text-xs text-muted-foreground">
+          Last modified {format(new Date(calendar.lastModified), &apos;MMM d, yyyy')}
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => handleDownload(calendar)}
-        >
+        <Button variant="outline" size="sm" onClick={() => handleDownload(calendar)}>
           <Download className="mr-2 h-4 w-4" />
           Download ({calendar.downloads})
         </Button>
@@ -266,10 +250,7 @@ export default function CalendarsPage() {
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => setDeleteId(calendar.id)}
-              className="text-red-600"
-            >
+            <DropdownMenuItem onClick={() => setDeleteId(calendar.id)} className="text-red-600">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
@@ -280,14 +261,12 @@ export default function CalendarsPage() {
   );
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container space-y-6 py-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">Calendars</h1>
-          <p className="text-muted-foreground">
-            Create and manage your custom calendars
-          </p>
+          <p className="text-muted-foreground">Create and manage your custom calendars</p>
         </div>
         <Button onClick={() => router.push('/dashboard/calendars/new')}>
           <Plus className="mr-2 h-4 w-4" />
@@ -307,10 +286,7 @@ export default function CalendarsPage() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Select 
-            value={filterType}
-            onValueChange={setFilterType}
-          >
+          <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-32">
               <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Filter" />
@@ -322,7 +298,7 @@ export default function CalendarsPage() {
               <SelectItem value="holiday">Holiday</SelectItem>
             </SelectContent>
           </Select>
-          <div className="border rounded-md p-1">
+          <div className="rounded-md border p-1">
             <Button
               variant={view === 'grid' ? 'default' : 'ghost'}
               size="sm"
@@ -347,11 +323,11 @@ export default function CalendarsPage() {
       {isLoading ? (
         <Card className="p-8">
           <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
           </div>
         </Card>
       ) : filteredCalendars.length > 0 ? (
-        view === 'grid' ? (
+        view === 'grid&apos; ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCalendars.map((calendar) => (
               <CalendarGridItem key={calendar.id} calendar={calendar} />
@@ -362,7 +338,8 @@ export default function CalendarsPage() {
             <CardHeader>
               <CardTitle>All Calendars</CardTitle>
               <CardDescription>
-                Showing {filteredCalendars.length} calendar{filteredCalendars.length === 1 ? '' : 's'}
+                Showing {filteredCalendars.length} calendar
+                {filteredCalendars.length === 1 ? &apos;' : 's'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -381,14 +358,11 @@ export default function CalendarsPage() {
             <h3 className="mt-4 text-lg font-semibold">No calendars found</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {searchQuery || filterType !== 'all'
-                ? "Try adjusting your search or filters"
-                : "Create your first calendar to get started"}
+                ? 'Try adjusting your search or filters'
+                : &apos;Create your first calendar to get started&apos;}
             </p>
             {!searchQuery && filterType === 'all' && (
-              <Button 
-                onClick={() => router.push('/dashboard/calendars/new')} 
-                className="mt-4"
-              >
+              <Button onClick={() => router.push('/dashboard/calendars/new')} className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Calendar
               </Button>
@@ -403,8 +377,8 @@ export default function CalendarsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              calendar and all of its data.
+              This action cannot be undone. This will permanently delete the calendar and all of its
+              data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -438,10 +412,10 @@ export default function CalendarsPage() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+        onClick={() => setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
         className="ml-2"
       >
-        {sortOrder === 'asc' ? "↑" : "↓"}
+        {sortOrder === 'asc' ? '↑' : &apos;↓&apos;}
       </Button>
     </div>
   );
@@ -481,9 +455,9 @@ export const calendarUtils = {
     return colorMap[type] || colorMap.personal;
   },
 
-  validateCalendar: (calendar: Partial<CalendarItem>) => {
+  validateCalendar: (_calendar) => {
     const errors: Record<string, string> = {};
-    
+
     if (!calendar.title?.trim()) {
       errors.title = 'Title is required';
     }
@@ -498,9 +472,9 @@ export const calendarUtils = {
 
     return {
       isValid: Object.keys(errors).length === 0,
-      errors
+      errors,
     };
-  }
+  },
 };
 
 // Custom hooks for calendar management
@@ -508,62 +482,70 @@ export function useCalendarActions() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleEdit = useCallback((id: string) => {
-    router.push(`/dashboard/calendars/${id}`);
-  }, [router]);
+  const handleEdit = useCallback(
+    (id: string) => {
+      router.push(`/dashboard/calendars/${id}`);
+    },
+    [router]
+  );
 
-  const handleDownload = useCallback(async (calendar: CalendarItem) => {
-    try {
-      const response = await fetch(`/api/calendars/${calendar.id}/download`);
-      if (!response.ok) throw new Error('Failed to download calendar');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${calendar.title}-${calendar.year}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+  const handleDownload = useCallback(
+    async (calendar: CalendarItem) => {
+      try {
+        const response = await fetch(`/api/calendars/${calendar.id}/download`);
+        if (!response.ok) throw new Error('Failed to download calendar');
 
-      toast({
-        title: 'Success',
-        description: 'Calendar downloaded successfully',
-      });
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${calendar.title}-${calendar.year}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to download calendar',
-        variant: 'destructive',
-      });
-    }
-  }, [toast]);
+        toast({
+          title: 'Success',
+          description: 'Calendar downloaded successfully',
+        });
+      } catch (_error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to download calendar',
+          variant: 'destructive',
+        });
+      }
+    },
+    [toast]
+  );
 
-  const handleDelete = useCallback(async (id: string) => {
-    try {
-      const response = await fetch(`/api/calendars/${id}`, {
-        method: 'DELETE',
-      });
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        const response = await fetch(`/api/calendars/${id}`, {
+          method: 'DELETE',
+        });
 
-      if (!response.ok) throw new Error('Failed to delete calendar');
+        if (!response.ok) throw new Error('Failed to delete calendar');
 
-      toast({
-        title: 'Success',
-        description: 'Calendar deleted successfully',
-      });
+        toast({
+          title: 'Success',
+          description: 'Calendar deleted successfully',
+        });
 
-      return true;
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete calendar',
-        variant: 'destructive',
-      });
-      return false;
-    }
-  }, [toast]);
+        return true;
+      } catch (_error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete calendar',
+          variant: 'destructive',
+        });
+        return false;
+      }
+    },
+    [toast]
+  );
 
   return {
     handleEdit,
@@ -591,37 +573,36 @@ export function useCalendarFilters() {
     sortOrder: 'desc',
   });
 
-  const filteredCalendars = useCallback((calendars: CalendarItem[]) => {
-    return calendars
-      .filter(calendar => {
-        const matchesSearch = calendar.title
-          .toLowerCase()
-          .includes(filters.search.toLowerCase());
-        const matchesType = filters.type === 'all' || calendar.type === filters.type;
-        return matchesSearch && matchesType;
-      })
-      .sort((a, b) => {
-        const getValue = (cal: CalendarItem) => {
-          switch (filters.sortBy) {
-            case 'created':
-              return new Date(cal.created).getTime();
-            case 'modified':
-              return new Date(cal.lastModified).getTime();
-            case 'downloads':
-              return cal.downloads;
-            default:
-              return 0;
-          }
-        };
+  const filteredCalendars = useCallback(
+    (calendars: CalendarItem[]) => {
+      return calendars
+        .filter((calendar) => {
+          const matchesSearch = calendar.title.toLowerCase().includes(filters.search.toLowerCase());
+          const matchesType = filters.type === 'all' || calendar.type === filters.type;
+          return matchesSearch && matchesType;
+        })
+        .sort((a, b) => {
+          const getValue = (cal: CalendarItem) => {
+            switch (filters.sortBy) {
+              case 'created':
+                return new Date(cal.created).getTime();
+              case 'modified':
+                return new Date(cal.lastModified).getTime();
+              case 'downloads':
+                return cal.downloads;
+              default:
+                return 0;
+            }
+          };
 
-        const aValue = getValue(a);
-        const bValue = getValue(b);
+          const aValue = getValue(a);
+          const bValue = getValue(b);
 
-        return filters.sortOrder === 'asc' 
-          ? aValue - bValue 
-          : bValue - aValue;
-      });
-  }, [filters]);
+          return filters.sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+        });
+    },
+    [filters]
+  );
 
   return {
     filters,

@@ -1,5 +1,5 @@
-import { getToken } from 'next-auth/jwt';
-import { NextResponse } from 'next/server';
+import {getToken } from 'next-auth/jwt';
+import {NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const publicPaths = [
@@ -29,12 +29,12 @@ export async function middleware(request: NextRequest) {
   });
 
   // Redirect authenticated users away from auth pages
-  if (token && publicPaths.some(path => pathname.startsWith(path))) {
+  if (token && publicPaths.some((path) => pathname.startsWith(path))) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
   // Allow access to public paths
-  if (publicPaths.some(path => pathname.startsWith(path))) {
+  if (publicPaths.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
   }
 

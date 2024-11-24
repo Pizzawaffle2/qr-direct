@@ -1,38 +1,29 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { QRStyleEditor } from "@/components/qr/style-editor";
-import { QRPreview } from "@/components/qr/preview";
-import { CalendarStyleEditor } from "@/components/calendar/style-editor";
-import { CalendarPreview } from "@/components/calendar/preview";
-import { 
-  ChevronLeft, 
-  Save, 
-  Eye, 
-  Globe, 
-  Lock,
-  QrCode,
-  Calendar
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { QRStyleOptions } from "@/types/qr";
-import { CalendarStyleOptions } from "@/types/calendar";
-
+import {useState } from 'react';
+import {Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {Label } from '@/components/ui/label';
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Switch } from '@/components/ui/switch';
+import {Textarea } from '@/components/ui/textarea';
+import {QRStyleEditor } from '@/components/qr/style-editor';
+import {QRPreview } from '@/components/qr/preview';
+import {CalendarStyleEditor } from '@/components/calendar/style-editor';
+import {CalendarPreview } from '@/components/calendar/preview';
+import {ChevronLeft, Save, Eye, Globe, Lock, QrCode, Calendar } from 'lucide-react';
+import Link from 'next/link';
+import {useRouter } from 'next/navigation';
+import {QRStyleOptions } from '@/types/qr';
+import {CalendarSettings } from '@/types/calendar-types';
 interface TemplateForm {
   name: string;
   description: string;
   type: 'qr' | 'calendar';
   isPublic: boolean;
   qrStyle?: QRStyleOptions;
-  calendarStyle?: CalendarStyleOptions;
+  calendarStyle?: CalendarSettings;
 }
 
 const defaultQRStyle: QRStyleOptions = {
@@ -43,19 +34,43 @@ const defaultQRStyle: QRStyleOptions = {
   backgroundColor: '#ffffff',
 };
 
-const defaultCalendarStyle: CalendarStyleOptions = {
-  // Add your default calendar style options
+const defaultCalendarStyle: CalendarSettings = {
+  title: 'Default Calendar',
+  type: 'personal',
+  year: new Date().getFullYear(),
+  firstDayOfWeek: 0,
+  showWeekNumbers: false,
+  months: [],
+  monthsPerrow: [3], // Changed from monthsPerRow to monthsPerrow
+  options: {
+    showHolidays: false,
+    showLunarPhases: false,
+    showWeather: false,
+    showNotes: false,
+  },
+  themeStyle: 'modern',
+  frame: 'basic',
+  colors: {
+    headerColor: '#000000',
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    accentColor: '#000000',
+  },
+  typography: {
+    fontFamily: 'Arial',
+    fontSize: 14,
+  },
 };
 
 export default function NewTemplatePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"settings" | "style" | "preview">("settings");
-  
+  const [activeTab, setActiveTab] = useState<'settings' | 'style' | 'preview'>('settings');
+
   const [form, setForm] = useState<TemplateForm>({
-    name: "",
-    description: "",
-    type: "qr",
+    name: '',
+    description: '',
+    type: 'qr',
     isPublic: false,
     qrStyle: defaultQRStyle,
     calendarStyle: defaultCalendarStyle,
@@ -65,19 +80,19 @@ export default function NewTemplatePage() {
     setIsLoading(true);
     try {
       // Add your template creation logic here
-      router.push("/dashboard/templates");
+      router.push('/dashboard/templates');
     } catch (error) {
-      console.error("Failed to create template:", error);
+      console.error('Failed to create template:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateStyle = (style: any) => {
+  const updateStyle = (style: QRStyleOptions | CalendarSettings) => {
     if (form.type === 'qr') {
-      setForm(prev => ({ ...prev, qrStyle: style }));
+      setForm((prev) => ({ ...prev, qrStyle: style as QRStyleOptions }));
     } else {
-      setForm(prev => ({ ...prev, calendarStyle: style }));
+      setForm((prev) => ({ ...prev, calendarStyle: style as CalendarSettings }));
     }
   };
 
@@ -86,12 +101,7 @@ export default function NewTemplatePage() {
       {/* Header */}
       <div className="border-b bg-background">
         <div className="container flex h-16 items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="flex items-center gap-2"
-          >
+          <Button variant="ghost" size="sm" asChild className="flex items-center gap-2">
             <Link href="/dashboard/templates">
               <ChevronLeft className="h-4 w-4" />
               Back to Templates
@@ -101,21 +111,13 @@ export default function NewTemplatePage() {
             <h1 className="text-lg font-semibold">Create New Template</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setActiveTab("preview")}
-            >
+            <Button variant="outline" size="sm" onClick={() => setActiveTab('preview&apos;)}>
               <Eye className="mr-2 h-4 w-4" />
               Preview
             </Button>
-            <Button 
-              size="sm" 
-              disabled={isLoading} 
-              onClick={handleSubmit}
-            >
+            <Button size="sm" disabled={isLoading} onClick={handleSubmit}>
               <Save className="mr-2 h-4 w-4" />
-              {isLoading ? "Saving..." : "Save Template"}
+              {isLoading ? &apos;Saving...' : 'Save Template'}
             </Button>
           </div>
         </div>
@@ -125,7 +127,7 @@ export default function NewTemplatePage() {
       <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Left Column - Editor */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8 lg:col-span-2">
             <Card>
               <CardContent className="p-6">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
@@ -139,19 +141,19 @@ export default function NewTemplatePage() {
                     {/* Template Type */}
                     <div className="grid grid-cols-2 gap-4">
                       <Button
-                        variant={form.type === 'qr' ? "default" : "outline"}
+                        variant={form.type === 'qr' ? 'default' : 'outline'}
                         className="h-auto flex-col py-4"
-                        onClick={() => setForm(prev => ({ ...prev, type: 'qr' }))}
+                        onClick={() => setForm((prev) => ({ ...prev, type: 'qr' }))}
                       >
-                        <QrCode className="h-8 w-8 mb-2" />
+                        <QrCode className="mb-2 h-8 w-8" />
                         <span>QR Code Template</span>
                       </Button>
                       <Button
-                        variant={form.type === 'calendar' ? "default" : "outline"}
+                        variant={form.type === 'calendar' ? 'default' : 'outline'}
                         className="h-auto flex-col py-4"
-                        onClick={() => setForm(prev => ({ ...prev, type: 'calendar' }))}
+                        onClick={() => setForm((prev) => ({ ...prev, type: 'calendar' }))}
                       >
-                        <Calendar className="h-8 w-8 mb-2" />
+                        <Calendar className="mb-2 h-8 w-8" />
                         <span>Calendar Template</span>
                       </Button>
                     </div>
@@ -163,7 +165,7 @@ export default function NewTemplatePage() {
                         <Input
                           id="name"
                           value={form.name}
-                          onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                           placeholder="Enter template name"
                         />
                       </div>
@@ -173,7 +175,9 @@ export default function NewTemplatePage() {
                         <Textarea
                           id="description"
                           value={form.description}
-                          onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
+                          onChange={(e) =>
+                            setForm((prev) => ({ ...prev, description: e.target.value }))
+                          }
                           placeholder="Describe your template"
                           rows={3}
                         />
@@ -188,7 +192,9 @@ export default function NewTemplatePage() {
                         </div>
                         <Switch
                           checked={form.isPublic}
-                          onCheckedChange={(checked) => setForm(prev => ({ ...prev, isPublic: checked }))}
+                          onCheckedChange={(checked) =>
+                            setForm((prev) => ({ ...prev, isPublic: checked }))
+                          }
                         />
                       </div>
                     </div>
@@ -215,9 +221,7 @@ export default function NewTemplatePage() {
                         style={form.qrStyle ?? defaultQRStyle}
                       />
                     ) : (
-                      <CalendarPreview
-                        style={form.calendarStyle ?? defaultCalendarStyle}
-                      />
+                      <CalendarPreview settings={form.calendarStyle ?? defaultCalendarStyle} />
                     )}
                   </TabsContent>
                 </Tabs>
@@ -238,9 +242,7 @@ export default function NewTemplatePage() {
                     style={form.qrStyle ?? defaultQRStyle}
                   />
                 ) : (
-                  <CalendarPreview
-                    style={form.calendarStyle ?? defaultCalendarStyle}
-                  />
+                  <CalendarPreview settings={form.calendarStyle ?? defaultCalendarStyle} />
                 )}
               </CardContent>
             </Card>

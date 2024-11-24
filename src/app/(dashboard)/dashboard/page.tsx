@@ -1,27 +1,23 @@
 // src/app/(dashboard)/dashboard/page.tsx
 
-import type { Metadata } from 'next';
-import { getServerSession } from "next-auth/next";
-import { redirect } from "next/navigation";
-import { BillingStatus } from "@/components/dashboard/billing-status";
-import { authOptions } from "@/lib/auth/config";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Activity,
+import {getServerSession } from 'next-auth/next';
+import {redirect } from 'next/navigation';
+import {BillingStatus } from '@/components/dashboard/billing-status';
+import {authOptions } from '@/lib/auth/config';
+import {Button } from '@/components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {Badge } from '@/components/ui/badge';
+import {Activity,
   Settings,
-  QrCode, 
-  Calendar, 
-  BarChart3, 
-  Users, 
-  ChevronLeft, 
-  Download, 
-  Share2,
-  Link2 
-} from "lucide-react";
-import Link from "next/link";
+  QrCode,
+  Calendar,
+  BarChart3,
+  Users,
+  Download,
+  Link2,
+} from 'lucide-react';
+import Link from 'next/link';
 
 interface StatItem {
   title: string;
@@ -41,65 +37,65 @@ interface DashboardItem {
 
 const dashboardItems: DashboardItem[] = [
   {
-    title: "QR Codes",
-    description: "Manage your QR codes",
-    href: "/dashboard/qr-codes",
+    title: 'QR Codes',
+    description: 'Manage your QR codes',
+    href: '/dashboard/qr-codes',
     icon: QrCode,
-    color: "text-blue-500"
+    color: 'text-blue-500',
   },
   {
-    title: "Analytics",
-    description: "View your statistics",
-    href: "/dashboard/analytics",
+    title: 'Analytics',
+    description: 'View your statistics',
+    href: '/dashboard/analytics',
     icon: BarChart3,
-    color: "text-green-500"
+    color: 'text-green-500',
   },
   {
-    title: "Settings",
-    description: "Manage your account",
-    href: "/settings",
+    title: 'Settings',
+    description: 'Manage your account',
+    href: '/settings',
     icon: Settings,
-    color: "text-purple-500"
-  }
+    color: 'text-purple-500',
+  },
 ];
 
 const statsItems: StatItem[] = [
   {
-    title: "Total QR Codes",
+    title: 'Total QR Codes',
     value: 0,
     icon: QrCode,
-    color: "text-blue-500"
+    color: 'text-blue-500',
   },
   {
-    title: "Total Scans",
+    title: 'Total Scans',
     value: 0,
     icon: Activity,
-    color: "text-green-500"
+    color: 'text-green-500',
   },
   {
-    title: "Active Links",
+    title: 'Active Links',
     value: 0,
     icon: Link2,
-    color: "text-purple-500"
+    color: 'text-purple-500',
   },
   {
-    title: "Storage Used",
+    title: 'Storage Used',
     value: 0,
-    suffix: "MB",
+    suffix: 'MB',
     icon: Download,
-    color: "text-orange-500"
-  }
+    color: 'text-orange-500',
+  },
 ];
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/login");
+    redirect('/login');
   }
 
   return (
-    <div className="relative min-h-screen animated-bg">
+    <div className="animated-bg relative min-h-screen">
       <div className="relative mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Profile Section */}
@@ -119,10 +115,8 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="text-lg font-semibold">{session.user.name}</h2>
                   <p className="text-sm text-muted-foreground">{session.user.email}</p>
-                  <div className="flex gap-2 mt-2">
-                    <Badge variant="secondary">
-                      {session.user.role}
-                    </Badge>
+                  <div className="mt-2 flex gap-2">
+                    <Badge variant="secondary">{session.user.role}</Badge>
                     <Badge className="bg-gradient-to-r from-blue-500 to-purple-500">
                       {session.user.subscriptionStatus}
                     </Badge>
@@ -151,9 +145,7 @@ export default async function DashboardPage() {
                   <div key={stat.title} className="stat-card">
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                     <div>
-                      <div className="text-sm font-medium text-muted-foreground">
-                        {stat.title}
-                      </div>
+                      <div className="text-sm font-medium text-muted-foreground">{stat.title}</div>
                       <div className="text-2xl font-bold">
                         {stat.value.toLocaleString()}
                         {stat.suffix && (
@@ -171,10 +163,7 @@ export default async function DashboardPage() {
 
           {/* Dashboard Items */}
           {dashboardItems.map((item) => (
-            <Card 
-              key={item.title} 
-              className="col-span-1 glass-morphism hover-card"
-            >
+            <Card key={item.title} className="glass-morphism hover-card col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <item.icon className={`h-5 w-5 ${item.color}`} />
@@ -183,10 +172,8 @@ export default async function DashboardPage() {
                 <CardDescription>{item.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full button-glow" asChild>
-                  <Link href={item.href}>
-                    Go to {item.title}
-                  </Link>
+                <Button className="button-glow w-full" asChild>
+                  <Link href={item.href}>Go to {item.title}</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -200,25 +187,25 @@ export default async function DashboardPage() {
                 <CardDescription>Common tasks and operations</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Button className="w-full button-glow" asChild>
+                <Button className="button-glow w-full" asChild>
                   <Link href="/dashboard/qr-codes/new">
                     <QrCode className="mr-2 h-4 w-4" />
                     Create QR Code
                   </Link>
                 </Button>
-                <Button className="w-full button-glow" variant="outline" asChild>
+                <Button className="button-glow w-full" variant="outline" asChild>
                   <Link href="/dashboard/calendars/new">
                     <Calendar className="mr-2 h-4 w-4" />
                     New Calendar
                   </Link>
                 </Button>
-                <Button className="w-full button-glow" variant="outline" asChild>
+                <Button className="button-glow w-full" variant="outline" asChild>
                   <Link href="/dashboard/analytics">
                     <BarChart3 className="mr-2 h-4 w-4" />
                     View Analytics
                   </Link>
                 </Button>
-                <Button className="w-full button-glow" variant="outline" asChild>
+                <Button className="button-glow w-full" variant="outline" asChild>
                   <Link href="/dashboard/team/invite">
                     <Users className="mr-2 h-4 w-4" />
                     Invite Team Member
@@ -229,16 +216,14 @@ export default async function DashboardPage() {
           </div>
 
           {/* Recent Activity */}
-          <div className="col-span-full animate-slide-up">
+          <div className="animate-slide-up col-span-full">
             <Card className="glass-morphism hover-card">
               <CardHeader>
                 <CardTitle className="text-gradient">Recent Activity</CardTitle>
                 <CardDescription>Your latest actions and events</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  No recent activity to show
-                </div>
+                <div className="text-sm text-muted-foreground">No recent activity to show</div>
               </CardContent>
             </Card>
           </div>

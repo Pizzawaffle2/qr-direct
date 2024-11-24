@@ -23,7 +23,7 @@ async function analyzeBuild(): Promise<BuildReport> {
   const projectRoot = process.cwd();
   const buildDir = path.join(projectRoot, '.next');
   const srcDir = path.join(projectRoot, 'src');
-  
+
   const analysis: FileAnalysis[] = [];
   const report: BuildReport = {
     totalSize: 0,
@@ -43,11 +43,11 @@ async function analyzeBuild(): Promise<BuildReport> {
   // Walk through project files
   function walkDir(dir: string) {
     const files = fs.readdirSync(dir);
-    
+
     for (const file of files) {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
-      
+
       if (stat.isDirectory()) {
         walkDir(filePath);
         continue;
@@ -62,7 +62,7 @@ async function analyzeBuild(): Promise<BuildReport> {
         relativePath,
         size,
         type: fileType,
-        used: isFileUsed(filePath)
+        used: isFileUsed(filePath),
       });
     }
   }
@@ -70,7 +70,7 @@ async function analyzeBuild(): Promise<BuildReport> {
   walkDir(srcDir);
 
   // Analyze results
-  analysis.forEach(file => {
+  analysis.forEach((file) => {
     report.totalSize += file.size;
     report.fileCount++;
 
@@ -78,7 +78,8 @@ async function analyzeBuild(): Promise<BuildReport> {
       report.unusedFiles.push(file);
     }
 
-    if (file.size > 100 * 1024) { // Files larger than 100KB
+    if (file.size > 100 * 1024) {
+      // Files larger than 100KB
       report.largeFiles.push(file);
     }
   });
@@ -96,22 +97,22 @@ function getFileType(filePath: string): FileAnalysis['type'] {
 }
 
 // Run analysis
-analyzeBuild().then(report => {
+analyzeBuild().then((report) => {
   console.log('\nBuild Analysis Report');
   console.log('===================');
   console.log(`Total Size: ${filesize(report.totalSize)}`);
   console.log(`Total Files: ${report.fileCount}`);
-  
+
   if (report.unusedFiles.length > 0) {
     console.log('\nUnused Files:');
-    report.unusedFiles.forEach(file => {
+    report.unusedFiles.forEach((file) => {
       console.log(`- ${file.relativePath} (${filesize(file.size)})`);
     });
   }
 
   if (report.largeFiles.length > 0) {
     console.log('\nLarge Files:');
-    report.largeFiles.forEach(file => {
+    report.largeFiles.forEach((file) => {
       console.log(`- ${file.relativePath} (${filesize(file.size)})`);
     });
   }

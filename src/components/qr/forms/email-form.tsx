@@ -1,8 +1,8 @@
 // src/components/qr/forms/email-form.tsx
-import { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {useState } from 'react';
+import {Input } from '@/components/ui/input';
+import {Label } from '@/components/ui/label';
+import {Textarea } from '@/components/ui/textarea';
 
 interface QRCodeData {
   type: string;

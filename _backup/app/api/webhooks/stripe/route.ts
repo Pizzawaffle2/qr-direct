@@ -1,34 +1,28 @@
 // src/app/api/webhooks/stripe/route.ts
 
-import { headers } from "next/headers"
-import { NextResponse } from "next/server"
-import { stripe } from "@/lib/stripe"
-import { prisma } from "@/lib/db"
-import Stripe from "stripe"
+import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
+import { prisma } from '@/lib/db';
+import Stripe from 'stripe';
 
 export async function POST(request: Request) {
-  const body = await request.text()
-  const signature = headers().get("Stripe-Signature") as string
+  const body = await request.text();
+  const signature = headers().get('Stripe-Signature') as string;
 
-  let event: Stripe.Event
+  let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch (error: any) {
-    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 })
+    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
   try {
     switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session
-        const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string
-        )
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
         if (session.metadata?.type === 'team') {
           // Handle team subscription
@@ -59,7 +53,7 @@ export async function POST(request: Request) {
               seats: parseInt(session.metadata.seats || '1'),
               maxSeats: parseInt(session.metadata.maxSeats || '5'),
             },
-          })
+          });
         } else {
           // Handle individual subscription
           await prisma.subscription.upsert({
@@ -85,14 +79,14 @@ export async function POST(request: Request) {
               currentPeriodEnd: new Date(subscription.current_period_end * 1000),
               cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
-          })
+          });
         }
-        break
+        break;
       }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription
-        const metadata = subscription.metadata
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const metadata = subscription.metadata;
 
         if (metadata?.type === 'team') {
           await prisma.teamSubscription.update({
@@ -108,7 +102,7 @@ export async function POST(request: Request) {
               seats: parseInt(metadata.seats || '1'),
               maxSeats: parseInt(metadata.maxSeats || '5'),
             },
-          })
+          });
         } else {
           await prisma.subscription.update({
             where: {
@@ -121,14 +115,14 @@ export async function POST(request: Request) {
               currentPeriodEnd: new Date(subscription.current_period_end * 1000),
               cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
-          })
+          });
         }
-        break
+        break;
       }
 
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription
-        const metadata = subscription.metadata
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const metadata = subscription.metadata;
 
         if (metadata?.type === 'team') {
           await prisma.teamSubscription.update({
@@ -139,7 +133,7 @@ export async function POST(request: Request) {
               status: 'canceled',
               cancelAtPeriodEnd: false,
             },
-          })
+          });
         } else {
           await prisma.subscription.update({
             where: {
@@ -149,14 +143,14 @@ export async function POST(request: Request) {
               status: 'canceled',
               cancelAtPeriodEnd: false,
             },
-          })
+          });
         }
-        break
+        break;
       }
 
-      case "customer.deleted": {
-        const customer = event.data.object as Stripe.Customer
-        const metadata = customer.metadata
+      case 'customer.deleted': {
+        const customer = event.data.object as Stripe.Customer;
+        const metadata = customer.metadata;
 
         if (metadata?.type === 'team') {
           await prisma.teamSubscription.updateMany({
@@ -168,7 +162,7 @@ export async function POST(request: Request) {
               stripeSubscriptionId: null,
               status: 'canceled',
             },
-          })
+          });
         } else {
           await prisma.subscription.updateMany({
             where: {
@@ -179,15 +173,15 @@ export async function POST(request: Request) {
               stripeSubscriptionId: null,
               status: 'canceled',
             },
-          })
+          });
         }
-        break
+        break;
       }
     }
 
-    return new NextResponse(null, { status: 200 })
+    return new NextResponse(null, { status: 200 });
   } catch (error) {
-    console.error('Webhook error:', error)
-    return new NextResponse('Webhook handler failed', { status: 500 })
+    console.error('Webhook error:', error);
+    return new NextResponse('Webhook handler failed', { status: 500 });
   }
 }

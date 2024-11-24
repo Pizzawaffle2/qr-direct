@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe';
-import { updateUserSubscriptionStatus } from '@/lib/stripe';
+import {NextResponse } from 'next/server';
+import {headers } from 'next/headers';
+import {stripe } from '@/lib/stripe';
+import {updateUserSubscriptionStatus } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import type Stripe from 'stripe';
-import { Prisma } from '@prisma/client';
+import {Prisma } from '@prisma/client';
 
 // Utility function for safe database operations
 async function safeDbOperation<T>(operation: () => Promise<T>, fallback: T): Promise<T> {
@@ -30,13 +30,13 @@ async function handleCustomerCreated(customer: Stripe.Customer) {
   await safeDbOperation(async () => {
     // First try to find user by email
     const user = await prisma.user.findUnique({
-      where: { email: customer.email! }
+      where: { email: customer.email! },
     });
 
     if (user) {
       await prisma.user.update({
         where: { email: customer.email! },
-        data: { stripeCustomerId: customer.id }
+        data: { stripeCustomerId: customer.id },
       });
     } else {
       console.log('No user found for email:', customer.email);
@@ -47,7 +47,7 @@ async function handleCustomerCreated(customer: Stripe.Customer) {
 async function handleCustomerUpdated(customer: Stripe.Customer) {
   await safeDbOperation(async () => {
     const user = await prisma.user.findUnique({
-      where: { stripeCustomerId: customer.id }
+      where: { stripeCustomerId: customer.id },
     });
 
     if (user) {
@@ -56,7 +56,7 @@ async function handleCustomerUpdated(customer: Stripe.Customer) {
         data: {
           email: customer.email || undefined,
           name: customer.name || undefined,
-        }
+        },
       });
     } else {
       console.log('No user found for customer:', customer.id);
@@ -74,13 +74,13 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
   await safeDbOperation(async () => {
     const user = await prisma.user.findUnique({
-      where: { stripeCustomerId: customerId }
+      where: { stripeCustomerId: customerId },
     });
 
     if (user) {
       await prisma.user.update({
         where: { stripeCustomerId: customerId },
-        data: { subscriptionStatus: 'active' }
+        data: { subscriptionStatus: 'active' },
       });
     } else {
       console.log('No user found for customer:', customerId);
@@ -97,13 +97,13 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   await safeDbOperation(async () => {
     const user = await prisma.user.findUnique({
-      where: { stripeCustomerId: customerId }
+      where: { stripeCustomerId: customerId },
     });
 
     if (user) {
       await prisma.user.update({
         where: { stripeCustomerId: customerId },
-        data: { subscriptionStatus: 'past_due' }
+        data: { subscriptionStatus: 'past_due' },
       });
     } else {
       console.log('No user found for customer:', customerId);
@@ -121,7 +121,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
   await safeDbOperation(async () => {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (user) {
@@ -141,7 +141,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
   await safeDbOperation(async () => {
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (user) {
@@ -152,7 +152,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
           subscriptionTier: 'free',
           subscriptionId: null,
           subscriptionCurrentPeriodEnd: null,
-        }
+        },
       });
     }
   }, null);
@@ -186,7 +186,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     await safeDbOperation(async () => {
       // Try to find user by email first
       let user = await prisma.user.findUnique({
-        where: { email: email }
+        where: { email: email },
       });
 
       if (user) {
@@ -198,10 +198,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             name: customer.name || user.name,
             subscriptionStatus: 'active',
             subscriptionTier: 'pro', // Or determine from the session/price
-            subscriptionCurrentPeriodEnd: session.expires_at 
+            subscriptionCurrentPeriodEnd: session.expires_at
               ? new Date(session.expires_at * 1000)
-              : undefined
-          }
+              : undefined,
+          },
         });
         console.log('Updated existing user:', user.id);
       } else {
@@ -213,10 +213,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             stripeCustomerId: customer.id,
             subscriptionStatus: 'active',
             subscriptionTier: 'pro', // Or determine from the session/price
-            subscriptionCurrentPeriodEnd: session.expires_at 
+            subscriptionCurrentPeriodEnd: session.expires_at
               ? new Date(session.expires_at * 1000)
-              : undefined
-          }
+              : undefined,
+          },
         });
         console.log('Created new user:', user.id);
       }
@@ -224,12 +224,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       // If we have a subscription, process it
       if (session.subscription) {
         const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-        
+
         // Update the subscription with the user ID
         await stripe.subscriptions.update(subscription.id, {
           metadata: {
-            userId: user.id
-          }
+            userId: user.id,
+          },
         });
 
         // Update user's subscription details
@@ -237,8 +237,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           where: { id: user.id },
           data: {
             subscriptionId: subscription.id,
-            subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000)
-          }
+            subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          },
         });
 
         console.log('Updated subscription with user ID:', user.id);
@@ -270,10 +270,7 @@ export async function POST(req: Request) {
     } catch (err) {
       const error = err as Error;
       console.error('Webhook signature verification failed:', error.message);
-      return NextResponse.json(
-        { message: `Webhook Error: ${error.message}` },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: `Webhook Error: ${error.message}` }, { status: 400 });
     }
 
     console.log('Processing webhook event:', event.type);
@@ -331,32 +328,38 @@ export async function POST(req: Request) {
       return NextResponse.json({
         received: true,
         type: event.type,
-        processedAt: new Date().toISOString()
+        processedAt: new Date().toISOString(),
       });
     } catch (error) {
       console.error('Webhook handler failed:', error);
-      return NextResponse.json({
-        message: 'Webhook handler failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        type: event.type
-      }, { status: 500 });
+      return NextResponse.json(
+        {
+          message: 'Webhook handler failed',
+          error: error instanceof Error ? error.message : 'Unknown error',
+          type: event.type,
+        },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error('Webhook processing failed:', error);
-    return NextResponse.json({
-      message: 'Webhook processing failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        message: 'Webhook processing failed',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
   const headersList = await headers();
-  
+
   return NextResponse.json({
     status: 'healthy',
     message: 'Stripe webhook endpoint is active',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
   });
 }

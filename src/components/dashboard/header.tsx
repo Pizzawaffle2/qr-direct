@@ -1,23 +1,22 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { User } from "next-auth";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
+import Link from 'next/link';
+import {User } from 'next-auth';
+import {usePathname } from 'next/navigation';
+import {useState } from 'react';
+import {Button } from '@/components/ui/button';
+import {DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, LogOut, Home, Bell, Menu, X } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
+} from '@/components/ui/dropdown-menu';
+import {Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {Settings, LogOut, Home, Bell, Menu, X } from 'lucide-react';
+import {signOut } from 'next-auth/react';
+import {motion } from 'framer-motion';
+import {useTheme } from 'next-themes';
 
 interface HeaderProps {
   user: User;
@@ -35,16 +34,20 @@ export function Header({ user }: HeaderProps) {
   ];
 
   return (
-    <header className="header sticky top-0 z-50 w-full border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm">
+    <header className="header sticky top-0 z-50 w-full border-b bg-white/80 shadow-sm backdrop-blur-sm dark:bg-gray-900/80">
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             QR Direct
           </Link>
-          <nav className="hidden md:flex space-x-4">
+          <nav className="hidden space-x-4 md:flex">
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href} className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                <item.icon className="inline-block h-5 w-5 mr-1" />
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 transition-colors duration-200 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+              >
+                <item.icon className="mr-1 inline-block h-5 w-5" />
                 {item.name}
               </Link>
             ))}
@@ -58,7 +61,9 @@ export function Header({ user }: HeaderProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            {pathname === '/dashboard' ? 'Dashboard' : pathname?.split('/').pop()?.replace('-', ' ') ?? 'Dashboard'}
+            {pathname === '/dashboard'
+              ? 'Dashboard'
+              : (pathname?.split('/').pop()?.replace('-', ' ') ?? &apos;Dashboard&apos;)}
           </motion.h1>
 
           <DropdownMenu>
@@ -66,9 +71,7 @@ export function Header({ user }: HeaderProps) {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user.image || undefined} alt={user.name || 'User'} />
-                  <AvatarFallback>
-                    {user.name?.charAt(0) || 'U'}
-                  </AvatarFallback>
+                  <AvatarFallback>{user.name?.charAt(0) || &apos;U&apos;}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -81,7 +84,7 @@ export function Header({ user }: HeaderProps) {
                   <span>Settings</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => signOut({ callbackUrl: '/' })}
                 className="text-red-600 focus:text-red-600"
               >
@@ -98,24 +101,31 @@ export function Header({ user }: HeaderProps) {
 
       {/* Mobile navigation */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 shadow-md">
+        <div className="bg-white shadow-md dark:bg-gray-900 md:hidden">
           <div className="container mx-auto px-4 py-2">
             <div className="flex flex-col space-y-4">
               {navigation.map((item) => (
-                <Link key={item.name} href={item.href} className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                  <item.icon className="inline-block h-5 w-5 mr-1" />
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-700 transition-colors duration-200 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+                >
+                  <item.icon className="mr-1 inline-block h-5 w-5" />
                   {item.name}
                 </Link>
               ))}
-              <Link href="/settings" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors duration-200">
-                <Settings className="inline-block h-5 w-5 mr-1" />
+              <Link
+                href="/settings"
+                className="text-gray-700 transition-colors duration-200 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
+              >
+                <Settings className="mr-1 inline-block h-5 w-5" />
                 Settings
               </Link>
-              <button 
+              <button
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="text-red-600 hover:text-red-800 transition-colors duration-200 flex items-center"
+                className="flex items-center text-red-600 transition-colors duration-200 hover:text-red-800"
               >
-                <LogOut className="inline-block h-5 w-5 mr-1" />
+                <LogOut className="mr-1 inline-block h-5 w-5" />
                 Log out
               </button>
             </div>

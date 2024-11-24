@@ -33,7 +33,7 @@ export const useElementSize = (): [Size, (node: HTMLElement | null) => void] => 
             width: entry.contentRect.width,
             height: entry.contentRect.height,
           });
-        }),
+        })
   );
 
   const setRef = useCallback((node: HTMLElement | null) => {

@@ -1,7 +1,6 @@
-
 // src/lib/db/queries.ts
-import { prisma } from '.'
-import { Prisma } from '@prisma/client'
+import {prisma } from '.';
+import {Prisma } from '@prisma/client';
 
 export async function getUserById(id: string) {
   return await prisma.user.findUnique({
@@ -10,7 +9,7 @@ export async function getUserById(id: string) {
       subscription: true,
       settings: true,
     },
-  })
+  });
 }
 
 export async function getQRCodesByUserId(userId: string) {
@@ -21,7 +20,7 @@ export async function getQRCodesByUserId(userId: string) {
       category: true,
       tags: true,
     },
-  })
+  });
 }
 
 export async function createQRCode(data: Prisma.QRCodeCreateInput) {
@@ -31,5 +30,5 @@ export async function createQRCode(data: Prisma.QRCodeCreateInput) {
       category: true,
       tags: true,
     },
-  })
+  });
 }

@@ -1,13 +1,13 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { TemplateConfig } from '@/lib/types/qr-styles'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { TemplateConfig } from '@/lib/types/qr-styles';
 
 interface TemplateStore {
-  recentTemplates: TemplateConfig[]
-  favoriteTemplates: string[]
-  addRecentTemplate: (template: TemplateConfig) => void
-  toggleFavorite: (templateId: string) => void
-  clearRecentTemplates: () => void
+  recentTemplates: TemplateConfig[];
+  favoriteTemplates: string[];
+  addRecentTemplate: (template: TemplateConfig) => void;
+  toggleFavorite: (templateId: string) => void;
+  clearRecentTemplates: () => void;
 }
 
 export const useTemplateStore = create<TemplateStore>()(
@@ -25,11 +25,10 @@ export const useTemplateStore = create<TemplateStore>()(
             ? state.favoriteTemplates.filter((id) => id !== templateId)
             : [...state.favoriteTemplates, templateId],
         })),
-      clearRecentTemplates: () =>
-        set({ recentTemplates: [] }),
+      clearRecentTemplates: () => set({ recentTemplates: [] }),
     }),
     {
       name: 'qr-templates',
     }
   )
-)
+);

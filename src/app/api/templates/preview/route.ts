@@ -1,8 +1,8 @@
 // File: src/app/api/templates/preview/route.ts
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { PreviewGenerator } from '@/services/preview-generator';
+import {NextResponse } from 'next/server';
+import {getServerSession } from 'next-auth';
+import {authOptions } from '@/lib/auth';
+import {PreviewGenerator } from '@/services/preview-generator';
 import type { QRStyle } from '@/lib/types/qr-styles';
 
 export async function POST(req: Request) {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const { style }: { style: QRStyle } = await req.json();
-    
+
     // Generate preview with smaller size for thumbnails
     const preview = await PreviewGenerator.generatePreview({
       style,

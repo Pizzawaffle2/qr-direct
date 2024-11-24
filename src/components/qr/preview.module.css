@@ -14,7 +14,8 @@
 }
 
 .qrContainer.withShadow {
-  box-shadow: var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur) var(--qr-shadow-color);
+  box-shadow: var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur)
+    var(--qr-shadow-color);
 }
 
 .qrCode {

@@ -1,19 +1,27 @@
-import 'next-auth';
-import { DefaultSession, DefaultUser } from 'next-auth';
-
-interface User extends DefaultUser {
-  subscriptionTier?: string | null;
-  subscriptionStatus?: 'active' | 'inactive' | null;
-}
+// types/next-auth.d.ts
+import {User as NextAuthUser } from 'next-auth';
+import {USER_ROLE, SUBSCRIPTION_STATUS, SUBSCRIPTION_TIER } from '@/constants/auth';
 
 declare module 'next-auth' {
-  interface User extends IUser {}
-  
+  interface User extends NextAuthUser {
+    role: keyof typeof USER_ROLE;
+    username?: string | null;
+    subscriptionStatus: keyof typeof SUBSCRIPTION_STATUS;
+    subscriptionTier: keyof typeof SUBSCRIPTION_TIER;
+  }
+
   interface Session {
-    user: IUser & DefaultSession['user'];
+    user: User & {
+      id: string;
+    };
   }
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT extends IUser {}
+  interface JWT {
+    role: keyof typeof USER_ROLE;
+    username?: string | null;
+    subscriptionStatus: keyof typeof SUBSCRIPTION_STATUS;
+    subscriptionTier: keyof typeof SUBSCRIPTION_TIER;
+  }
 }

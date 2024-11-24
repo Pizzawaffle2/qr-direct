@@ -23,7 +23,7 @@ export function getLunarPhaseDescription(date: Date): string {
     'Full Moon',
     'Waning Gibbous',
     'Last Quarter',
-    'Waning Crescent'
+    'Waning Crescent',
   ];
   return phaseNames[getLunarPhase(date)];
 }

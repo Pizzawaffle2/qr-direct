@@ -63,7 +63,7 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
 
     try {
       const method = editingCategory.id ? 'PUT' : 'POST';
-      const url = editingCategory.id 
+      const url = editingCategory.id
         ? `/api/templates/categories/${editingCategory.id}`
         : '/api/templates/categories';
 
@@ -128,8 +128,8 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
               <SelectItem key={category.id} value={category.id}>
                 <div className="flex items-center space-x-2">
                   {category.color && (
-                    <div 
-                      className="w-3 h-3 rounded-full" 
+                    <div
+                      className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
                   )}
@@ -142,29 +142,25 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
 
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
           <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => setEditingCategory({})}
-            >
+            <Button variant="outline" size="icon" onClick={() => setEditingCategory({})}>
               <Plus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {editingCategory?.id ? 'Edit Category' : 'New Category'}
-              </DialogTitle>
+              <DialogTitle>{editingCategory?.id ? 'Edit Category' : 'New Category'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
                 <label>Name</label>
                 <Input
                   value={editingCategory?.name || ''}
-                  onChange={(e) => setEditingCategory({
-                    ...editingCategory,
-                    name: e.target.value
-                  })}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      name: e.target.value,
+                    })
+                  }
                   placeholder="Category name"
                 />
               </div>
@@ -172,10 +168,12 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
                 <label>Description</label>
                 <Input
                   value={editingCategory?.description || ''}
-                  onChange={(e) => setEditingCategory({
-                    ...editingCategory,
-                    description: e.target.value
-                  })}
+                  onChange={(e) =>
+                    setEditingCategory({
+                      ...editingCategory,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Category description"
                 />
               </div>
@@ -185,32 +183,33 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
                   <Input
                     type="color"
                     value={editingCategory?.color || '#000000'}
-                    onChange={(e) => setEditingCategory({
-                      ...editingCategory,
-                      color: e.target.value
-                    })}
-                    className="w-12 h-12 p-1"
+                    onChange={(e) =>
+                      setEditingCategory({
+                        ...editingCategory,
+                        color: e.target.value,
+                      })
+                    }
+                    className="h-12 w-12 p-1"
                   />
                   <Input
                     value={editingCategory?.color || ''}
-                    onChange={(e) => setEditingCategory({
-                      ...editingCategory,
-                      color: e.target.value
-                    })}
+                    onChange={(e) =>
+                      setEditingCategory({
+                        ...editingCategory,
+                        color: e.target.value,
+                      })
+                    }
                     placeholder="#000000"
                     className="flex-1"
                   />
                 </div>
               </div>
               <div className="flex justify-end space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                >
+                <Button variant="outline" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
                 <Button onClick={handleSaveCategory}>
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   Save
                 </Button>
               </div>
@@ -225,20 +224,16 @@ export function CategoryManager({ onSelect, selected }: CategoryManagerProps) {
             variant="outline"
             size="sm"
             onClick={() => {
-              const category = categories.find(c => c.id === selected);
+              const category = categories.find((c) => c.id === selected);
               setEditingCategory(category || null);
               setIsEditing(true);
             }}
           >
-            <Edit2 className="w-4 h-4 mr-2" />
+            <Edit2 className="mr-2 h-4 w-4" />
             Edit
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDeleteCategory(selected)}
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={() => handleDeleteCategory(selected)}>
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>
         </div>

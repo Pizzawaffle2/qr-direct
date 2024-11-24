@@ -1,6 +1,6 @@
 // src/lib/qr-presets.ts
 
-import { QRStyleOptions } from "@/types/qr";
+import {QRStyleOptions } from '@/types/qr';
 
 interface QRStylePreset {
   id: string;
@@ -23,7 +23,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       backgroundColor: '#FFFFFF',
       dotStyle: 'square',
       cornerStyle: 'square',
-    }
+    },
   },
   {
     id: 'modern',
@@ -41,9 +41,9 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       gradientColors: {
         start: '#3b82f6',
         end: '#8b5cf6',
-        direction: 45
-      }
-    }
+        direction: 45,
+      },
+    },
   },
   {
     id: 'minimalist',
@@ -57,7 +57,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       backgroundColor: '#f3f4f6',
       dotStyle: 'rounded',
       cornerStyle: 'rounded',
-    }
+    },
   },
   {
     id: 'branded',
@@ -75,7 +75,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       frameColor: '#2563eb',
       frameStyle: 'modern',
     },
-    isPro: true
+    isPro: true,
   },
   {
     id: 'gradient',
@@ -92,10 +92,10 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       gradientType: 'radial',
       gradientColors: {
         start: '#ec4899',
-        end: '#8b5cf6'
-      }
+        end: '#8b5cf6',
+      },
     },
-    isPro: true
+    isPro: true,
   },
   {
     id: 'sharp',
@@ -111,13 +111,13 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       cornerStyle: 'square',
       frame: true,
       frameStyle: 'basic',
-      frameColor: '#111827'
-    }
-  }
+      frameColor: '#111827',
+    },
+  },
 ];
 
 export function getPresetById(id: string): QRStylePreset | undefined {
-  return QR_STYLE_PRESETS.find(preset => preset.id === id);
+  return QR_STYLE_PRESETS.find((preset) => preset.id === id);
 }
 
 export function getDefaultPreset(): QRStylePreset {
@@ -125,9 +125,9 @@ export function getDefaultPreset(): QRStylePreset {
 }
 
 export function getProPresets(): QRStylePreset[] {
-  return QR_STYLE_PRESETS.filter(preset => preset.isPro);
+  return QR_STYLE_PRESETS.filter((preset) => preset.isPro);
 }
 
 export function getFreePresets(): QRStylePreset[] {
-  return QR_STYLE_PRESETS.filter(preset => !preset.isPro);
+  return QR_STYLE_PRESETS.filter((preset) => !preset.isPro);
 }

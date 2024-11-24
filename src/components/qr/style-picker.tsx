@@ -1,9 +1,9 @@
 // src/components/qr/style-picker.tsx
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { QRStyleOptions } from "@/types/qr";
+import {Badge } from '@/components/ui/badge';
+import {Button } from '@/components/ui/button';
+import {Card } from '@/components/ui/card';
+import {cn } from '@/lib/utils';
+import {QRStyleOptions } from '@/types/qr';
 
 interface QRStylePickerProps {
   presets: Array<{
@@ -22,7 +22,7 @@ export function QRStylePicker({
   presets,
   value,
   onChange,
-  onCustomize
+  onCustomize,
 }: QRStylePickerProps): JSX.Element {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -30,20 +30,21 @@ export function QRStylePicker({
         <Card
           key={preset.id}
           className={cn(
-            "relative cursor-pointer p-4 transition-all hover:bg-accent",
-            JSON.stringify(value) === JSON.stringify(preset.style) &&
-              "ring-2 ring-primary"
+            'relative cursor-pointer p-4 transition-all hover:bg-accent',
+            JSON.stringify(value) === JSON.stringify(preset.style) && 'ring-2 ring-primary'
           )}
         >
-          <div 
-            onClick={() => onChange({
-              ...preset.style,
-              size: preset.style.size || 200,
-              margin: preset.style.margin || 4,
-              errorCorrection: preset.style.errorCorrection || 'M',
-              foregroundColor: preset.style.foregroundColor || '#000000',
-              backgroundColor: preset.style.backgroundColor || '#FFFFFF'
-            })}
+          <div
+            onClick={() =>
+              onChange({
+                ...preset.style,
+                size: preset.style.size || 200,
+                margin: preset.style.margin || 4,
+                errorCorrection: preset.style.errorCorrection || 'M',
+                foregroundColor: preset.style.foregroundColor || '#000000',
+                backgroundColor: preset.style.backgroundColor || '#FFFFFF',
+              })
+            }
             className="space-y-2"
           >
             {preset.isPro && (
@@ -52,9 +53,7 @@ export function QRStylePicker({
               </Badge>
             )}
             <div className="text-sm font-medium">{preset.name}</div>
-            <div className="text-xs text-muted-foreground">
-              {preset.description}
-            </div>
+            <div className="text-xs text-muted-foreground">{preset.description}</div>
           </div>
           {onCustomize && (
             <Button

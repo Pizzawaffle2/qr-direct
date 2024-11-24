@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {useCallback, useState } from 'react';
+import {Input } from '@/components/ui/input';
+import {Label } from '@/components/ui/label';
 
 interface LocationFormData {
   type: 'location';
@@ -9,9 +9,9 @@ interface LocationFormData {
   name: string;
 }
 
-function LocationForm({ 
-  initialData, 
-  onChange 
+function LocationForm({
+  initialData,
+  onChange,
 }: {
   initialData?: LocationFormData;
   onChange: (data: LocationFormData) => void;
@@ -23,23 +23,24 @@ function LocationForm({
     name: initialData?.name ?? '',
   });
 
-  const handleChange = useCallback((
-    updates: Partial<LocationFormData>
-  ) => {
-    const newData = { ...data, ...updates };
-    setData(newData);
-    onChange(newData);
-  }, [data, onChange]);
+  const handleChange = useCallback(
+    (updates: Partial<LocationFormData>) => {
+      const newData = { ...data, ...updates };
+      setData(newData);
+      onChange(newData);
+    },
+    [data, onChange]
+  );
 
-  const handleNumberInput = useCallback((
-    field: 'latitude' | 'longitude',
-    value: string
-  ) => {
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
-      handleChange({ [field]: numValue });
-    }
-  }, [handleChange]);
+  const handleNumberInput = useCallback(
+    (field: 'latitude' | 'longitude&apos;, value: string) => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        handleChange({ [field]: numValue });
+      }
+    },
+    [handleChange]
+  );
 
   return (
     <div className="space-y-4">
@@ -48,7 +49,9 @@ function LocationForm({
           <Label htmlFor="latitude">Latitude</Label>
           <Input
             id="latitude"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberInput('latitude', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleNumberInput(&apos;latitude', e.target.value)
+            }
             type="number"
             step="0.000001"
             value={data.latitude}
@@ -62,7 +65,9 @@ function LocationForm({
           <Label htmlFor="longitude">Longitude</Label>
           <Input
             id="longitude"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleNumberInput('longitude', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleNumberInput(&apos;longitude&apos;, e.target.value)
+            }
             type="number"
             step="0.000001"
             value={data.longitude}
@@ -79,7 +84,9 @@ function LocationForm({
           id="name"
           placeholder="e.g., My Office"
           value={data.name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange({ name: e.target.value })}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleChange({ name: e.target.value })
+          }
           maxLength={100}
         />
       </div>
@@ -89,5 +96,5 @@ function LocationForm({
         Map selection coming soon...
       </div>
     </div>
-    );
-  }
+  );
+}

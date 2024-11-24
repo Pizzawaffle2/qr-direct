@@ -1,20 +1,15 @@
 // src/services/subscription-service.ts
 
-import { stripe } from "@/lib/stripe"
-import { prisma } from "@/lib/prisma"
-import { ApiError } from "@/lib/errors"
+import { stripe } from '@/lib/stripe';
+import { prisma } from '@/lib/prisma';
+import { ApiError } from '@/lib/errors';
 
 export const PLANS = {
   FREE: {
     id: 'free',
     name: 'Free',
     price: 0,
-    features: [
-      'Basic QR codes',
-      '5 QR codes per month',
-      'Basic analytics',
-      'Standard support',
-    ],
+    features: ['Basic QR codes', '5 QR codes per month', 'Basic analytics', 'Standard support'],
   },
   PRO: {
     id: 'pro',
@@ -43,7 +38,7 @@ export const PLANS = {
       'Custom features',
     ],
   },
-} as const
+} as const;
 
 export class SubscriptionService {
   static async createCheckoutSession(userId: string, priceId: string) {
@@ -51,14 +46,14 @@ export class SubscriptionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { subscription: true },
-      })
+      });
 
       if (!user) {
-        throw new ApiError('User not found', 404)
+        throw new ApiError('User not found', 404);
       }
 
       // Create or get Stripe customer
-      let customerId = user.subscription?.stripeCustomerId
+      let customerId = user.subscription?.stripeCustomerId;
 
       if (!customerId) {
         const customer = await stripe.customers.create({
@@ -66,8 +61,8 @@ export class SubscriptionService {
           metadata: {
             userId,
           },
-        })
-        customerId = customer.id
+        });
+        customerId = customer.id;
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -84,12 +79,12 @@ export class SubscriptionService {
         metadata: {
           userId,
         },
-      })
+      });
 
-      return session
+      return session;
     } catch (error) {
-      console.error('Checkout session error:', error)
-      throw new ApiError('Failed to create checkout session', 500)
+      console.error('Checkout session error:', error);
+      throw new ApiError('Failed to create checkout session', 500);
     }
   }
 
@@ -98,21 +93,21 @@ export class SubscriptionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { subscription: true },
-      })
+      });
 
       if (!user?.subscription?.stripeCustomerId) {
-        throw new ApiError('No subscription found', 404)
+        throw new ApiError('No subscription found', 404);
       }
 
       const session = await stripe.billingPortal.sessions.create({
         customer: user.subscription.stripeCustomerId,
         return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
-      })
+      });
 
-      return session
+      return session;
     } catch (error) {
-      console.error('Billing portal error:', error)
-      throw new ApiError('Failed to create billing portal session', 500)
+      console.error('Billing portal error:', error);
+      throw new ApiError('Failed to create billing portal session', 500);
     }
   }
 
@@ -121,25 +116,25 @@ export class SubscriptionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { subscription: true },
-      })
+      });
 
       if (!user?.subscription?.stripeSubscriptionId) {
-        throw new ApiError('No subscription found', 404)
+        throw new ApiError('No subscription found', 404);
       }
 
       await stripe.subscriptions.update(user.subscription.stripeSubscriptionId, {
         cancel_at_period_end: true,
-      })
+      });
 
       await prisma.subscription.update({
         where: { userId },
         data: {
           cancelAtPeriodEnd: true,
         },
-      })
+      });
     } catch (error) {
-      console.error('Cancel subscription error:', error)
-      throw new ApiError('Failed to cancel subscription', 500)
+      console.error('Cancel subscription error:', error);
+      throw new ApiError('Failed to cancel subscription', 500);
     }
   }
 
@@ -148,25 +143,25 @@ export class SubscriptionService {
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { subscription: true },
-      })
+      });
 
       if (!user?.subscription?.stripeSubscriptionId) {
-        throw new ApiError('No subscription found', 404)
+        throw new ApiError('No subscription found', 404);
       }
 
       await stripe.subscriptions.update(user.subscription.stripeSubscriptionId, {
         cancel_at_period_end: false,
-      })
+      });
 
       await prisma.subscription.update({
         where: { userId },
         data: {
           cancelAtPeriodEnd: false,
         },
-      })
+      });
     } catch (error) {
-      console.error('Resume subscription error:', error)
-      throw new ApiError('Failed to resume subscription', 500)
+      console.error('Resume subscription error:', error);
+      throw new ApiError('Failed to resume subscription', 500);
     }
   }
 }

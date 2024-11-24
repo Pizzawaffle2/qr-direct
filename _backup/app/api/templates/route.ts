@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         isPublic: data.isPublic ?? false,
         userId: session.user.id,
         tags: {
-          connect: data.tagIds?.map(id => ({ id })) || [],
+          connect: data.tagIds?.map((id) => ({ id })) || [],
         },
       },
       include: {

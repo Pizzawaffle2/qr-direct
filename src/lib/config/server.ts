@@ -1,5 +1,5 @@
 // lib/config/server.ts
-import { SecretsManager } from './secrets';
+import {SecretsManager } from './secrets';
 
 export class ServerConfig {
   private static instance: ServerConfig;

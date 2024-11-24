@@ -1,5 +1,5 @@
 // src/lib/stripe/plans.ts
-import { SubscriptionPlan } from './types'
+import {SubscriptionPlan } from './types';
 
 export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
   FREE: {
@@ -8,17 +8,13 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     description: 'For personal use',
     priceId: '',
     price: 0,
-    features: [
-      '10 QR codes per month',
-      'Basic templates',
-      'Standard support'
-    ],
+    features: ['10 QR codes per month', 'Basic templates', 'Standard support'],
     limits: {
       qrCodesPerMonth: 10,
       customBranding: false,
       analytics: false,
-      teamMembers: 1
-    }
+      teamMembers: 1,
+    },
   },
   PRO: {
     id: 'pro',
@@ -26,18 +22,13 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
     description: 'For professionals',
     priceId: process.env.STRIPE_PRO_PRICE_ID || '',
     price: 9,
-    features: [
-      '100 QR codes per month',
-      'Custom branding',
-      'Analytics',
-      'Priority support'
-    ],
+    features: ['100 QR codes per month', 'Custom branding', 'Analytics', 'Priority support'],
     limits: {
       qrCodesPerMonth: 100,
       customBranding: true,
       analytics: true,
-      teamMembers: 1
-    }
+      teamMembers: 1,
+    },
   },
   BUSINESS: {
     id: 'business',
@@ -50,14 +41,13 @@ export const SUBSCRIPTION_PLANS: Record<string, SubscriptionPlan> = {
       'Custom branding',
       'Advanced analytics',
       '24/7 support',
-      'Team management'
+      'Team management',
     ],
     limits: {
       qrCodesPerMonth: -1,
       customBranding: true,
       analytics: true,
-      teamMembers: 5
-    }
-  }
-}
-
+      teamMembers: 5,
+    },
+  },
+};

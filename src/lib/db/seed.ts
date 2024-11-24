@@ -1,9 +1,8 @@
-
 // src/lib/db/seed.ts
-import { PrismaClient } from '@prisma/client'
+import {PrismaClient } from '@prisma/client';
 
 async function seed() {
-  const prisma = new PrismaClient()
+  const prisma = new PrismaClient();
 
   try {
     // Add default categories
@@ -14,7 +13,7 @@ async function seed() {
         { name: 'Marketing', description: 'Marketing campaign QR codes' },
       ],
       skipDuplicates: true,
-    })
+    });
 
     // Add default templates
     await prisma.template.createMany({
@@ -43,13 +42,13 @@ async function seed() {
         },
       ],
       skipDuplicates: true,
-    })
+    });
 
-    console.log('Seed completed successfully')
+    console.log('Seed completed successfully');
   } catch (error) {
-    console.error('Seed error:', error)
-    throw error
+    console.error('Seed error:', error);
+    throw error;
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }

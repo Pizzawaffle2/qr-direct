@@ -1,51 +1,46 @@
 // File: src/components/qr-code/options.tsx
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
-import { ImageSelector } from "./image-selector"
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select"
-import { QRCodeOptions } from "@/lib/types/qr-code"
-import { motion } from "framer-motion"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
-import { ChevronDown } from "lucide-react"
+import {useState } from 'react';
+import {Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {Label } from '@/components/ui/label';
+import {Input } from '@/components/ui/input';
+import {Slider } from '@/components/ui/slider';
+import {ImageSelector } from './image-selector';
+import {Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {QRCodeOptions } from '@/lib/types/qr-code';
+import {motion } from 'framer-motion';
+import {Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {ChevronDown } from 'lucide-react';
 
 interface OptionsProps {
-  options: QRCodeOptions
-  onChange: (options: QRCodeOptions) => void
+  options: QRCodeOptions;
+  onChange: (options: QRCodeOptions) => void;
 }
 
 const patterns = [
-  { value: "squares", label: "Squares" },
-  { value: "dots", label: "Dots" },
-  { value: "rounded", label: "Rounded" },
-]
+  { value: 'squares', label: 'Squares' },
+  { value: 'dots', label: 'Dots' },
+  { value: 'rounded', label: 'Rounded' },
+];
 
 const cornerStyles = [
-  { value: "square", label: "Square" },
-  { value: "dot", label: "Dot" },
-  { value: "extra-rounded", label: "Extra Rounded" },
-]
+  { value: 'square', label: 'Square' },
+  { value: 'dot', label: 'Dot' },
+  { value: 'extra-rounded', label: 'Extra Rounded' },
+];
 
 export function QROptions({ options, onChange }: OptionsProps) {
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   const handleChange = (key: keyof QRCodeOptions, value: any) => {
-    onChange({ ...options, [key]: value })
-  }
+    onChange({ ...options, [key]: value });
+  };
 
   return (
     <Card>
@@ -61,13 +56,13 @@ export function QROptions({ options, onChange }: OptionsProps) {
               <Input
                 type="color"
                 value={options.backgroundColor}
-                onChange={(e) => handleChange("backgroundColor", e.target.value)}
-                className="w-12 h-12 p-1"
+                onChange={(e) => handleChange('backgroundColor&apos;, e.target.value)}
+                className="h-12 w-12 p-1"
               />
               <Input
                 type="text"
                 value={options.backgroundColor}
-                onChange={(e) => handleChange("backgroundColor", e.target.value)}
+                onChange={(e) => handleChange(&apos;backgroundColor', e.target.value)}
                 className="flex-1 font-mono"
               />
             </div>
@@ -79,13 +74,13 @@ export function QROptions({ options, onChange }: OptionsProps) {
               <Input
                 type="color"
                 value={options.foregroundColor}
-                onChange={(e) => handleChange("foregroundColor", e.target.value)}
-                className="w-12 h-12 p-1"
+                onChange={(e) => handleChange('foregroundColor&apos;, e.target.value)}
+                className="h-12 w-12 p-1"
               />
               <Input
                 type="text"
                 value={options.foregroundColor}
-                onChange={(e) => handleChange("foregroundColor", e.target.value)}
+                onChange={(e) => handleChange(&apos;foregroundColor', e.target.value)}
                 className="flex-1 font-mono"
               />
             </div>
@@ -98,45 +93,35 @@ export function QROptions({ options, onChange }: OptionsProps) {
             <Label>Size</Label>
             <Slider
               value={[options.size || 300]}
-              onValueChange={([value]) => handleChange("size", value)}
+              onValueChange={([value]) => handleChange('size', value)}
               min={100}
               max={1000}
               step={10}
               className="my-4"
             />
-            <div className="text-sm text-muted-foreground text-right">
-              {options.size}px
-            </div>
+            <div className="text-right text-sm text-muted-foreground">{options.size}px</div>
           </div>
 
           <div className="space-y-2">
             <Label>Margin</Label>
             <Slider
               value={[options.margin || 4]}
-              onValueChange={([value]) => handleChange("margin", value)}
+              onValueChange={([value]) => handleChange('margin&apos;, value)}
               min={0}
               max={20}
               step={1}
               className="my-4"
             />
-            <div className="text-sm text-muted-foreground text-right">
-              {options.margin} blocks
-            </div>
+            <div className="text-right text-sm text-muted-foreground">{options.margin} blocks</div>
           </div>
         </div>
 
         {/* Advanced Options */}
-        <Collapsible
-          open={isAdvancedOpen}
-          onOpenChange={setIsAdvancedOpen}
-          className="space-y-4"
-        >
+        <Collapsible open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen} className="space-y-4">
           <CollapsibleTrigger className="flex w-full items-center justify-between py-2">
             <Label>Advanced Options</Label>
             <ChevronDown
-              className={`h-4 w-4 transition-transform ${
-                isAdvancedOpen ? "rotate-180" : ""
-              }`}
+              className={`h-4 w-4 transition-transform ${isAdvancedOpen ? &apos;rotate-180' : ''}`}
             />
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4">
@@ -144,7 +129,7 @@ export function QROptions({ options, onChange }: OptionsProps) {
               <Label>Pattern Style</Label>
               <Select
                 value={options.pattern}
-                onValueChange={(value) => handleChange("pattern", value)}
+                onValueChange={(value) => handleChange('pattern', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select pattern style" />
@@ -163,7 +148,7 @@ export function QROptions({ options, onChange }: OptionsProps) {
               <Label>Corner Style</Label>
               <Select
                 value={options.cornerSquareStyle}
-                onValueChange={(value) => handleChange("cornerSquareStyle", value)}
+                onValueChange={(value) => handleChange('cornerSquareStyle', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select corner style" />
@@ -179,54 +164,52 @@ export function QROptions({ options, onChange }: OptionsProps) {
             </div>
 
             <div className="space-y-2">
-  <Label>Logo / Image</Label>
-  <ImageSelector
-    selectedImage={options.imageUrl}
-    onImageSelect={(image) => handleChange("imageUrl", image)}
-  />
-  
-  {options.imageUrl && (
-    <div className="space-y-4 mt-4">
-      <div className="space-y-2">
-        <Label>Image Size</Label>
-        <Slider
-          value={[options.imageSize || 50]}
-          onValueChange={([value]) => handleChange("imageSize", value)}
-          min={20}
-          max={150}
-          step={1}
-          className="my-4"
-        />
-        <div className="text-sm text-muted-foreground text-right">
-          {options.imageSize}px
-        </div>
-      </div>
+              <Label>Logo / Image</Label>
+              <ImageSelector
+                selectedImage={options.imageUrl}
+                onImageSelect={(image) => handleChange('imageUrl', image)}
+              />
 
-      <div className="space-y-2">
-        <Label>Image Margin</Label>
-        <Slider
-          value={[options.imageMargin || 5]}
-          onValueChange={([value]) => handleChange("imageMargin", value)}
-          min={0}
-          max={20}
-          step={1}
-          className="my-4"
-        />
-        <div className="text-sm text-muted-foreground text-right">
-          {options.imageMargin}px
-        </div>
-      </div>
-    </div>
-  )}
-</div>
+              {options.imageUrl && (
+                <div className="mt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label>Image Size</Label>
+                    <Slider
+                      value={[options.imageSize || 50]}
+                      onValueChange={([value]) => handleChange('imageSize', value)}
+                      min={20}
+                      max={150}
+                      step={1}
+                      className="my-4"
+                    />
+                    <div className="text-right text-sm text-muted-foreground">
+                      {options.imageSize}px
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Image Margin</Label>
+                    <Slider
+                      value={[options.imageMargin || 5]}
+                      onValueChange={([value]) => handleChange('imageMargin', value)}
+                      min={0}
+                      max={20}
+                      step={1}
+                      className="my-4"
+                    />
+                    <div className="text-right text-sm text-muted-foreground">
+                      {options.imageMargin}px
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label>Error Correction Level</Label>
               <Select
                 value={options.errorCorrectionLevel}
-                onValueChange={(value) => 
-                  handleChange("errorCorrectionLevel", value)
-                }
+                onValueChange={(value) => handleChange('errorCorrectionLevel', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select error correction level" />
@@ -243,5 +226,5 @@ export function QROptions({ options, onChange }: OptionsProps) {
         </Collapsible>
       </CardContent>
     </Card>
-  )
+  );
 }

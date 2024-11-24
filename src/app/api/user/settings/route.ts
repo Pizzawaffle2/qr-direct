@@ -1,16 +1,19 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { SettingsSchema } from "@/lib/validations/settings";
-import { Settings } from "@prisma/client";
-import { z } from "zod";
+import {NextResponse } from 'next/server';
+import {getServerSession } from 'next-auth';
+import {authOptions } from '@/lib/auth';
+import {prisma } from '@/lib/prisma';
+import {SettingsSchema } from '@/lib/validations/settings';
+import {Settings } from '@prisma/client';
+import {z } from 'zod';
 
 // Custom error class for better error handling
 class ApiError extends Error {
-  constructor(public statusCode: number, message: string) {
+  constructor(
+    public statusCode: number,
+    message: string
+  ) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 }
 
@@ -28,11 +31,11 @@ async function updateUserSettings(
   return prisma.settings.upsert({
     where: { userId },
     update: {
-      name: data.name
+      name: data.name,
     },
     create: {
       userId,
-      name: data.name
+      name: data.name,
     },
   });
 }
@@ -42,7 +45,7 @@ async function authenticateRequest(): Promise<string> {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    throw new ApiError(401, "Unauthorized");
+    throw new ApiError(401, 'Unauthorized');
   }
 
   return session.user.id;
@@ -68,9 +71,9 @@ export async function PUT(req: Request): Promise<NextResponse<ApiResponse<Settin
       // Handle validation errors
       return NextResponse.json(
         {
-          error: "Validation Error",
+          error: 'Validation Error',
           details: error.errors.map((e) => ({
-            field: e.path.join("."),
+            field: e.path.join('.'),
             message: e.message,
           })),
         },
@@ -80,17 +83,11 @@ export async function PUT(req: Request): Promise<NextResponse<ApiResponse<Settin
 
     if (error instanceof ApiError) {
       // Handle custom API errors
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.statusCode }
-      );
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
 
     // Log unexpected errors and return a generic response
-    console.error("[Settings API Error]:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error('[Settings API Error]:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

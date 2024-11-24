@@ -1,5 +1,5 @@
 // File: src/lib/utils/tokens.ts
-import { randomBytes, createHash } from 'crypto';
+import {randomBytes, createHash } from 'crypto';
 
 export function generateToken(): string {
   return randomBytes(32).toString('hex');

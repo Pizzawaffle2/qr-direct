@@ -2,8 +2,7 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
 
-import {
-  Body,
+import {Body,
   Button,
   Container,
   Head,
@@ -30,12 +29,10 @@ export function TeamInvitationEmail({
       <Head />
       <Body className={styles.emailBody}>
         <Container className={styles.emailContainer}>
-          <Text className={styles.title}>
-            You're invited to join {teamName}
-          </Text>
+          <Text className={styles.title}>You&apos;re invited to join {teamName}</Text>
           <Text className={styles.description}>
-            {inviterName} has invited you to join the team {teamName} on QR
-            Direct. Click the button below to accept the invitation.
+            {inviterName} has invited you to join the team {teamName} on QR Direct. Click the button
+            below to accept the invitation.
           </Text>
           <Section className={styles.buttonSection}>
             <Button href={invitationUrl} className={styles.button}>
@@ -43,8 +40,7 @@ export function TeamInvitationEmail({
             </Button>
           </Section>
           <Text className={styles.footer}>
-            If you didn't expect this invitation, you can safely ignore this
-            email.
+            If you didn&apos;t expect this invitation, you can safely ignore this email.
           </Text>
           <Text className={styles.footer}>
             Or copy and paste this URL into your browser:

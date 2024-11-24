@@ -1,33 +1,43 @@
 // src/types/qr.ts
 
-import { LucideIcon } from 'lucide-react';
+import {LucideIcon } from 'lucide-react';
 
-export type QRCodeType = 
-  | 'url' 
-  | 'text' 
-  | 'email' 
-  | 'phone' 
-  | 'sms' 
-  | 'wifi' 
-  | 'vcard' 
-  | 'location';
+export type QRCodeType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi' | 'vcard' | 'location';
 
 // Base QR Code data interface
 export interface BaseQRCodeData {
   type: QRCodeType;
 }
+export interface QRCodeAnalytics {
 
+  id: string;
+
+  scans: number;
+
+  uniqueScans: number;
+
+  locations: string[];
+
+  devices: string[];
+
+  browsers: string[];
+
+  timeRanges: string[];
+
+  created: Date;
+
+  updated: Date;
+
+}
 
 export const ERROR_CORRECTION_LEVELS = {
-
   L: { label: 'Low', description: '7% error recovery' },
 
   M: { label: 'Medium', description: '15% error recovery' },
 
   Q: { label: 'Quartile', description: '25% error recovery' },
 
-  H: { label: 'High', description: '30% error recovery' }
-
+  H: { label: 'High', description: '30% error recovery' },
 } as const;
 
 // URL QR Code
@@ -94,7 +104,7 @@ export interface LocationQRCodeData extends BaseQRCodeData {
 }
 
 // Union type of all QR code data types
-export type QRCodeData = 
+export type QRCodeData =
   | URLQRCodeData
   | TextQRCodeData
   | EmailQRCodeData

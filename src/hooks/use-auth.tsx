@@ -1,17 +1,12 @@
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useState, useCallback, useEffect } from 'react';
-import { 
-  UserRole, 
-  AccountStatus,
-  ActivityType 
-} from '@/app/api/auth/[...nextauth]/route';
-import {
-  hasRequiredRole,
+import {useSession, signIn, signOut } from 'next-auth/react';
+import {useRouter } from 'next/navigation';
+import {useState, useCallback, useEffect } from 'react';
+import {UserRole, AccountStatus, ActivityType } from '@/app/api/auth/[...nextauth]/route';
+import {hasRequiredRole,
   canAccessFeature,
   trackAuthActivity,
   getAuthRedirectUrl,
-  type AuthError
+  type AuthError,
 } from '@/lib/auth/utils';
 
 interface UseAuthOptions {
@@ -51,40 +46,43 @@ export function useAuth(options: UseAuthOptions = {}) {
   }, [session, requiredRoles, router]);
 
   // Authentication methods
-  const login = useCallback(async (provider: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const login = useCallback(
+    async (provider: string) => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const result = await signIn(provider, {
-        redirect: false,
-        callbackUrl: getAuthRedirectUrl(window.location.pathname),
-      });
-
-      if (result?.error) {
-        throw new Error(result.error);
-      }
-
-      if (session?.user) {
-        await trackAuthActivity({
-          userId: session.user.id,
-          type: ActivityType.SIGN_IN,
-          metadata: { provider }
+        const result = await signIn(provider, {
+          redirect: false,
+          callbackUrl: getAuthRedirectUrl(window.location.pathname),
         });
-      }
 
-      return result;
-    } catch (err) {
-      setError({
-        code: 'SIGNIN_ERROR',
-        message: err instanceof Error ? err.message : 'Failed to sign in',
-        timestamp: new Date()
-      });
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session]);
+        if (result?.error) {
+          throw new Error(result.error);
+        }
+
+        if (session?.user) {
+          await trackAuthActivity({
+            userId: session.user.id,
+            type: ActivityType.SIGN_IN,
+            metadata: { provider },
+          });
+        }
+
+        return result;
+      } catch (err) {
+        setError({
+          code: 'SIGNIN_ERROR',
+          message: err instanceof Error ? err.message : 'Failed to sign in',
+          timestamp: new Date(),
+        });
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [session]
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -94,7 +92,7 @@ export function useAuth(options: UseAuthOptions = {}) {
       if (session?.user) {
         await trackAuthActivity({
           userId: session.user.id,
-          type: ActivityType.SIGN_OUT
+          type: ActivityType.SIGN_OUT,
         });
       }
 
@@ -104,7 +102,7 @@ export function useAuth(options: UseAuthOptions = {}) {
       setError({
         code: 'SIGNOUT_ERROR',
         message: err instanceof Error ? err.message : 'Failed to sign out',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       throw err;
     } finally {
@@ -113,10 +111,13 @@ export function useAuth(options: UseAuthOptions = {}) {
   }, [session, router]);
 
   // Utility methods
-  const checkAccess = useCallback((feature: string) => {
-    if (!session?.user) return false;
-    return canAccessFeature(session.user.role, feature as any);
-  }, [session]);
+  const checkAccess = useCallback(
+    (feature: string) => {
+      if (!session?.user) return false;
+      return canAccessFeature(session.user.role, feature as any);
+    },
+    [session]
+  );
 
   const isActive = useCallback(() => {
     return session?.user?.status === AccountStatus.ACTIVE;

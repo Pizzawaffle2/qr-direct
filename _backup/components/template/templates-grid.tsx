@@ -101,14 +101,16 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
     }
   };
 
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredTemplates = templates.filter((template) => {
+    const matchesSearch =
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesCategory = !selectedCategory || template.categoryId === selectedCategory;
-    
-    const matchesTags = selectedTags.length === 0 || 
-      selectedTags.every(tagId => template.tags.some(tag => tag.id === tagId));
+
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.every((tagId) => template.tags.some((tag) => tag.id === tagId));
 
     return matchesSearch && matchesCategory && matchesTags;
   });
@@ -118,7 +120,7 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Templates</h2>
         <Button onClick={() => setIsTemplateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           New Template
         </Button>
       </div>
@@ -150,23 +152,20 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
           </Select>
 
           <Button variant="outline" onClick={() => setSelectedTags([])}>
-            <Filter className="w-4 h-4 mr-2" />
+            <Filter className="mr-2 h-4 w-4" />
             {selectedTags.length ? `${selectedTags.length} Tags` : 'Filter Tags'}
           </Button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((n) => (
-            <div
-              key={n}
-              className="h-48 rounded-lg bg-muted animate-pulse"
-            />
+            <div key={n} className="h-48 animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTemplates.map((template) => (
             <TemplateCard
               key={template.id}
@@ -176,7 +175,7 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
             />
           ))}
           {filteredTemplates.length === 0 && (
-            <div className="col-span-full text-center py-8 text-muted-foreground">
+            <div className="col-span-full py-8 text-center text-muted-foreground">
               No templates found
             </div>
           )}

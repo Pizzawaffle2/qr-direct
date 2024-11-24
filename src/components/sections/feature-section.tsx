@@ -1,70 +1,69 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { 
-  Paintbrush, 
-  BarChart2, 
-  Zap, 
-  Smartphone, 
-  Shield, 
+import {motion } from 'framer-motion';
+import {Paintbrush,
+  BarChart2,
+  Zap,
+  Smartphone,
+  Shield,
   QrCode,
   Download,
   Share2,
-  Palette
-} from "lucide-react";
+  Palette,
+} from 'lucide-react';
 
 const features = [
   {
     icon: Paintbrush,
-    title: "Custom Design",
-    description: "Create unique QR codes with custom colors, patterns, and frames",
+    title: 'Custom Design',
+    description: 'Create unique QR codes with custom colors, patterns, and frames',
   },
   {
     icon: BarChart2,
-    title: "Analytics",
-    description: "Track scans, locations, and engagement in real-time",
+    title: 'Analytics',
+    description: 'Track scans, locations, and engagement in real-time',
   },
   {
     icon: Zap,
-    title: "Dynamic Content",
-    description: "Update QR code content anytime without reprinting",
+    title: 'Dynamic Content',
+    description: 'Update QR code content anytime without reprinting',
   },
   {
     icon: Smartphone,
-    title: "Mobile Optimized",
-    description: "Perfect scanning experience on all devices",
+    title: 'Mobile Optimized',
+    description: 'Perfect scanning experience on all devices',
   },
   {
     icon: Shield,
-    title: "Secure & Reliable",
-    description: "Enterprise-grade security and 99.9% uptime",
+    title: 'Secure & Reliable',
+    description: 'Enterprise-grade security and 99.9% uptime',
   },
   {
     icon: Download,
-    title: "Easy Export",
-    description: "Download in multiple formats including SVG and PNG",
+    title: 'Easy Export',
+    description: 'Download in multiple formats including SVG and PNG',
   },
   {
     icon: Share2,
-    title: "Team Sharing",
-    description: "Collaborate with team members and share assets",
+    title: 'Team Sharing',
+    description: 'Collaborate with team members and share assets',
   },
   {
     icon: Palette,
-    title: "Templates",
-    description: "Choose from professionally designed templates",
+    title: 'Templates',
+    description: 'Choose from professionally designed templates',
   },
 ];
 
 export function FeatureSection() {
   return (
     <div className="py-12">
-      <div className="text-center mb-16">
-        <motion.h2 
+      <div className="mb-16 text-center">
+        <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold sm:text-4xl mb-4"
+          className="mb-4 text-3xl font-bold sm:text-4xl"
         >
           Everything You Need to Create
           <br />
@@ -72,13 +71,14 @@ export function FeatureSection() {
             Professional QR Codes
           </span>
         </motion.h2>
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-muted-foreground mx-auto max-w-2xl"
+          className="mx-auto max-w-2xl text-muted-foreground"
         >
-          All the tools and features you need to create, manage, and track your QR codes in one place.
+          All the tools and features you need to create, manage, and track your QR codes in one
+          place.
         </motion.p>
       </div>
 
@@ -89,10 +89,10 @@ export function FeatureSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="relative rounded-lg border bg-card p-6 shadow-lg hover:shadow-xl transition-shadow"
+            className="relative rounded-lg border bg-card p-6 shadow-lg transition-shadow hover:shadow-xl"
           >
-            <feature.icon className="h-12 w-12 mb-4 text-blue-500" />
-            <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+            <feature.icon className="mb-4 h-12 w-12 text-blue-500" />
+            <h3 className="mb-2 text-lg font-semibold">{feature.title}</h3>
             <p className="text-sm text-muted-foreground">{feature.description}</p>
           </motion.div>
         ))}

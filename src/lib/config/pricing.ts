@@ -98,4 +98,4 @@ export const PLANS = [
       yearly: process.env.STRIPE_ENTERPRISE_YEARLY_PRICE_ID,
     },
   },
-]
+];

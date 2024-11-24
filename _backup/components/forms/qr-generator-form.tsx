@@ -59,7 +59,7 @@ export function QRCodeGeneratorForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6">
+    <div className="mx-auto w-full max-w-2xl p-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -101,10 +101,7 @@ export function QRCodeGeneratorForm() {
               <FormItem>
                 <FormLabel>Content</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder={getPlaceholder(selectedType)} 
-                    {...field} 
-                  />
+                  <Input placeholder={getPlaceholder(selectedType)} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -141,29 +138,18 @@ export function QRCodeGeneratorForm() {
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isGenerating}
-          >
+          <Button type="submit" className="w-full" disabled={isGenerating}>
             {isGenerating ? 'Generating...' : 'Generate QR Code'}
           </Button>
         </form>
       </Form>
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-50 text-red-600 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className="mt-4 rounded bg-red-50 p-4 text-red-600">{error}</div>}
 
       {qrCode && (
         <div className="mt-6 flex flex-col items-center">
           <img src={qrCode} alt="Generated QR Code" className="max-w-xs" />
-          <Button 
-            onClick={() => window.open(qrCode, '_blank')}
-            className="mt-4"
-          >
+          <Button onClick={() => window.open(qrCode, '_blank')} className="mt-4">
             Download QR Code
           </Button>
         </div>

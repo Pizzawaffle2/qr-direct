@@ -1,7 +1,6 @@
-import { POST, PUT } from './route';
-import { prisma } from '@/lib/prisma';
-import { Resend } from 'resend';
-import { NextResponse } from 'next/server';
+import {POST, PUT } from './route';
+jest.mock('@/lib/prisma');
+import {Resend } from 'resend';
 
 jest.mock('@/lib/prisma');
 jest.mock('resend');

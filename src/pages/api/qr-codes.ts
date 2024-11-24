@@ -1,6 +1,6 @@
 // pages/api/qr-codes.ts
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import {NextApiRequest, NextApiResponse } from 'next';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {

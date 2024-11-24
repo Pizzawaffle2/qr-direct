@@ -1,16 +1,16 @@
 // src/lib/subscription.ts
 
-import { prisma } from "@/lib/db"
+import { prisma } from '@/lib/db';
 
-export type SubscriptionPlan = 'free' | 'pro' | 'enterprise'
+export type SubscriptionPlan = 'free' | 'pro' | 'enterprise';
 
 interface SubscriptionLimits {
-  maxQRCodes: number
-  maxTemplates: number
-  maxStorage: number // in bytes
-  maxTeamMembers: number
-  maxApiCalls: number
-  features: string[]
+  maxQRCodes: number;
+  maxTemplates: number;
+  maxStorage: number; // in bytes
+  maxTeamMembers: number;
+  maxApiCalls: number;
+  features: string[];
 }
 
 const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
@@ -36,58 +36,65 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
     maxStorage: 1024 * 1024 * 1024, // 1GB
     maxTeamMembers: -1,
     maxApiCalls: -1,
-    features: ['basic_qr', 'custom_design', 'advanced_analytics', 'api_access', 'priority_support', 'custom_domain'],
+    features: [
+      'basic_qr',
+      'custom_design',
+      'advanced_analytics',
+      'api_access',
+      'priority_support',
+      'custom_domain',
+    ],
   },
-}
+};
 
 export async function getUserSubscription(userId: string) {
   const subscription = await prisma.subscription.findUnique({
     where: { userId },
-  })
+  });
 
   if (!subscription) {
     return {
       ...PLAN_LIMITS.free,
       plan: 'free' as SubscriptionPlan,
       isActive: true,
-    }
+    };
   }
 
-  const isActive = 
-    subscription.status === "active" && 
+  const isActive =
+    subscription.status === 'active' &&
     subscription.currentPeriodEnd &&
-    subscription.currentPeriodEnd.getTime() > Date.now()
+    subscription.currentPeriodEnd.getTime() > Date.now();
 
   return {
     ...subscription,
     ...PLAN_LIMITS[subscription.plan as SubscriptionPlan],
     isActive,
-  }
+  };
 }
 
 export async function getTeamSubscription(teamId: string) {
   const subscription = await prisma.teamSubscription.findUnique({
     where: { teamId },
-  })
+  });
 
   if (!subscription) {
     return {
       ...PLAN_LIMITS.free,
       plan: 'free' as SubscriptionPlan,
       isActive: true,
-    }
+    };
   }
 
-  const isActive = 
-    subscription.status === "active" && 
+  const isActive =
+    subscription.status === 'active' &&
     subscription.currentPeriodEnd &&
-    subscription.currentPeriodEnd.getTime() > Date.now()
+    subscription.currentPeriodEnd.getTime() > Date.now();
 
   return {
     ...subscription,
     ...PLAN_LIMITS[subscription.plan as SubscriptionPlan],
     isActive,
-  }
+  };
 }
 
 export async function canPerformAction(
@@ -95,51 +102,56 @@ export async function canPerformAction(
   teamId: string | undefined,
   action: keyof SubscriptionLimits
 ) {
-  if (!userId && !teamId) return false
+  if (!userId && !teamId) return false;
 
-  const subscription = teamId 
+  const subscription = teamId
     ? await getTeamSubscription(teamId)
-    : await getUserSubscription(userId!)
+    : await getUserSubscription(userId!);
 
-  if (!subscription.isActive) return false
+  if (!subscription.isActive) return false;
 
   const currentUsage = await prisma.usage.findFirst({
     where: {
-      OR: [
-        { userId: userId || undefined },
-        { teamId: teamId || undefined },
-      ],
+      OR: [{ userId: userId || undefined }, { teamId: teamId || undefined }],
       period: {
         gte: new Date(new Date().setDate(1)), // Start of current month
       },
     },
-  })
+  });
 
-  if (!currentUsage) return true
+  if (!currentUsage) return true;
 
   switch (action) {
     case 'maxQRCodes':
-      return subscription.maxQRCodes === -1 || currentUsage.qrCodesCreated < subscription.maxQRCodes
+      return (
+        subscription.maxQRCodes === -1 || currentUsage.qrCodesCreated < subscription.maxQRCodes
+      );
     case 'maxTemplates':
-      return subscription.maxTemplates === -1 || currentUsage.templatesCreated < subscription.maxTemplates
+      return (
+        subscription.maxTemplates === -1 ||
+        currentUsage.templatesCreated < subscription.maxTemplates
+      );
     case 'maxStorage':
-      return subscription.maxStorage === -1 || currentUsage.storage < subscription.maxStorage
+      return subscription.maxStorage === -1 || currentUsage.storage < subscription.maxStorage;
     case 'maxApiCalls':
-      return subscription.maxApiCalls === -1 || currentUsage.apiCalls < subscription.maxApiCalls
+      return subscription.maxApiCalls === -1 || currentUsage.apiCalls < subscription.maxApiCalls;
     default:
-      return false
+      return false;
   }
 }
 
 export async function incrementUsage(
   userId: string | undefined,
   teamId: string | undefined,
-  action: keyof Pick<Usage, 'qrCodesCreated' | 'templatesCreated' | 'apiCalls' | 'storage' | 'scans'>,
+  action: keyof Pick<
+    Usage,
+    'qrCodesCreated' | 'templatesCreated' | 'apiCalls' | 'storage' | 'scans'
+  >,
   amount: number = 1
 ) {
-  if (!userId && !teamId) return
+  if (!userId && !teamId) return;
 
-  const period = new Date(new Date().setDate(1)) // Start of current month
+  const period = new Date(new Date().setDate(1)); // Start of current month
 
   await prisma.usage.upsert({
     where: {
@@ -160,5 +172,5 @@ export async function incrementUsage(
         increment: amount,
       },
     },
-  })
+  });
 }

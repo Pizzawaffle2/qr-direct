@@ -1,7 +1,7 @@
 // src/components/qr/forms/text-form.tsx
-import { useState } from 'react';
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {useState } from 'react';
+import {Label } from '@/components/ui/label';
+import {Textarea } from '@/components/ui/textarea';
 
 interface QRCodeData {
   type: 'text';

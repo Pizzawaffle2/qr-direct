@@ -1,5 +1,5 @@
 // src/lib/analytics.ts
-import { QRCodeAnalytics } from '@/types/qr';
+import {QRCodeAnalytics } from '@/types/qr';
 
 export async function getAnalyticsData(userId: string): Promise<QRCodeAnalytics[]> {
   // Replace with your actual data fetching logic

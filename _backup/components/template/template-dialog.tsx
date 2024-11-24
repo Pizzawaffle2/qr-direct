@@ -1,16 +1,16 @@
 // File: src/components/template/template-dialog.tsx
-"use client"
+'use client';
 
-import { useState } from 'react'
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -18,18 +18,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { CategoryManager } from "./category-manager"
-import { TagManager } from "./tag-manager"
-import { Switch } from "@/components/ui/switch"
-import type { QRStyle, TemplateStyle } from "@/lib/types/qr-styles"
-import * as z from "zod"
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { CategoryManager } from './category-manager';
+import { TagManager } from './tag-manager';
+import { Switch } from '@/components/ui/switch';
+import type { QRStyle, TemplateStyle } from '@/lib/types/qr-styles';
+import * as z from 'zod';
 
 const templateFormSchema = z.object({
-  name: z.string().min(1, "Template name is required"),
+  name: z.string().min(1, 'Template name is required'),
   description: z.string().optional(),
   isPublic: z.boolean().default(false),
   style: z.object({
@@ -41,43 +41,38 @@ const templateFormSchema = z.object({
     cornerSquareStyle: z.string().optional(),
     cornerDotStyle: z.string().optional(),
   }),
-})
+});
 
-type TemplateFormValues = z.infer<typeof templateFormSchema>
+type TemplateFormValues = z.infer<typeof templateFormSchema>;
 
 interface TemplateDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSave: (template: Partial<TemplateStyle>) => Promise<void>
-  style: QRStyle
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (template: Partial<TemplateStyle>) => Promise<void>;
+  style: QRStyle;
 }
 
-export function TemplateDialog({
-  open,
-  onOpenChange,
-  onSave,
-  style
-}: TemplateDialogProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
+export function TemplateDialog({ open, onOpenChange, onSave, style }: TemplateDialogProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const form = useForm<TemplateFormValues>({
     resolver: zodResolver(templateFormSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       isPublic: false,
       style,
     },
-  })
+  });
 
   const onSubmit = async (data: TemplateFormValues) => {
     await onSave({
       ...data,
       categoryId: selectedCategory,
       tagIds: selectedTags,
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -111,10 +106,7 @@ export function TemplateDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Describe your template..." 
-                      {...field} 
-                    />
+                    <Textarea placeholder="Describe your template..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,10 +120,7 @@ export function TemplateDialog({
                 <FormItem className="flex items-center justify-between">
                   <FormLabel>Make Public</FormLabel>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,26 +129,16 @@ export function TemplateDialog({
 
             <div className="space-y-2">
               <FormLabel>Category</FormLabel>
-              <CategoryManager
-                onSelect={setSelectedCategory}
-                selected={selectedCategory}
-              />
+              <CategoryManager onSelect={setSelectedCategory} selected={selectedCategory} />
             </div>
 
             <div className="space-y-2">
               <FormLabel>Tags</FormLabel>
-              <TagManager
-                onSelect={setSelectedTags}
-                selected={selectedTags}
-              />
+              <TagManager onSelect={setSelectedTags} selected={selectedTags} />
             </div>
 
             <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
               <Button type="submit">Save Template</Button>
@@ -168,5 +147,5 @@ export function TemplateDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

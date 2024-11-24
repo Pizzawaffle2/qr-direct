@@ -33,13 +33,14 @@ export default function ProfileActivityLog() {
     fetchActivityLog();
   }, [toast]);
 
-  const filteredActivityLog = activityLog.filter((log) =>
-    log.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    log.details.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredActivityLog = activityLog.filter(
+    (log) =>
+      log.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.details.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="space-y-4 p-6 bg-background rounded-lg shadow-md">
+    <div className="space-y-4 rounded-lg bg-background p-6 shadow-md">
       <Card>
         <CardHeader>
           <CardTitle>Activity Log</CardTitle>
@@ -55,16 +56,12 @@ export default function ProfileActivityLog() {
           <div className="space-y-2">
             {filteredActivityLog.length > 0 ? (
               filteredActivityLog.map((log, index) => (
-                <div key={index} className="p-4 border rounded-md bg-card">
+                <div key={index} className="rounded-md border bg-card p-4">
                   <div className="text-sm text-muted-foreground">
                     {format(new Date(log.timestamp), 'PPpp')}
                   </div>
-                  <div className="font-medium text-primary-foreground">
-                    {log.activity}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {log.details}
-                  </div>
+                  <div className="font-medium text-primary-foreground">{log.activity}</div>
+                  <div className="text-sm text-muted-foreground">{log.details}</div>
                 </div>
               ))
             ) : (

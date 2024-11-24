@@ -1,5 +1,5 @@
 // lib/config.ts
-import { SecretsManager } from './secrets';
+import {SecretsManager } from './secrets';
 
 interface DatabaseConfig {
   username: string;
@@ -37,7 +37,7 @@ export class AppConfig {
     try {
       // Load all parameters from SSM
       const parameters = await this.secrets.getAllParameters(this.secretsPath);
-      
+
       // Load secrets from Secrets Manager
       const [dbConfig, stripeConfig] = await Promise.all([
         this.getDatabaseConfig(),

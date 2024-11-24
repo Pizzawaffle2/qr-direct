@@ -1,5 +1,5 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import {type ClassValue, clsx } from 'clsx';
+import {twMerge } from 'tailwind-merge';
 
 /**
  * Combines multiple class names using clsx and tailwind-merge
@@ -23,7 +23,7 @@ export function formatDate(date: Date): string {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   }).format(date);
 }
 
@@ -39,7 +39,7 @@ export function formatTime(date: Date): string {
   return new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   }).format(date);
 }
 
@@ -60,13 +60,13 @@ export function isValidDate(date: Date): boolean {
 export function absoluteUrl(path: string): string {
   // Return just the path in client-side context
   if (typeof window !== 'undefined') return path;
-  
+
   // Get base URL from environment or use default
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  
+
   // Ensure path starts with /
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  
+
   // Combine base URL with path
   return `${baseUrl}${normalizedPath}`;
 }
@@ -83,4 +83,15 @@ export function createUrl(base: string, params: Record<string, string | number |
     url.searchParams.set(key, String(value));
   });
   return url.toString();
+}
+
+// Utility function to generate a unique username
+export async function generateUsername(name: string): Promise<string> {
+  // Convert name to lowercase and remove special characters
+  const baseUsername = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Add random numbers to make it unique
+  const randomSuffix = Math.floor(Math.random() * 1000);
+
+  return `${baseUsername}${randomSuffix}`;
 }

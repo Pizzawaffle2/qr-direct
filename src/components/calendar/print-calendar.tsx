@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { format } from "date-fns";
-import { CalendarTheme } from "@/types/calendar-themes";
-import { CalendarEvent } from "@/types/calendar";
-import { ThemeFrame } from './calendar-frames';
-import { DefaultSession } from 'next-auth';
-import { SubscriptionStatus, UserRole } from '@/types/user';
+import {format } from 'date-fns';
+import {CalendarTheme } from '@/types/calendar-themes';
+import {CalendarEvent } from '@/types/calendar';
+import {ThemeFrame } from './calendar-frames';
+import {DefaultSession } from 'next-auth';
+import {SubscriptionStatus, UserRole } from '@/types/user';
 
 declare module 'next-auth' {
   interface User {
@@ -40,7 +40,7 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
   theme,
   title,
   onClose,
-  user
+  user,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const isPro = user?.subscriptionStatus === 'active';
@@ -48,14 +48,14 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
   useEffect(() => {
     setIsMounted(true);
     document.body.classList.add('printing-calendar');
-    
+
     const handlePrintComplete = () => {
       document.body.classList.remove('printing-calendar');
       onClose();
     };
 
     window.addEventListener('afterprint', handlePrintComplete);
-    
+
     return () => {
       document.body.classList.remove('printing-calendar');
       window.removeEventListener('afterprint', handlePrintComplete);
@@ -67,12 +67,12 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const weeks: number[][] = [];
     let currentWeek: number[] = [];
-    
+
     const offset = (firstDayOfMonth - settings.firstDayOfWeek + 7) % 7;
     for (let i = 0; i < offset; i++) {
       currentWeek.push(0);
     }
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       currentWeek.push(day);
       if (currentWeek.length === 7) {
@@ -80,19 +80,19 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
         currentWeek = [];
       }
     }
-    
+
     while (currentWeek.length < 7) {
       currentWeek.push(0);
     }
     if (currentWeek.length > 0) {
       weeks.push(currentWeek);
     }
-    
+
     return weeks;
   };
 
   const weeks = generateCalendarData();
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday&apos;];
   if (settings.firstDayOfWeek === 1) {
     dayNames.push(dayNames.shift()!);
   }
@@ -109,7 +109,7 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
           html * {
             visibility: hidden;
           }
-          
+
           html {
             background: white !important;
           }
@@ -171,7 +171,7 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
 
           /* Watermark */
           .watermark {
-            display: ${isPro ? 'none' : 'block'};
+            display: ${isPro ? &apos;none' : 'block'};
             position: fixed;
             top: 50%;
             left: 50%;
@@ -323,25 +323,35 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
 
       <div className="print-calendar">
         {!isPro && <div className="watermark">QR Direct</div>}
-        
+
         <div className="calendar-header-section">
-          <h1 className="calendar-title">{title || "Calendar"}</h1>
-          <h2 className="calendar-subtitle">
-            {format(new Date(year, month), 'MMMM yyyy')}
-          </h2>
+          <h1 className="calendar-title">{title || 'Calendar&apos;}</h1>
+          <h2 className="calendar-subtitle">{format(new Date(year, month), &apos;MMMM yyyy')}</h2>
         </div>
 
         <ThemeFrame
-          type={theme.frame.type === 'none' || !['basic', 'minimal', 'christmas', 'snowflakes', 'spring', 'summer', 'autumn'].includes(theme.frame.type) ? 'minimal' : theme.frame.type as 'basic' | 'minimal' | 'christmas' | 'snowflakes' | 'spring' | 'summer' | 'autumn'}
+          type={
+            theme.frame.type === 'none' ||
+            !['basic', 'minimal', 'christmas', 'snowflakes', 'spring', 'summer', 'autumn'].includes(
+              theme.frame.type
+            )
+              ? 'minimal'
+              : (theme.frame.type as
+                  | 'basic'
+                  | 'minimal'
+                  | 'christmas'
+                  | 'snowflakes'
+                  | 'spring'
+                  | 'summer'
+                  | 'autumn')
+          }
           color={theme.colors.primary}
           className="calendar-frame"
         >
           <table className="calendar-table">
             <thead>
               <tr>
-                {settings.showWeekNumbers && (
-                  <th className="calendar-header">Wk</th>
-                )}
+                {settings.showWeekNumbers && <th className="calendar-header">Wk</th>}
                 {dayNames.map((day) => (
                   <th key={day} className="calendar-header">
                     {day.slice(0, 3)}
@@ -354,13 +364,13 @@ const PrintCalendar: React.FC<PrintCalendarProps> = ({
                 <tr key={weekIndex}>
                   {settings.showWeekNumbers && (
                     <td className="calendar-day text-center text-sm">
-                      {format(new Date(year, month, week.find(d => d !== 0) || 1), 'w')}
+                      {format(new Date(year, month, week.find((d) => d !== 0) || 1), &apos;w&apos;)}
                     </td>
                   )}
                   {week.map((day, dayIndex) => {
                     const date = day ? new Date(year, month, day) : null;
                     const dayEvents = date
-                      ? events.filter(event => {
+                      ? events.filter((event) => {
                           const eventDate = new Date(event.date);
                           return (
                             eventDate.getDate() === day &&

@@ -1,9 +1,9 @@
 // pages/api/subscription/index.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { stripe } from '@/lib/stripe';
-import { ApiError } from '@/lib/api-error';
+import {NextApiRequest, NextApiResponse } from 'next';
+import {getServerSession } from 'next-auth/next';
+import {authOptions } from '@/lib/auth';
+import {stripe } from '@/lib/stripe';
+import {ApiError } from '@/lib/api-error';
 
 interface SubscriptionResponse {
   subscription: any | null;
@@ -40,23 +40,22 @@ export default async function handler(
     });
 
     return res.status(200).json({
-      subscription: subscriptions.data[0] || null
+      subscription: subscriptions.data[0] || null,
     });
-
   } catch (error) {
     console.error('Subscription fetch error:', error);
-    
+
     if (error instanceof ApiError) {
-      return res.status(error.statusCode).json({ 
+      return res.status(error.statusCode).json({
         subscription: null,
-        error: error.message 
+        error: error.message,
       });
     }
 
     const message = error instanceof Error ? error.message : 'Failed to fetch subscription';
-    return res.status(500).json({ 
+    return res.status(500).json({
       subscription: null,
-      error: message 
+      error: message,
     });
   }
 }

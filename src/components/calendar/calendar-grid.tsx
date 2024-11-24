@@ -1,27 +1,32 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useState, useEffect, useMemo, useRef } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, getWeek } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { CalendarEvent } from "@/types/calendar";
-import { Plus, X, Clock } from "lucide-react";
-import { 
-  ThemeFrame, 
-  DATE_DECORATIONS, 
-  getFrameTypeForDate, 
-  getDecorationForDate 
+import * as React from 'react';
+import {useState, useEffect, useMemo, useRef } from 'react';
+import {format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameMonth,
+  isToday,
+  getWeek,
+} from 'date-fns';
+import {motion, AnimatePresence } from 'framer-motion';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {cn } from '@/lib/utils';
+import {CalendarEvent } from '@/types/calendar-types';
+import {Plus } from 'lucide-react';
+import {ThemeFrame,
+  DATE_DECORATIONS,
+  getFrameTypeForDate,
+  getDecorationForDate,
 } from './calendar-frames';
-import {
-  ContextMenu,
+import {ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
   ContextMenuSeparator,
-} from "@/components/ui/context-menu";
+} from '@/components/ui/context-menu';
 
 interface CalendarGridProps {
   month: number;
@@ -46,6 +51,12 @@ interface CalendarGridProps {
     showHolidays: boolean;
     showLunarPhases: boolean;
   };
+  onDateSelect: (date: Date) => void;
+  onNextMonth: () => void;
+  onPrevMonth: () => void;
+  onDateSelect?: (date: Date) => void;
+  onNextMonth?: () => void;
+  onPrevMonth?: () => void;
 }
 
 export function CalendarGrid({
@@ -57,23 +68,23 @@ export function CalendarGrid({
   onUpdateEvent,
   onRemoveEvent,
   theme,
-  settings
+  settings,
 }: CalendarGridProps) {
   // Generate calendar dates
   const calendarDates = useMemo(() => {
     const start = startOfMonth(new Date(year, month));
     const end = endOfMonth(start);
-    
+
     // Adjust for week start
     const firstDay = start.getDay();
-    const startOffset = settings.firstDayOfWeek === 1 ? 
-      (firstDay === 0 ? 6 : firstDay - 1) : 
-      firstDay;
+    const startOffset =
+      settings.firstDayOfWeek === 1 ? (firstDay === 0 ? 6 : firstDay - 1) : firstDay;
 
     // Add days before the start of month if needed
-    const daysToAdd = startOffset > 0 ? Array.from({ length: startOffset }, (_, i) => 
-      new Date(year, month, -startOffset + i)
-    ) : [];
+    const daysToAdd =
+      startOffset > 0
+        ? Array.from({ length: startOffset }, (_, i) => new Date(year, month, -startOffset + i))
+        : [];
 
     // Get all days in the month
     const monthDays = eachDayOfInterval({ start, end });
@@ -81,18 +92,16 @@ export function CalendarGrid({
     // Calculate how many days we need after the month to complete the grid
     const totalDays = daysToAdd.length + monthDays.length;
     const remainingDays = (7 - (totalDays % 7)) % 7;
-    const endPadding = remainingDays > 0 ? Array.from({ length: remainingDays }, (_, i) => 
-      new Date(year, month + 1, i + 1)
-    ) : [];
+    const endPadding =
+      remainingDays > 0
+        ? Array.from({ length: remainingDays }, (_, i) => new Date(year, month + 1, i + 1))
+        : [];
 
     return [...daysToAdd, ...monthDays, ...endPadding];
   }, [month, year, settings.firstDayOfWeek]);
 
   // Get frame type based on current month
-  const frameType = useMemo(() => 
-    getFrameTypeForDate(new Date(year, month)), 
-    [year, month]
-  );
+  const frameType = useMemo(() => getFrameTypeForDate(new Date(year, month)), [year, month]);
 
   // Split dates into weeks for rendering
   const weeks = useMemo(() => {
@@ -108,24 +117,19 @@ export function CalendarGrid({
       type={frameType}
       cornerStyle={frameType === 'christmas' || frameType === 'autumn' ? frameType : undefined}
       color={theme.colors.primary}
-      className="rounded-xl overflow-hidden"
+      className="overflow-hidden rounded-xl"
     >
       {/* Header row with weekday names */}
-      <div 
+      <div
         className="grid grid-cols-7 border-b"
-        style={{ 
+        style={{
           backgroundColor: theme.colors.primary,
-          borderColor: theme.colors.border
+          borderColor: theme.colors.border,
         }}
       >
         {weeks[0].map((date, index) => (
-          <div
-            key={`header-${index}`}
-            className="p-2 text-center"
-          >
-            <span className="text-sm font-medium text-white">
-              {format(date, 'EEE')}
-            </span>
+          <div key={`header-${index}`} className="p-2 text-center">
+            <span className="text-sm font-medium text-white">{format(date, 'EEE&apos;)}</span>
           </div>
         ))}
       </div>
@@ -135,8 +139,8 @@ export function CalendarGrid({
         {weeks.map((week, weekIndex) => (
           <React.Fragment key={`week-${weekIndex}`}>
             {settings.showWeekNumbers && (
-              <div 
-                className="p-2 text-center text-sm text-muted-foreground bg-muted/5"
+              <div
+                className="bg-muted/5 p-2 text-center text-sm text-muted-foreground"
                 style={{ color: theme.colors.text }}
               >
                 {getWeek(week[0])}
@@ -144,22 +148,39 @@ export function CalendarGrid({
             )}
             {week.map((date) => (
               <CalendarCell
+
                 key={date.toISOString()}
+
                 date={date}
-                events={events.filter(event => 
-                  format(event.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+
+                events={events.filter(
+
+                  (event) => format(event.date, &apos;yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+
                 )}
+
                 isEditing={isEditing}
+
                 onAddEvent={onAddEvent}
+
                 onUpdateEvent={onUpdateEvent}
+
                 onRemoveEvent={onRemoveEvent}
+
                 theme={theme}
+
                 isCurrentMonth={isSameMonth(date, new Date(year, month))}
+
                 decoration={getDecorationForDate(
+
                   date,
+
                   settings.showHolidays && isHoliday(date),
+
                   events.length > 0
+
                 )}
+
               />
             ))}
           </React.Fragment>
@@ -190,7 +211,7 @@ function CalendarCell({
   onRemoveEvent,
   theme,
   isCurrentMonth,
-  decoration
+  decoration,
 }: CalendarCellProps) {
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '' });
@@ -204,12 +225,12 @@ function CalendarCell({
 
   const handleAddEvent = () => {
     if (!newEvent.title.trim()) return;
-    
+
     onAddEvent({
       id: crypto.randomUUID(),
       title: newEvent.title,
       date: date,
-      type: 'event'
+      type: 'event',
     });
 
     setNewEvent({ title: '' });
@@ -219,31 +240,28 @@ function CalendarCell({
   return (
     <div
       className={cn(
-        "min-h-[120px] relative group p-2",
-        "transition-colors duration-200",
-        !isCurrentMonth && "opacity-50",
-        isToday(date) && "bg-primary/5",
-        isEditing && "hover:bg-accent/5"
+        'group relative min-h-[120px] p-2',
+        'transition-colors duration-200',
+        !isCurrentMonth && 'opacity-50',
+        isToday(date) && 'bg-primary/5',
+        isEditing && 'hover:bg-accent/5'
       )}
       style={{ backgroundColor: theme.colors.background }}
     >
       {/* Date number and add button */}
       <div className="flex items-center justify-between">
-        <span 
-          className={cn(
-            "text-sm",
-            isToday(date) && "font-semibold"
-          )}
+        <span
+          className={cn('text-sm', isToday(date) && 'font-semibold')}
           style={{ color: theme.colors.text }}
         >
-          {format(date, 'd')}
+          {format(date, &apos;d&apos;)}
         </span>
         {isEditing && isCurrentMonth && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsAddingEvent(true)}
-            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
           >
             <Plus className="h-3 w-3" />
           </Button>
@@ -253,14 +271,14 @@ function CalendarCell({
       {/* Decoration */}
       {decoration !== 'none' && (
         <div
-          className="absolute top-1 right-1"
+          className="absolute right-1 top-1"
           dangerouslySetInnerHTML={{ __html: DATE_DECORATIONS[decoration] }}
           style={{ color: theme.colors.primary }}
         />
       )}
 
       {/* Events list */}
-      <div className="space-y-1 mt-1">
+      <div className="mt-1 space-y-1">
         <AnimatePresence mode="popLayout">
           {events.map((event) => (
             <EventItem
@@ -281,16 +299,16 @@ function CalendarCell({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="absolute inset-0 p-2 bg-background border shadow-lg z-10"
-          style={{ 
+          className="absolute inset-0 z-10 border bg-background p-2 shadow-lg"
+          style={{
             backgroundColor: theme.colors.background,
-            borderColor: theme.colors.border
+            borderColor: theme.colors.border,
           }}
         >
-          <div className="space-y-2">
-            <Input
-              ref={inputRef}
-              value={newEvent.title}
+          <Input
+            ref={inputRef}
+            value={newEvent.title}
+
               onChange={(e) => setNewEvent({ title: e.target.value })}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && newEvent.title.trim()) handleAddEvent();
@@ -300,18 +318,10 @@ function CalendarCell({
               className="text-sm"
             />
             <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsAddingEvent(false)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => setIsAddingEvent(false)}>
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                onClick={handleAddEvent}
-                disabled={!newEvent.title.trim()}
-              >
+              <Button size="sm" onClick={handleAddEvent} disabled={!newEvent.title.trim()}>
                 Add
               </Button>
             </div>
@@ -323,11 +333,17 @@ function CalendarCell({
 }
 
 interface EventItemProps {
+
   event: CalendarEvent;
+
   isEditing: boolean;
+
   onUpdate: (id: string, event: Partial<CalendarEvent>) => void;
+
   onRemove: (id: string) => void;
-  theme: CalendarGridProps['theme'];
+
+  theme: CalendarGridProps['theme&apos;];
+
 }
 
 function EventItem({ event, isEditing, onUpdate, onRemove, theme }: EventItemProps) {
@@ -341,22 +357,32 @@ function EventItem({ event, isEditing, onUpdate, onRemove, theme }: EventItemPro
     >
       <ContextMenu>
         <ContextMenuTrigger>
-          <div 
-            className="text-xs p-1 rounded cursor-default break-words"
-            style={{ backgroundColor: theme.colors.primary + '20' }}
+          <div
+            className="cursor-default break-words rounded p-1 text-xs"
+            style={{ backgroundColor: `${theme.colors.primary}20` }}
           >
             {event.title}
           </div>
         </ContextMenuTrigger>
         {isEditing && (
           <ContextMenuContent>
-            <ContextMenuItem onClick={() => onUpdate(event.id, { title: prompt('New title:', event.title) || event.title })}>
+            <ContextMenuItem
+              onClick={() => {
+
+                const newTitle = prompt(&apos;New title:', event.title);
+
+                if (newTitle !== null) {
+
+                  onUpdate(event.id, { title: newTitle });
+
+                }
+
+              }}
+            >
               Edit
             </ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem onClick={() => onRemove(event.id)}>
-              Delete
-            </ContextMenuItem>
+            <ContextMenuItem onClick={() => onRemove(event.id)}>Delete</ContextMenuItem>
           </ContextMenuContent>
         )}
       </ContextMenu>

@@ -1,13 +1,13 @@
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json();
 
     if (!email || !password) {
-      return new NextResponse("Missing email or password", { status: 400 });
+      return new NextResponse('Missing email or password', { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return new NextResponse("User already exists", { status: 400 });
+      return new NextResponse('User already exists', { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -29,10 +29,10 @@ export async function POST(req: Request) {
         password: hashedPassword,
         settings: {
           create: {
-            theme: "system",
-            defaultBackgroundColor: "#FFFFFF",
-            defaultForegroundColor: "#000000",
-            errorCorrectionLevel: "M",
+            theme: 'system',
+            defaultBackgroundColor: '#FFFFFF',
+            defaultForegroundColor: '#000000',
+            errorCorrectionLevel: 'M',
             autoDownload: false,
             historyLimit: 50,
           },

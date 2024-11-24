@@ -1,43 +1,33 @@
-"use client";
+'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Label } from '@/components/ui/label';
+import {Slider } from '@/components/ui/slider';
+import {Input } from '@/components/ui/input';
+import {Switch } from '@/components/ui/switch';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { 
-  Palette, 
-  Layout, 
-  Type, 
-  Settings,
-  Calendar,
-  Moon,
-  Cloud,
-  Sun
-} from "lucide-react";
-import { THEME_OPTIONS, FRAME_OPTIONS, FONT_OPTIONS } from "./constants";
-import type { CalendarTheme } from "@/types/calendar-themes";
+} from '@/components/ui/select';
+import {Palette, Layout, Type, Settings, Calendar, Moon, Cloud, Sun } from 'lucide-react';
+import {THEME_OPTIONS, FRAME_OPTIONS, FONT_OPTIONS } from './constants';
+import type { CalendarSettings } from '@/types/calendar-themes';
 
 interface StyleEditorProps {
-  value: CalendarTheme;
-  onChange: (value: CalendarTheme) => void;
+  value: CalendarSettings;
+  onChange: (value: CalendarSettings) => void;
 }
 
-export function StyleEditor({ value, onChange }: StyleEditorProps) {
-  const updateTheme = (path: string[], newValue: any) => {
+export function CalendarStyleEditor({ value, onChange }: StyleEditorProps) {
+  const updateTheme = (_path) => {
     const newTheme = { ...value };
-    let current = newTheme as any;
+    let current: Partial<CalendarSettings> = newTheme;
     for (let i = 0; i < path.length - 1; i++) {
-      current = current[path[i]];
+      current = current[path[i] as keyof typeof current] as Partial<CalendarSettings>;
     }
-    current[path[path.length - 1]] = newValue;
+    (current as Record<string, unknown>)[path[path.length - 1]] = newValue;
     onChange(newTheme);
   };
 
@@ -113,12 +103,12 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                   <Input
                     type="text"
                     value={value.colors.primary}
-                    onChange={(e) => updateTheme(['colors', 'primary'], e.target.value)}
+                    onChange={(e) => updateTheme(['colors', 'primary&apos;], e.target.value)}
                   />
                   <Input
                     type="color"
                     value={value.colors.primary}
-                    onChange={(e) => updateTheme(['colors', 'primary'], e.target.value)}
+                    onChange={(e) => updateTheme([&apos;colors', 'primary'], e.target.value)}
                     className="w-12 p-1"
                   />
                 </div>
@@ -129,12 +119,12 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                   <Input
                     type="text"
                     value={value.colors.background}
-                    onChange={(e) => updateTheme(['colors', 'background'], e.target.value)}
+                    onChange={(e) => updateTheme(['colors', 'background&apos;], e.target.value)}
                   />
                   <Input
                     type="color"
                     value={value.colors.background}
-                    onChange={(e) => updateTheme(['colors', 'background'], e.target.value)}
+                    onChange={(e) => updateTheme([&apos;colors', 'background'], e.target.value)}
                     className="w-12 p-1"
                   />
                 </div>
@@ -154,7 +144,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.firstDayOfWeek === 1}
-              onCheckedChange={(checked) => updateTheme(['firstDayOfWeek'], checked ? 1 : 0)}
+              onCheckedChange={(checked) => updateTheme(['firstDayOfWeek&apos;], checked ? 1 : 0)}
             />
           </div>
 
@@ -165,7 +155,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.showWeekNumbers}
-              onCheckedChange={(checked) => updateTheme(['showWeekNumbers'], checked)}
+              onCheckedChange={(checked) => updateTheme([&apos;showWeekNumbers'], checked)}
             />
           </div>
 
@@ -176,7 +166,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
               min={1}
               max={4}
               step={1}
-              onValueChange={([monthsPerRow]) => updateTheme(['monthsPerRow'], monthsPerRow)}
+              onValueChange={([monthsPerRow]) => updateTheme([&apos;monthsPerRow&apos;], monthsPerRow)}
             />
           </div>
         </div>
@@ -223,12 +213,12 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label className="text-sm">Dates</Label>
                 <Select
                   value={value.typography.dateSize}
-                  onValueChange={(size) => updateTheme(['typography', 'dateSize'], size)}
+                  onValueChange={(size) => updateTheme(['typography', 'dateSize&apos;], size)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select size" />
@@ -258,7 +248,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.options.showLunarPhases}
-              onCheckedChange={(checked) => updateTheme(['options', 'showLunarPhases'], checked)}
+              onCheckedChange={(checked) => updateTheme([&apos;options', 'showLunarPhases'], checked)}
             />
           </div>
 
@@ -272,7 +262,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.options.showHolidays}
-              onCheckedChange={(checked) => updateTheme(['options', 'showHolidays'], checked)}
+              onCheckedChange={(checked) => updateTheme(['options', 'showHolidays&apos;], checked)}
             />
           </div>
 
@@ -286,7 +276,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.options.showWeather}
-              onCheckedChange={(checked) => updateTheme(['options', 'showWeather'], checked)}
+              onCheckedChange={(checked) => updateTheme([&apos;options', 'showWeather'], checked)}
             />
           </div>
 
@@ -300,7 +290,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             </div>
             <Switch
               checked={value.options.showNotes}
-              onCheckedChange={(checked) => updateTheme(['options', 'showNotes'], checked)}
+              onCheckedChange={(checked) => updateTheme(['options', &apos;showNotes&apos;], checked)}
             />
           </div>
         </div>

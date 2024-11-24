@@ -1,6 +1,6 @@
 // File: src/lib/store/qr-store.ts
-import { create } from 'zustand';
-import { QRCodeOptions, QRCodeType } from '../types/qr-code';
+import {create } from 'zustand';
+import {QRCodeOptions, QRCodeType } from '../types/qr-code';
 
 interface QRState {
   type: QRCodeType;

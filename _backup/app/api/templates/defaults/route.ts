@@ -1,6 +1,11 @@
 // File: src/app/api/templates/defaults/route.ts
 import { NextResponse } from 'next/server';
-import { defaultTemplates, getTemplatesByType, getTemplatesByCategory, getTemplatesByTag } from '@/lib/templates/default-templates';
+import {
+  defaultTemplates,
+  getTemplatesByType,
+  getTemplatesByCategory,
+  getTemplatesByTag,
+} from '@/lib/templates/default-templates';
 
 export async function GET(req: Request) {
   try {

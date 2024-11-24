@@ -1,32 +1,35 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
+import {useState } from 'react';
+import {Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {Badge } from '@/components/ui/badge';
+import {DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Plus, 
-  Search, 
-  QrCode, 
+} from '@/components/ui/dropdown-menu';
+import {Plus,
+  Search,
+  QrCode,
   Calendar,
   MoreVertical,
   Copy,
   Pencil,
   Trash,
   Star,
-  Share2
-} from "lucide-react";
+  Share2,
+} from 'lucide-react';
 
 interface Template {
   id: string;
@@ -52,7 +55,7 @@ const mockTemplates: Template[] = [
     isPublic: true,
     isFavorite: true,
     createdAt: '2024-03-15',
-    updatedAt: '2024-03-15'
+    updatedAt: '2024-03-15',
   },
   {
     id: '2',
@@ -64,7 +67,7 @@ const mockTemplates: Template[] = [
     isPublic: true,
     isFavorite: false,
     createdAt: '2024-03-14',
-    updatedAt: '2024-03-14'
+    updatedAt: '2024-03-14',
   },
   // Add more mock templates...
 ];
@@ -72,27 +75,26 @@ const mockTemplates: Template[] = [
 export default function TemplatesPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'qr' | 'calendar'>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState<string[]>([]);
-
-  const filteredTemplates = mockTemplates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         template.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const [templates, setTemplates] = useState<Template[]>(mockTemplates);
+  const filteredTemplates = mockTemplates.filter((template) => {
+    const matchesSearch =
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = activeTab === 'all' || template.type === activeTab;
     return matchesSearch && matchesType;
   });
-
   const toggleFavorite = (templateId: string) => {
-    setFavorites(prev => 
-      prev.includes(templateId) 
-        ? prev.filter(id => id !== templateId)
-        : [...prev, templateId]
-    );
+    setTemplates(templates.map(template => 
+      template.id === templateId 
+        ? { ...template, isFavorite: !template.isFavorite }
+        : template
+    ));
+    console.log('Toggle favorite for template:', templateId);
   };
-
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Templates</h1>
           <p className="text-muted-foreground">Manage your QR code and calendar templates</p>
@@ -106,8 +108,11 @@ export default function TemplatesPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="flex justify-between items-center">
-        <Tabs value={activeTab} onValueChange={(value: 'all' | 'qr' | 'calendar') => setActiveTab(value)}>
+      <div className="flex items-center justify-between">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as 'all' | 'qr' | 'calendar')}
+        >
           <TabsList>
             <TabsTrigger value="all">All Templates</TabsTrigger>
             <TabsTrigger value="qr">QR Codes</TabsTrigger>
@@ -116,19 +121,19 @@ export default function TemplatesPage() {
         </Tabs>
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
             <Input
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-[300px]"
+              className="w-[300px] pl-10"
             />
           </div>
         </div>
       </div>
 
       {/* Templates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredTemplates.map((template) => (
           <Card key={template.id} className="group relative">
             <CardHeader>
@@ -169,7 +174,7 @@ export default function TemplatesPage() {
               <CardDescription>{template.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video rounded-lg border bg-muted flex items-center justify-center">
+              <div className="flex aspect-video items-center justify-center rounded-lg border bg-muted">
                 {/* Replace with actual template preview */}
                 <div className="text-muted-foreground">Template Preview</div>
               </div>
@@ -177,21 +182,22 @@ export default function TemplatesPage() {
             <CardFooter className="flex justify-between">
               <div className="flex gap-2">
                 {template.isPro && (
-                  <Badge variant="secondary" className="bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+                  <Badge
+                    variant="secondary"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 text-white"
+                  >
                     PRO
                   </Badge>
                 )}
-                {template.isPublic && (
-                  <Badge variant="secondary">Public</Badge>
-                )}
+                {template.isPublic && <Badge variant="secondary">Public</Badge>}
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => toggleFavorite(template.id)}
-                className={template.isFavorite ? 'text-yellow-500' : ''}
+                className={template.isFavorite ? 'text-yellow-500' : '&apos;}
               >
-                <Star className="h-4 w-4" fill={template.isFavorite ? 'currentColor' : 'none'} />
+                <Star className="h-4 w-4" fill={template.isFavorite ? &apos;currentColor' : 'none'} />
               </Button>
             </CardFooter>
           </Card>
@@ -200,7 +206,7 @@ export default function TemplatesPage() {
 
       {/* Empty State */}
       {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <div className="text-muted-foreground">No templates found</div>
           <Button variant="outline" className="mt-4">
             <Plus className="mr-2 h-4 w-4" />

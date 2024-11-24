@@ -17,7 +17,7 @@ class EmailService {
 
     try {
       const html = render(VerificationEmail({ verificationUrl }));
-      
+
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
         to: email,

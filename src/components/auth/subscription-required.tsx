@@ -1,53 +1,33 @@
-import { ReactNode } from "react"
+import {ReactNode } from 'react';
 
-import { useSession } from "next-auth/react"
+import {useSession } from 'next-auth/react';
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-
-
+import {Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface SubscriptionRequiredProps {
+  children: ReactNode;
 
-  children: ReactNode
+  feature: string;
 
-  feature: string
-
-  plan: "pro" | "enterprise"
-
+  plan: 'pro' | 'enterprise';
 }
 
-
-
 export function SubscriptionRequired({ children, feature, plan }: SubscriptionRequiredProps) {
+  const { data: session } = useSession();
 
-  const { data: session } = useSession()
-
-  const hasSubscription = session?.user?.subscriptionStatus === plan.toUpperCase()
-
-
+  const hasSubscription = session?.user?.subscriptionStatus === plan.toUpperCase();
 
   if (!hasSubscription) {
-
     return (
-
       <Alert>
-
         <AlertTitle>Subscription Required</AlertTitle>
 
         <AlertDescription>
-
           {feature} is only available on the {plan} plan. Please upgrade to continue.
-
         </AlertDescription>
-
       </Alert>
-
-    )
-
+    );
   }
 
-
-
-  return <>{children}</>
-
+  return <>{children}</>;
 }

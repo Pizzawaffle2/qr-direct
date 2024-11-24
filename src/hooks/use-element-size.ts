@@ -1,5 +1,5 @@
 // src/hooks/use-element-size.ts
-import { useState, useEffect, useRef, useCallback } from 'react';
+import {useState, useEffect, useRef, useCallback } from 'react';
 
 interface Size {
   width: number | undefined;
@@ -33,10 +33,10 @@ export const useElementSize = (): [Size, (node: HTMLElement | null) => void] => 
             width: entry.contentRect.width,
             height: entry.contentRect.height,
           });
-        }),
+        })
   );
 
-  const setRef = useCallback((node: HTMLElement | null) => {
+  const setRef = useCallback((_node) => {
     if (ref.current) {
       resizeObserver.current?.unobserve(ref.current);
     }

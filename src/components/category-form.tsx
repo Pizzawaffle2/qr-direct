@@ -1,24 +1,23 @@
 // components/category-form.tsx
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
+import {useForm } from 'react-hook-form';
+import {zodResolver } from '@hookform/resolvers/zod';
+import {z } from 'zod';
+import {Button } from '@/components/ui/button';
+import {Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { ColorPicker } from "@/components/ui/color-picker";
+} from '@/components/ui/form';
+import {Input } from '@/components/ui/input';
+import {ColorPicker } from '@/components/ui/color-picker';
 
 const categorySchema = z.object({
   id: z.string().optional(),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Invalid color format"),
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Invalid color format'),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -30,18 +29,18 @@ interface CategoryFormProps {
   isSubmitting?: boolean;
 }
 
-export function CategoryForm({ 
-  category, 
-  onSave, 
-  onCancel, 
-  isSubmitting = false 
+export function CategoryForm({
+  category,
+  onSave,
+  onCancel,
+  isSubmitting = false,
 }: CategoryFormProps) {
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      name: category?.name || "",
-      description: category?.description || "",
-      color: category?.color || "#000000",
+      name: category?.name || '',
+      description: category?.description || '',
+      color: category?.color || '#000000',
       id: category?.id,
     },
   });
@@ -51,7 +50,7 @@ export function CategoryForm({
       await onSave(data);
       form.reset();
     } catch (error) {
-      console.error("Failed to save category:", error);
+      console.error('Failed to save category:&apos;, error);
     }
   };
 
@@ -65,11 +64,7 @@ export function CategoryForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input 
-                  {...field} 
-                  placeholder="Enter category name"
-                  disabled={isSubmitting}
-                />
+                <Input {...field} placeholder="Enter category name" disabled={isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -83,8 +78,8 @@ export function CategoryForm({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Input 
-                  {...field} 
+                <Input
+                  {...field}
                   placeholder="Enter category description"
                   disabled={isSubmitting}
                 />
@@ -112,20 +107,12 @@ export function CategoryForm({
           )}
         />
 
-        <div className="flex justify-end gap-2 mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
+        <div className="mt-6 flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button 
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? &apos;Saving...' : 'Save'}
           </Button>
         </div>
       </form>

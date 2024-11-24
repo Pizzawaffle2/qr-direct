@@ -65,13 +65,15 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 }
 
 @layer components {
   .glass-morphism {
-    @apply backdrop-blur-md bg-white/10 border border-white/10;
+    @apply border border-white/10 bg-white/10 backdrop-blur-md;
   }
 
   .category-dot {
@@ -80,7 +82,7 @@
     border-radius: 50%;
     transition: transform var(--transition-fast);
   }
-  
+
   .category-dot:hover {
     transform: scale(1.2);
   }
@@ -88,7 +90,7 @@
 
 @layer utilities {
   .neon-glow {
-    box-shadow: 
+    box-shadow:
       0 0 10px rgba(0, 255, 255, var(--glow-strength)),
       0 0 20px rgba(0, 255, 255, calc(var(--glow-strength) * 0.5)),
       0 0 30px rgba(0, 255, 255, calc(var(--glow-strength) * 0.25));
@@ -103,10 +105,10 @@
   }
 
   .container-narrow {
-    @apply container max-w-4xl mx-auto px-4;
+    @apply container mx-auto max-w-4xl px-4;
   }
 
   .container-wide {
-    @apply container max-w-7xl mx-auto px-4;
+    @apply container mx-auto max-w-7xl px-4;
   }
 }

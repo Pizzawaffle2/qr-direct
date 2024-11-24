@@ -11,7 +11,7 @@ export class VerificationService {
 
   static async createVerificationToken(email: string) {
     const { token, hashedToken } = this.generateToken();
-    
+
     await prisma.verificationToken.create({
       data: {
         identifier: email,
@@ -50,11 +50,11 @@ export class VerificationService {
         data: { emailVerified: new Date() },
       }),
       prisma.verificationToken.delete({
-        where: { 
+        where: {
           identifier_token: {
             identifier: verificationToken.identifier,
             token: hashedToken,
-          }
+          },
         },
       }),
     ]);

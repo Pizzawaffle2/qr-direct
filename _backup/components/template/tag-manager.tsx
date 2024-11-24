@@ -13,11 +13,7 @@ import {
   CommandInput,
   CommandItem,
 } from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/components/ui/use-toast';
 
 interface Tag {
@@ -96,7 +92,7 @@ export function TagManager({ onSelect, selected }: TagManagerProps) {
         description: 'Tag deleted successfully',
       });
 
-      onSelect(selected.filter(tagId => tagId !== id));
+      onSelect(selected.filter((tagId) => tagId !== id));
       fetchTags();
     } catch (error) {
       toast({
@@ -111,7 +107,7 @@ export function TagManager({ onSelect, selected }: TagManagerProps) {
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {selected.map((tagId) => {
-          const tag = tags.find(t => t.id === tagId);
+          const tag = tags.find((t) => t.id === tagId);
           if (!tag) return null;
           return (
             <Badge key={tag.id} variant="secondary">
@@ -120,7 +116,7 @@ export function TagManager({ onSelect, selected }: TagManagerProps) {
                 type="button"
                 title="Remove tag"
                 className="ml-1 hover:text-destructive"
-                onClick={() => onSelect(selected.filter(id => id !== tag.id))}
+                onClick={() => onSelect(selected.filter((id) => id !== tag.id))}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -158,16 +154,14 @@ export function TagManager({ onSelect, selected }: TagManagerProps) {
                     onSelect={() => {
                       onSelect(
                         selected.includes(tag.id)
-                          ? selected.filter(id => id !== tag.id)
+                          ? selected.filter((id) => id !== tag.id)
                           : [...selected, tag.id]
                       );
                     }}
                   >
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex w-full items-center justify-between">
                       {tag.name}
-                      {selected.includes(tag.id) && (
-                        <X className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      {selected.includes(tag.id) && <X className="h-4 w-4 text-muted-foreground" />}
                     </div>
                   </CommandItem>
                 ))}

@@ -1,42 +1,44 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import {useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import {Button } from '@/components/ui/button';
+import {Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {AlertCircle } from 'lucide-react';
 
 const getErrorMessage = (error: string | null) => {
   switch (error) {
     case 'OAuthAccountNotLinked':
       return {
         title: 'Account Already Exists',
-        message: 'An account with this email already exists using a different sign-in method. Please sign in using your original method.',
-        action: '/login'
+        message:
+          'An account with this email already exists using a different sign-in method. Please sign in using your original method.',
+        action: '/login',
       };
     case 'AccessDenied':
       return {
         title: 'Access Denied',
-        message: 'You do not have permission to sign in. Please contact support if you think this is a mistake.',
-        action: '/login'
+        message:
+          'You do not have permission to sign in. Please contact support if you think this is a mistake.',
+        action: '/login',
       };
     case 'CredentialsSignin':
       return {
         title: 'Invalid Credentials',
         message: 'The email or password you entered is incorrect. Please try again.',
-        action: '/login'
+        action: '/login',
       };
     case 'EmailSignin':
       return {
         title: 'Email Sign In Failed',
         message: 'The email sign in link is invalid or has expired. Please try again.',
-        action: '/login'
+        action: '/login',
       };
     default:
       return {
         title: 'Authentication Error',
         message: 'An error occurred during authentication. Please try again.',
-        action: '/login'
+        action: '/login',
       };
   }
 };
@@ -60,14 +62,10 @@ export default function AuthErrorPage() {
 
       <div className="flex flex-col gap-4">
         <Button asChild>
-          <Link href={action}>
-            Try Again
-          </Link>
+          <Link href={action}>Try Again</Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/">
-            Return Home
-          </Link>
+          <Link href="/">Return Home</Link>
         </Button>
       </div>
     </div>

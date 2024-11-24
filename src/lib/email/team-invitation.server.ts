@@ -1,9 +1,9 @@
 // src/lib/email/team-invitation.server.ts
-import { render } from '@react-email/render';
+import {render } from '@react-email/render';
 import React from 'react';
-import { sendEmail } from '@/lib/email/send-email';
-import { TeamInvitationEmail } from '@/emails/team-invitation-email';
-import { ApiError } from '@/lib/errors';
+import {sendEmail } from '@/lib/email/send-email';
+import {TeamInvitationEmail } from '@/emails/team-invitation-email';
+import {ApiError } from '@/lib/errors';
 
 interface TeamInvitationParams {
   email: string;
@@ -36,7 +36,11 @@ const renderEmailContent = (params: TeamInvitationContent): string => {
   try {
     return render(React.createElement(TeamInvitationEmail, params));
   } catch (error) {
-    throw new ApiError('Failed to render team invitation email', 500, error instanceof Error ? error.message : undefined);
+    throw new ApiError(
+      'Failed to render team invitation email',
+      500,
+      error instanceof Error ? error.message : undefined
+    );
   }
 };
 
@@ -51,7 +55,7 @@ export async function sendTeamInvitation({
 }: TeamInvitationParams): Promise<void> {
   try {
     const invitationUrl = generateInvitationUrl(invitationId);
-    
+
     const emailContent = renderEmailContent({
       teamName,
       invitationUrl,

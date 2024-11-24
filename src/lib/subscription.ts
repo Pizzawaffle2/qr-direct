@@ -1,8 +1,8 @@
 // src/lib/subscription.ts
-import { stripe } from './stripe';
-import { prisma } from './db/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]';
+import {stripe } from './stripe';
+import {prisma } from './db/prisma';
+import {getServerSession } from 'next-auth';
+import {authOptions } from '@/app/api/auth/[...nextauth]';
 
 // Types and Interfaces
 export const SUBSCRIPTION_TIERS = {
@@ -90,8 +90,14 @@ export async function createStripeCheckoutSession(priceId: string): Promise<stri
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: new URL('/settings/billing?success=true', process.env.NEXT_PUBLIC_APP_URL).toString(),
-      cancel_url: new URL('/settings/billing?canceled=true', process.env.NEXT_PUBLIC_APP_URL).toString(),
+      success_url: new URL(
+        '/settings/billing?success=true',
+        process.env.NEXT_PUBLIC_APP_URL
+      ).toString(),
+      cancel_url: new URL(
+        '/settings/billing?canceled=true',
+        process.env.NEXT_PUBLIC_APP_URL
+      ).toString(),
       metadata: {
         userId: user.id,
       },

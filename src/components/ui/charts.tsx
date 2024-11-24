@@ -1,8 +1,7 @@
 // src/components/ui/charts.tsx
-"use client";
+'use client';
 
-import {
-  Area,
+import {Area,
   AreaChart as RechartsAreaChart,
   Bar,
   BarChart as RechartsBarChart,
@@ -16,7 +15,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
+} from 'recharts';
 
 interface ChartProps {
   data: any[];
@@ -25,7 +24,7 @@ interface ChartProps {
   colors?: string[];
   className?: string;
   yAxisWidth?: number;
-  layout?: "horizontal" | "vertical";
+  layout?: 'horizontal' | 'vertical';
 }
 
 interface PieChartProps {
@@ -35,7 +34,14 @@ interface PieChartProps {
   className?: string;
 }
 
-export function AreaChart({ data, index, categories, colors = ["blue"], yAxisWidth = 30, className }: ChartProps) {
+export function AreaChart({
+  data,
+  index,
+  categories,
+  colors = ['blue'],
+  yAxisWidth = 30,
+  className,
+}: ChartProps) {
   return (
     <div className={className}>
       <ResponsiveContainer width="100%" height="100%">
@@ -60,14 +66,25 @@ export function AreaChart({ data, index, categories, colors = ["blue"], yAxisWid
   );
 }
 
-export function BarChart({ data, index, categories, colors = ["blue"], layout = "horizontal", className }: ChartProps) {
+export function BarChart({
+  data,
+  index,
+  categories,
+  colors = ['blue'],
+  layout = 'horizontal',
+  className,
+}: ChartProps) {
   return (
     <div className={className}>
       <ResponsiveContainer width="100%" height="100%">
-        <RechartsBarChart data={data} layout={layout} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+        <RechartsBarChart
+          data={data}
+          layout={layout}
+          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          {layout === "horizontal" ? <XAxis dataKey={index} /> : <XAxis type="number" />}
-          {layout === "horizontal" ? <YAxis /> : <YAxis dataKey={index} type="category" />}
+          {layout === 'horizontal' ? <XAxis dataKey={index} /> : <XAxis type="number" />}
+          {layout === 'horizontal' ? <YAxis /> : <YAxis dataKey={index} type="category" />}
           <Tooltip />
           <Legend />
           {categories.map((category, i) => (
@@ -79,7 +96,7 @@ export function BarChart({ data, index, categories, colors = ["blue"], layout = 
   );
 }
 
-export function LineChart({ data, index, categories, colors = ["blue"], className }: ChartProps) {
+export function LineChart({ data, index, categories, colors = ['blue'], className }: ChartProps) {
   return (
     <div className={className}>
       <ResponsiveContainer width="100%" height="100%">

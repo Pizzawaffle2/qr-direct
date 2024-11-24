@@ -1,15 +1,15 @@
 // File: src/components/qr-code/qr-generator.tsx
-"use client"
+'use client';
 
-import QRCode from 'qrcode'
-import { QRCodeData } from '@/lib/types/qr-code'
-import { QRStyleOptions } from '@/lib/types/qr-styles'
+import QRCode from 'qrcode';
+import {QRCodeData } from '@/lib/types/qr-code';
+import {QRStyleOptions } from '@/lib/types/qr-styles';
 
 export class QRGenerator {
   static async generateQR(data: QRCodeData, style: QRStyleOptions): Promise<string> {
     try {
-      const content = this.formatContent(data)
-      
+      const content = this.formatContent(data);
+
       const qrOptions = {
         errorCorrectionLevel: style.errorCorrectionLevel || 'M',
         margin: style.margin || 4,
@@ -18,23 +18,23 @@ export class QRGenerator {
           dark: style.foregroundColor || '#000000',
           light: style.backgroundColor || '#FFFFFF',
         },
-      }
+      };
 
-      const qrCodeDataUrl = await QRCode.toDataURL(content, qrOptions)
-      
+      const qrCodeDataUrl = await QRCode.toDataURL(content, qrOptions);
+
       if (style.imageUrl) {
         return await this.addLogoToQR(
-          qrCodeDataUrl, 
-          style.imageUrl, 
+          qrCodeDataUrl,
+          style.imageUrl,
           style.imageSize || 50,
           style.imageMargin || 5
-        )
+        );
       }
 
-      return qrCodeDataUrl
+      return qrCodeDataUrl;
     } catch (error) {
-      console.error('QR generation error:', error)
-      throw new Error('Failed to generate QR code')
+      console.error('QR generation error:', error);
+      throw new Error('Failed to generate QR code');
     }
   }
 
@@ -45,65 +45,60 @@ export class QRGenerator {
     margin: number
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
       if (!ctx) {
-        reject(new Error('Canvas context not available'))
-        return
+        reject(new Error('Canvas context not available'));
+        return;
       }
 
-      const qrImage = new Image()
-      const logoImage = new Image()
+      const qrImage = new Image();
+      const logoImage = new Image();
 
       qrImage.onload = () => {
         // Set canvas size to match QR code
-        canvas.width = qrImage.width
-        canvas.height = qrImage.height
-        
+        canvas.width = qrImage.width;
+        canvas.height = qrImage.height;
+
         // Draw QR code
-        ctx.drawImage(qrImage, 0, 0)
+        ctx.drawImage(qrImage, 0, 0);
 
         // Calculate logo position (center)
-        const x = (canvas.width - logoSize) / 2
-        const y = (canvas.height - logoSize) / 2
+        const x = (canvas.width - logoSize) / 2;
+        const y = (canvas.height - logoSize) / 2;
 
         logoImage.onload = () => {
           // Add white background for logo
-          ctx.fillStyle = '#FFFFFF'
-          ctx.fillRect(
-            x - margin,
-            y - margin,
-            logoSize + (margin * 2),
-            logoSize + (margin * 2)
-          )
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(x - margin, y - margin, logoSize + margin * 2, logoSize + margin * 2);
 
           // Draw logo
-          ctx.drawImage(logoImage, x, y, logoSize, logoSize)
-          resolve(canvas.toDataURL('image/png'))
-        }
+          ctx.drawImage(logoImage, x, y, logoSize, logoSize);
+          resolve(canvas.toDataURL('image/png'));
+        };
 
-        logoImage.onerror = () => reject(new Error('Failed to load logo'))
-        logoImage.src = logoUrl
-      }
+        logoImage.onerror = () => reject(new Error('Failed to load logo'));
+        logoImage.src = logoUrl;
+      };
 
-      qrImage.onerror = () => reject(new Error('Failed to load QR code'))
-      qrImage.src = qrDataUrl
-    })
+      qrImage.onerror = () => reject(new Error('Failed to load QR code'));
+      qrImage.src = qrDataUrl;
+    });
   }
 
   private static formatContent(data: QRCodeData): string {
     switch (data.type) {
       case 'email': {
-        const params = new URLSearchParams()
-        if (data.subject) params.append('subject', data.subject)
-        if (data.body) params.append('body', data.body)
-        return `mailto:${data.email}${params.toString() ? '?' + params.toString() : ''}`
+        const params = new URLSearchParams();
+        if (data.subject) params.append('subject', data.subject);
+        if (data.body) params.append('body', data.body);
+        return `mailto:${data.email}${params.toString() ? '?' + params.toString() : ''}`;
       }
 
       case 'wifi': {
-        const { ssid, password, encryption = 'WPA', hidden = false } = data
-        return `WIFI:S:${ssid};T:${encryption};P:${password};H:${hidden};`
+        const { ssid, password, encryption = 'WPA', hidden = false } = data;
+        return `WIFI:S:${ssid};T:${encryption};P:${password};H:${hidden};`;
       }
 
       case 'vcard': {
@@ -120,18 +115,20 @@ export class QRGenerator {
           data.website ? `URL:${data.website}` : '',
           data.address ? `ADR:;;${data.address};;;` : '',
           data.note ? `NOTE:${data.note}` : '',
-          'END:VCARD'
-        ].filter(Boolean).join('\n')
+          'END:VCARD',
+        ]
+          .filter(Boolean)
+          .join('\n');
       }
 
       case 'url':
-        return data.url
+        return data.url;
 
       case 'phone':
-        return `tel:${data.number}`
+        return `tel:${data.number}`;
 
       default:
-        throw new Error(`Unsupported QR code type: ${data.type}`)
+        throw new Error(`Unsupported QR code type: ${data.type}`);
     }
   }
 }

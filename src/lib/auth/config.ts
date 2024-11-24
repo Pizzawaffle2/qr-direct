@@ -1,23 +1,25 @@
-import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/db/prisma";
+import {NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import GitHubProvider from 'next-auth/providers/github';
+import {PrismaAdapter } from '@next-auth/prisma-adapter';
+import {prisma } from '@/lib/db/prisma';
+
+import {SubscriptionStatus, SubscriptionTier } from '@/types/user';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  
+
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
         }
-      }
+      },
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -36,7 +38,7 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       try {
         if (!user.email) {
           return false;
@@ -44,7 +46,7 @@ export const authOptions: NextAuthOptions = {
 
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email },
+          where: { email: user.email as string },
         });
 
         if (!existingUser) {
@@ -55,6 +57,7 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               image: user.image,
               emailVerified: new Date(),
+              role: 'user', // Add the role property
               settings: {
                 create: {
                   theme: 'system',
@@ -73,17 +76,15 @@ export const authOptions: NextAuthOptions = {
         }
 
         return true;
-      } catch (error) {
-        console.error("Sign in error:", error);
+      } catch (error: any) {
+        console.error('Sign in error:', error);
         return false;
       }
     },
 
-    async jwt({ token, user, account, profile }) {
+        // Check if user exists
+    async jwt({ token, user }: { token: any, user: any }) {
       if (user) {
-        token.id = user.id;
-        token.email = user.email;
-
         // Get user data from database
         const dbUser = await prisma.user.findUnique({
           where: { email: user.email! },
@@ -96,43 +97,23 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (dbUser) {
-          token.id = dbUser.id;
-          token.subscriptionStatus = dbUser.subscriptionStatus;
-          token.subscriptionTier = dbUser.subscriptionTier;
-          token.emailVerified = dbUser.emailVerified;
+          token.subscriptionStatus = dbUser.subscriptionStatus ?? 'DEFAULT_STATUS' as SubscriptionStatus;
+          token.subscriptionTier = dbUser.subscriptionTier ?? 'DEFAULT_TIER' as SubscriptionTier;
+          token.emailVerified = dbUser.emailVerified ? new Date() : null;
         }
       }
       return token;
     },
 
-    async session({ session, token, user }) {
+    async session({ session, token }: { session: any, token: any }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.email = token.email as string;
-        session.user.subscriptionStatus = token.subscriptionStatus as string;
-        session.user.subscriptionTier = token.subscriptionTier as string;
-        session.user.emailVerified = Boolean(token.emailVerified);
+        session.user.emailVerified = !!token.emailVerified;
+        session.user.subscriptionStatus = token.subscriptionStatus as SubscriptionStatus;
+        session.user.subscriptionTier = token.subscriptionTier as SubscriptionTier;
       }
       return session;
     },
   },
 
-  events: {
-    async signIn({ user, account, isNewUser }) {
-      try {
-        if (isNewUser) {
-          await prisma.usage.create({
-            data: {
-              userId: user.id,
-              period: new Date(),
-            },
-          });
-        }
-      } catch (error) {
-        console.error("Event error:", error);
-      }
-    },
-  },
-
-  debug: process.env.NODE_ENV === 'development',
-};
+  debug: process.env.NODE_ENV === 'development'
+}

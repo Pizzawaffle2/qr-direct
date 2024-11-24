@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { format } from 'date-fns';
+import {useEffect, useState } from 'react';
+import {Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {Input } from '@/components/ui/input';
+import {useToast } from '@/components/ui/use-toast';
+import {format } from 'date-fns';
 
 interface ActivityLogData {
   timestamp: string;
@@ -22,24 +22,25 @@ export default function ProfileActivityLog() {
         if (!response.ok) throw new Error('Failed to fetch activity log');
         const data = await response.json();
         setActivityLog(data);
-      } catch (error) {
+      } catch (_error) {
         toast({
           title: 'Error',
           description: 'Failed to load activity log',
-          variant: 'destructive',
+          variant: 'destructive&apos;,
         });
       }
     };
     fetchActivityLog();
   }, [toast]);
 
-  const filteredActivityLog = activityLog.filter((log) =>
-    log.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    log.details.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredActivityLog = activityLog.filter(
+    (log) =>
+      log.activity.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.details.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="space-y-4 p-6 bg-background rounded-lg shadow-md">
+    <div className="space-y-4 rounded-lg bg-background p-6 shadow-md">
       <Card>
         <CardHeader>
           <CardTitle>Activity Log</CardTitle>
@@ -55,16 +56,12 @@ export default function ProfileActivityLog() {
           <div className="space-y-2">
             {filteredActivityLog.length > 0 ? (
               filteredActivityLog.map((log, index) => (
-                <div key={index} className="p-4 border rounded-md bg-card">
+                <div key={index} className="rounded-md border bg-card p-4">
                   <div className="text-sm text-muted-foreground">
-                    {format(new Date(log.timestamp), 'PPpp')}
+                    {format(new Date(log.timestamp), &apos;PPpp')}
                   </div>
-                  <div className="font-medium text-primary-foreground">
-                    {log.activity}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {log.details}
-                  </div>
+                  <div className="font-medium text-primary-foreground">{log.activity}</div>
+                  <div className="text-sm text-muted-foreground">{log.details}</div>
                 </div>
               ))
             ) : (

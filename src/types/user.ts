@@ -1,40 +1,34 @@
-// types/user.ts
-import { DefaultSession } from "next-auth";
+// src/types/user.ts
+import {USER_ROLE, SUBSCRIPTION_STATUS, SUBSCRIPTION_TIER } from '@/constants/user';
 
-export type UserRole = 'user' | 'admin';
-
-export type SubscriptionStatus = 'active' | 'inactive' | 'past_due' | 'cancelled';
-
-export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
-
-export interface UserSubscription {
-  status: SubscriptionStatus;
-  tier?: SubscriptionTier;
-  currentPeriodEnd?: string;
-  cancelAtPeriodEnd?: boolean;
-}
+export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUS)[keyof typeof SUBSCRIPTION_STATUS];
+export type SubscriptionTier = (typeof SUBSCRIPTION_TIER)[keyof typeof SUBSCRIPTION_TIER];
 
 export interface User {
   id: string;
-  email: string;
-  emailVerified?: Date;
-  name?: string;
-  image?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
   role: UserRole;
   subscriptionStatus: SubscriptionStatus;
   subscriptionTier?: SubscriptionTier;
-  subscription?: UserSubscription;
-  stripeCustomerId?: string; // Ensure this property is included
+  stripeCustomerId?: string | null;
+  emailVerified?: Date | null;
+  lastLoginAt?: Date;
+  failedLoginAttempts?: number;
+  lockedUntil?: Date | null;
 }
 
-declare module 'next-auth' {
-  interface Session {
-    user: {
-      id: string;
-      role: UserRole;
-      subscriptionStatus: SubscriptionStatus;
-      subscriptionTier?: SubscriptionTier;
-      stripeCustomerId?: string;
-    } & DefaultSession["user"]
-  }
-}
+// Add guards for type checking
+export const isValidUserRole = (role: string): role is UserRole => {
+  return Object.values(USER_ROLE).includes(role as UserRole);
+};
+
+export const isValidSubscriptionStatus = (status: string): status is SubscriptionStatus => {
+  return Object.values(SUBSCRIPTION_STATUS).includes(status as SubscriptionStatus);
+};
+
+export const isValidSubscriptionTier = (tier: string): tier is SubscriptionTier => {
+  return Object.values(SUBSCRIPTION_TIER).includes(tier as SubscriptionTier);
+};

@@ -1,5 +1,5 @@
 // File: src/components/template/share-dialog.tsx
-"use client"
+'use client';
 
 import { useState } from 'react';
 import { Globe, Lock, Copy, Share2 } from 'lucide-react';
@@ -15,12 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 
 interface ShareDialogProps {
   open: boolean;
@@ -33,21 +28,16 @@ interface ShareDialogProps {
   imageUrl?: string;
 }
 
-export function ShareDialog({ 
-  open, 
-  onOpenChange, 
-  template,
-  imageUrl 
-}: ShareDialogProps) {
+export function ShareDialog({ open, onOpenChange, template, imageUrl }: ShareDialogProps) {
   const [isPublic, setIsPublic] = useState(template?.isPublic ?? false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  
-  const shareUrl = template ? 
-    `${window.location.origin}/templates/${template.id}` :
-    imageUrl ? 
-      imageUrl :
-      window.location.href;
+
+  const shareUrl = template
+    ? `${window.location.origin}/templates/${template.id}`
+    : imageUrl
+      ? imageUrl
+      : window.location.href;
 
   const handleTogglePublic = async () => {
     if (!template) return;
@@ -103,10 +93,9 @@ export function ShareDialog({
         <DialogHeader>
           <DialogTitle>Share {template ? 'Template' : 'QR Code'}</DialogTitle>
           <DialogDescription>
-            {template ? 
-              'Share your template with others or make it public for anyone to use.' :
-              'Share your QR code with others.'
-            }
+            {template
+              ? 'Share your template with others or make it public for anyone to use.'
+              : 'Share your QR code with others.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -114,9 +103,7 @@ export function ShareDialog({
           {template && (
             <Card>
               <CardHeader className="pb-3">
-                <CardDescription>
-                  Visibility Settings
-                </CardDescription>
+                <CardDescription>Visibility Settings</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
@@ -138,9 +125,7 @@ export function ShareDialog({
 
           <Card>
             <CardHeader className="pb-3">
-              <CardDescription>
-                Share Link
-              </CardDescription>
+              <CardDescription>Share Link</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -154,18 +139,14 @@ export function ShareDialog({
                       )}
                     </div>
                   )}
-                  <Input
-                    value={shareUrl}
-                    readOnly
-                    className={template ? "pl-9 pr-32" : "pr-32"}
-                  />
+                  <Input value={shareUrl} readOnly className={template ? 'pl-9 pr-32' : 'pr-32'} />
                   <Button
                     size="sm"
                     variant="secondary"
                     className="absolute right-1 top-1/2 -translate-y-1/2"
                     onClick={copyToClipboard}
                   >
-                    <Copy className="h-4 w-4 mr-2" />
+                    <Copy className="mr-2 h-4 w-4" />
                     Copy
                   </Button>
                 </div>
@@ -183,7 +164,7 @@ export function ShareDialog({
                     });
                   }}
                 >
-                  <Share2 className="h-4 w-4 mr-2" />
+                  <Share2 className="mr-2 h-4 w-4" />
                   Share via...
                 </Button>
               )}
@@ -192,10 +173,7 @@ export function ShareDialog({
         </div>
 
         <DialogFooter className="flex-col sm:flex-row sm:justify-end sm:space-x-2">
-          <Button
-            variant="secondary"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Done
           </Button>
         </DialogFooter>

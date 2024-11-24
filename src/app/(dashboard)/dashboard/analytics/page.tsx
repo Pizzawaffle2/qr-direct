@@ -1,58 +1,60 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart, BarChart, LineChart, PieChart } from '@/components/ui/charts';
-import { 
-  Activity, 
-  BarChart3, 
-  Globe, 
-  Smartphone, 
-  Monitor, 
-  Tablet,
-  Chrome,
-  QrCode,
-  Firefox as BrowserFirefox, // Changed
-  Safari as BrowserSafari 
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {AreaChart, BarChart, LineChart, PieChart } from '@/components/ui/charts';
+import {Activity, BarChart3, Globe, Smartphone, Monitor, QrCode } from 'lucide-react';
+import {SiGooglechrome as Chrome, SiSafari as Safari, SiFirefox as Firefox } from 'react-icons/si';
+import {Button } from '@/components/ui/button';
+import {Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function AnalyticsPage() {
   // Example data - replace with real data from your API
   const scanData = {
     daily: [
-      { name: "Mon", scans: 40 },
-      { name: "Tue", scans: 30 },
-      { name: "Wed", scans: 45 },
-      { name: "Thu", scans: 35 },
-      { name: "Fri", scans: 55 },
-      { name: "Sat", scans: 25 },
-      { name: "Sun", scans: 30 }
+      { name: 'Mon', scans: 40 },
+      { name: 'Tue', scans: 30 },
+      { name: 'Wed', scans: 45 },
+      { name: 'Thu', scans: 35 },
+      { name: 'Fri', scans: 55 },
+      { name: 'Sat', scans: 25 },
+      { name: 'Sun', scans: 30 },
     ],
     devices: [
-      { name: "Mobile", value: 60, icon: Smartphone },
-      { name: "Desktop", value: 30, icon: Monitor },
-      { name: "Tablet", value: 10, icon: Tablet }
-    ],
-    browsers: [
-      { name: "Chrome", value: 45, icon: Chrome },
-      { name: "Safari", value: 30, icon: Safari },
-      { name: "Firefox", value: 25, icon: Firefox }
+      { name: 'Mobile', value: 60, icon: Smartphone },
+      { name: 'Desktop', value: 30, icon: Monitor },
     ],
     locations: [
-      { name: "United States", value: 40 },
-      { name: "United Kingdom", value: 20 },
-      { name: "Germany", value: 15 },
-      { name: "France", value: 10 },
-      { name: "Others", value: 15 }
-    ]
+      { name: 'United States', value: 40 },
+      { name: 'United Kingdom', value: 20 },
+      { name: 'Germany', value: 15 },
+      { name: 'France', value: 10 },
+      { name: 'Others', value: 15 },
+    ],
+    browsers: [
+      { name: 'Chrome', value: 45, icon: Chrome },
+      { name: 'Safari', value: 30, icon: Safari },
+      { name: 'Firefox', value: 25, icon: Firefox },
+      { name: 'Chrome', value: 45, icon: Chrome },
+      { name: 'Safari', value: 30, icon: Globe },
+      { name: 'Firefox', value: 25, icon: Globe },
+      { name: 'United Kingdom', value: 20 },
+      { name: 'Germany', value: 15 },
+      { name: 'France', value: 10 },
+      { name: 'Others', value: 15 },
+      { name: 'France', value: 10 },
+      { name: 'Others', value: 15 },
+    ],
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
           <p className="text-muted-foreground">Track your QR code performance and engagement</p>
@@ -128,8 +130,8 @@ export default function AnalyticsPage() {
             <AreaChart
               data={scanData.daily}
               index="name"
-              categories={["scans"]}
-              colors={["blue"]}
+              categories={['scans']}
+              colors={['blue']}
               yAxisWidth={40}
               className="h-[300px]"
             />
@@ -142,12 +144,7 @@ export default function AnalyticsPage() {
             <CardDescription>Scans by device type</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <PieChart
-              data={scanData.devices}
-              index="name"
-              category="value"
-              className="h-[300px]"
-            />
+            <PieChart data={scanData.devices} index="name" category="value" className="h-[300px]" />
           </CardContent>
         </Card>
 
@@ -160,8 +157,8 @@ export default function AnalyticsPage() {
             <BarChart
               data={scanData.locations}
               index="name"
-              categories={["value"]}
-              colors={["blue"]}
+              categories={['value']}
+              colors={['blue']}
               layout="vertical"
               className="h-[300px]"
             />
@@ -194,11 +191,11 @@ export default function AnalyticsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left p-4 font-medium">Name</th>
-                <th className="text-left p-4 font-medium">Total Scans</th>
-                <th className="text-left p-4 font-medium">Unique Visitors</th>
-                <th className="text-left p-4 font-medium">Conversion Rate</th>
-                <th className="text-left p-4 font-medium">Trend</th>
+                <th className="p-4 text-left font-medium">Name</th>
+                <th className="p-4 text-left font-medium">Total Scans</th>
+                <th className="p-4 text-left font-medium">Unique Visitors</th>
+                <th className="p-4 text-left font-medium">Conversion Rate</th>
+                <th className="p-4 text-left font-medium">Trend</th>
               </tr>
             </thead>
             <tbody>
@@ -211,11 +208,12 @@ export default function AnalyticsPage() {
                   <td className="p-4">
                     <LineChart
                       data={Array.from({ length: 7 }).map((_, j) => ({
-                        value: Math.random() * 100
+                        name: `Day ${j + 1}`,
+                        value: Math.random() * 100,
                       }))}
-                      index="value"
-                      categories={["value"]}
-                      colors={["blue"]}
+                      index="name"
+                      categories={['value']}
+                      colors={[&apos;blue&apos;]}
                       className="h-[30px] w-[100px]"
                     />
                   </td>

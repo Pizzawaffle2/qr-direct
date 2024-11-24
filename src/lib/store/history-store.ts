@@ -1,12 +1,12 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { QRCodeData } from '@/lib/types/qr-code'
+import {create } from 'zustand';
+import {persist } from 'zustand/middleware';
+import {QRCodeData } from '@/lib/types/qr-code';
 
 interface HistoryState {
-  history: QRCodeData[]
-  addToHistory: (qrCode: QRCodeData) => void
-  removeFromHistory: (id: string) => void
-  clearHistory: () => void
+  history: QRCodeData[];
+  addToHistory: (qrCode: QRCodeData) => void;
+  removeFromHistory: (id: string) => void;
+  clearHistory: () => void;
 }
 
 export const useHistoryStore = create<HistoryState>()(
@@ -27,4 +27,4 @@ export const useHistoryStore = create<HistoryState>()(
       name: 'qr-history',
     }
   )
-)
+);

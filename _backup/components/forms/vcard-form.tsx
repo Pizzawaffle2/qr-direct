@@ -1,19 +1,26 @@
-"use client"
+'use client';
 
-import * as z from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
-import { useToast } from "@/components/ui/use-toast"
-import { useHistoryStore } from "@/lib/store/history-store"
-import { 
-  Loader2, 
-  Download, 
-  RefreshCcw, 
+import * as z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { useHistoryStore } from '@/lib/store/history-store';
+import {
+  Loader2,
+  Download,
+  RefreshCcw,
   Save,
   User,
   Briefcase,
@@ -21,71 +28,71 @@ import {
   Mail,
   Globe,
   MapPin,
-  FileText
-} from "lucide-react"
-import { TemplateDialog } from "../template/template-dialog"
-import { UnifiedStyleForm } from "../qr-code/unified-style-form"
-import { QRStyleSchema, defaultStyleValues } from "@/lib/types/qr-styles"
-import { QRPreview } from "@/components/qr-code/preview"
-import { QRGenerator } from "@/components/qr-code/qr-generator"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+  FileText,
+} from 'lucide-react';
+import { TemplateDialog } from '../template/template-dialog';
+import { UnifiedStyleForm } from '../qr-code/unified-style-form';
+import { QRStyleSchema, defaultStyleValues } from '@/lib/types/qr-styles';
+import { QRPreview } from '@/components/qr-code/preview';
+import { QRGenerator } from '@/components/qr-code/qr-generator';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 const QR_TYPE = 'vcard' as const;
 
 const vcardFormSchema = z.object({
   title: z.string().optional(),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   organization: z.string().optional(),
   jobTitle: z.string().optional(),
-  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
+  email: z.string().email('Please enter a valid email').optional().or(z.literal('')),
   phone: z.string().optional(),
   mobile: z.string().optional(),
-  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
   address: z.string().optional(),
   note: z.string().optional(),
   style: QRStyleSchema,
-})
+});
 
-type VCardFormValues = z.infer<typeof vcardFormSchema>
+type VCardFormValues = z.infer<typeof vcardFormSchema>;
 
 const defaultValues: VCardFormValues = {
-  title: "",
-  firstName: "",
-  lastName: "",
-  organization: "",
-  jobTitle: "",
-  email: "",
-  phone: "",
-  mobile: "",
-  website: "",
-  address: "",
-  note: "",
+  title: '',
+  firstName: '',
+  lastName: '',
+  organization: '',
+  jobTitle: '',
+  email: '',
+  phone: '',
+  mobile: '',
+  website: '',
+  address: '',
+  note: '',
   style: defaultStyleValues,
-}
+};
 
 interface VCardFormProps {
   onSubmit?: (data: VCardFormValues) => void;
 }
 
 export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [qrCode, setQrCode] = useState<string | null>(null)
-  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
-  const { toast } = useToast()
-  const { addToHistory } = useHistoryStore()
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const { addToHistory } = useHistoryStore();
 
   const form = useForm<VCardFormValues>({
     resolver: zodResolver(vcardFormSchema),
     defaultValues,
-  })
+  });
 
   const getPreviewData = () => {
     const title = form.watch('title');
     const firstName = form.watch('firstName');
     const lastName = form.watch('lastName');
-    
+
     if (!firstName && !lastName) {
       return null;
     }
@@ -113,7 +120,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
     }
 
     try {
-      setIsGenerating(true)
+      setIsGenerating(true);
       const qrCodeData = {
         id: crypto.randomUUID(),
         type: QR_TYPE,
@@ -129,55 +136,55 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
         address: data.address,
         note: data.note,
         created: new Date(),
-      }
+      };
 
-      const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style)
-      setQrCode(qrCodeUrl)
-      
+      const qrCodeUrl = await QRGenerator.generateQR(qrCodeData, data.style);
+      setQrCode(qrCodeUrl);
+
       addToHistory({
         ...qrCodeData,
         url: qrCodeUrl,
-      })
+      });
 
       toast({
-        title: "Success",
-        description: "Contact QR code generated successfully!",
-      })
+        title: 'Success',
+        description: 'Contact QR code generated successfully!',
+      });
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to generate QR code",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to generate QR code',
+        variant: 'destructive',
+      });
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleReset = () => {
-    form.reset(defaultValues)
-    setQrCode(null)
-  }
+    form.reset(defaultValues);
+    setQrCode(null);
+  };
 
   const handleDownload = () => {
-    if (!qrCode) return
-    const link = document.createElement('a')
-    link.href = qrCode
-    link.download = `${form.getValues().title || 'contact-qr-code'}.png`
-    link.click()
-    
+    if (!qrCode) return;
+    const link = document.createElement('a');
+    link.href = qrCode;
+    link.download = `${form.getValues().title || 'contact-qr-code'}.png`;
+    link.click();
+
     toast({
-      title: "Downloaded!",
-      description: "QR code has been downloaded successfully.",
-    })
-  }
+      title: 'Downloaded!',
+      description: 'QR code has been downloaded successfully.',
+    });
+  };
 
   const formContent = (
-    <div className="grid grid-cols-1 md:grid-cols-[1fr,400px] gap-8 w-full">
+    <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-[1fr,400px]">
       <div className="space-y-8">
-        <Card className="bg-slate-900/50 border-slate-800/50">
-          <div className="p-6 space-y-8">
-            <div className="flex items-center gap-2 pb-4 border-b border-slate-800">
+        <Card className="border-slate-800/50 bg-slate-900/50">
+          <div className="space-y-8 p-6">
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-4">
               <User className="h-5 w-5" />
               <h2 className="text-lg font-medium">Contact QR Code</h2>
             </div>
@@ -191,8 +198,8 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                     <FormItem>
                       <FormLabel>Title (Optional)</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Contact QR Code" 
+                        <Input
+                          placeholder="Contact QR Code"
                           {...field}
                           className="border-slate-800 bg-slate-900/50"
                         />
@@ -203,7 +210,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                 />
 
                 <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="w-full grid grid-cols-4 bg-slate-900/50 p-1">
+                  <TabsList className="grid w-full grid-cols-4 bg-slate-900/50 p-1">
                     <TabsTrigger value="personal">Personal</TabsTrigger>
                     <TabsTrigger value="business">Business</TabsTrigger>
                     <TabsTrigger value="contact">Contact</TabsTrigger>
@@ -212,7 +219,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
 
                   <TabsContent value="personal" className="mt-4">
                     <Card className="border-slate-800">
-                      <div className="p-6 space-y-4">
+                      <div className="space-y-4 p-6">
                         <div className="grid gap-4 md:grid-cols-2">
                           <FormField
                             control={form.control}
@@ -221,8 +228,8 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormItem>
                                 <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                  <Input 
-                                    placeholder="John" 
+                                  <Input
+                                    placeholder="John"
                                     {...field}
                                     className="border-slate-800 bg-slate-900/50"
                                   />
@@ -238,8 +245,8 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormItem>
                                 <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                  <Input 
-                                    placeholder="Doe" 
+                                  <Input
+                                    placeholder="Doe"
                                     {...field}
                                     className="border-slate-800 bg-slate-900/50"
                                   />
@@ -255,7 +262,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
 
                   <TabsContent value="business" className="mt-4">
                     <Card className="border-slate-800">
-                      <div className="p-6 space-y-4">
+                      <div className="space-y-4 p-6">
                         <FormField
                           control={form.control}
                           name="organization"
@@ -264,11 +271,11 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormLabel>Company/Organization (Optional)</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input 
-                                    placeholder="Company Name" 
+                                  <Briefcase className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                  <Input
+                                    placeholder="Company Name"
                                     {...field}
-                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                    className="border-slate-800 bg-slate-900/50 pl-10"
                                   />
                                 </div>
                               </FormControl>
@@ -282,8 +289,8 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                             <FormItem>
                               <FormLabel>Job Title (Optional)</FormLabel>
                               <FormControl>
-                                <Input 
-                                  placeholder="Software Engineer" 
+                                <Input
+                                  placeholder="Software Engineer"
                                   {...field}
                                   className="border-slate-800 bg-slate-900/50"
                                 />
@@ -297,7 +304,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
 
                   <TabsContent value="contact" className="mt-4">
                     <Card className="border-slate-800">
-                      <div className="p-6 space-y-4">
+                      <div className="space-y-4 p-6">
                         <div className="grid gap-4 md:grid-cols-2">
                           <FormField
                             control={form.control}
@@ -307,12 +314,12 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                                 <FormLabel>Work Phone (Optional)</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
+                                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
                                       type="tel"
-                                      placeholder="+1234567890" 
+                                      placeholder="+1234567890"
                                       {...field}
-                                      className="pl-10 border-slate-800 bg-slate-900/50"
+                                      className="border-slate-800 bg-slate-900/50 pl-10"
                                     />
                                   </div>
                                 </FormControl>
@@ -327,12 +334,12 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                                 <FormLabel>Mobile Phone (Optional)</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
+                                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
                                       type="tel"
-                                      placeholder="+1234567890" 
+                                      placeholder="+1234567890"
                                       {...field}
-                                      className="pl-10 border-slate-800 bg-slate-900/50"
+                                      className="border-slate-800 bg-slate-900/50 pl-10"
                                     />
                                   </div>
                                 </FormControl>
@@ -348,12 +355,12 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormLabel>Email (Optional)</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input 
+                                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                  <Input
                                     type="email"
-                                    placeholder="john@example.com" 
+                                    placeholder="john@example.com"
                                     {...field}
-                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                    className="border-slate-800 bg-slate-900/50 pl-10"
                                   />
                                 </div>
                               </FormControl>
@@ -369,11 +376,11 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormLabel>Website (Optional)</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                  <Input 
-                                    placeholder="https://example.com" 
+                                  <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                  <Input
+                                    placeholder="https://example.com"
                                     {...field}
-                                    className="pl-10 border-slate-800 bg-slate-900/50"
+                                    className="border-slate-800 bg-slate-900/50 pl-10"
                                   />
                                 </div>
                               </FormControl>
@@ -387,7 +394,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
 
                   <TabsContent value="additional" className="mt-4">
                     <Card className="border-slate-800">
-                      <div className="p-6 space-y-4">
+                      <div className="space-y-4 p-6">
                         <FormField
                           control={form.control}
                           name="address"
@@ -397,10 +404,10 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormControl>
                                 <div className="relative">
                                   <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                  <Textarea 
-                                    placeholder="Enter address" 
+                                  <Textarea
+                                    placeholder="Enter address"
                                     {...field}
-                                    className="pl-10 min-h-[100px] resize-none border-slate-800 bg-slate-900/50"
+                                    className="min-h-[100px] resize-none border-slate-800 bg-slate-900/50 pl-10"
                                   />
                                 </div>
                               </FormControl>
@@ -416,10 +423,10 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                               <FormControl>
                                 <div className="relative">
                                   <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                  <Textarea 
-                                    placeholder="Add additional notes" 
+                                  <Textarea
+                                    placeholder="Add additional notes"
                                     {...field}
-                                    className="pl-10 min-h-[100px] resize-none border-slate-800 bg-slate-900/50"
+                                    className="min-h-[100px] resize-none border-slate-800 bg-slate-900/50 pl-10"
                                   />
                                 </div>
                               </FormControl>
@@ -432,7 +439,7 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                 </Tabs>
 
                 <Tabs defaultValue="basic" className="w-full">
-                  <TabsList className="w-full grid grid-cols-4 gap-4 bg-slate-900/50 p-1">
+                  <TabsList className="grid w-full grid-cols-4 gap-4 bg-slate-900/50 p-1">
                     <TabsTrigger value="basic">Basic</TabsTrigger>
                     <TabsTrigger value="colors">Colors</TabsTrigger>
                     <TabsTrigger value="style">Style</TabsTrigger>
@@ -469,24 +476,18 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
                 </Tabs>
 
                 <div className="flex gap-3">
-                  <Button 
-                    type="submit" 
-                    className="flex-1"
-                    disabled={isGenerating}
-                  >
+                  <Button type="submit" className="flex-1" disabled={isGenerating}>
                     {isGenerating ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Generating...
                       </>
-                    ) : "Generate QR Code"}
+                    ) : (
+                      'Generate QR Code'
+                    )}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleReset}
-                  >
-                    <RefreshCcw className="w-4 h-4" />
+                  <Button type="button" variant="outline" onClick={handleReset}>
+                    <RefreshCcw className="h-4 w-4" />
                   </Button>
                 </div>
               </form>
@@ -496,27 +497,21 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
       </div>
 
       <div className="space-y-4">
-        <QRPreview 
+        <QRPreview
           data={getPreviewData()}
           style={form.watch('style')}
           isGenerating={isGenerating}
         />
 
         {qrCode && !externalSubmit && (
-          <Card className="bg-slate-900/50 border-slate-800/50 p-4">
+          <Card className="border-slate-800/50 bg-slate-900/50 p-4">
             <div className="flex gap-3">
-              <Button 
-                onClick={handleDownload}
-                className="flex-1"
-              >
-                <Download className="w-4 h-4 mr-2" />
+              <Button onClick={handleDownload} className="flex-1">
+                <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => setIsTemplateDialogOpen(true)}
-              >
-                <Save className="w-4 h-4" />
+              <Button variant="outline" onClick={() => setIsTemplateDialogOpen(true)}>
+                <Save className="h-4 w-4" />
               </Button>
             </div>
           </Card>
@@ -529,16 +524,16 @@ export function VCardForm({ onSubmit: externalSubmit }: VCardFormProps) {
         onSave={async (template) => {
           try {
             toast({
-              title: "Success",
-              description: "Template saved successfully!",
-            })
-            setIsTemplateDialogOpen(false)
+              title: 'Success',
+              description: 'Template saved successfully!',
+            });
+            setIsTemplateDialogOpen(false);
           } catch (error) {
             toast({
-              title: "Error",
-              description: "Failed to save template",
-              variant: "destructive",
-            })
+              title: 'Error',
+              description: 'Failed to save template',
+              variant: 'destructive',
+            });
           }
         }}
         style={form.watch('style')}

@@ -4,9 +4,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ 
+  const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET 
+    secret: process.env.NEXTAUTH_SECRET,
   });
 
   const { pathname, origin } = request.nextUrl;
@@ -19,16 +19,16 @@ export async function middleware(request: NextRequest) {
     '/reset-password',
     '/',
     '/api/auth',
-    '/verify-email'
+    '/verify-email',
   ];
 
   // Auth paths that signed-in users shouldn't access
   const authPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
 
-  const isPublicPath = publicPaths.some(path => 
-    pathname.startsWith(path) || pathname.includes('/api/auth/')
+  const isPublicPath = publicPaths.some(
+    (path) => pathname.startsWith(path) || pathname.includes('/api/auth/')
   );
-  const isAuthPath = authPaths.some(path => pathname.startsWith(path));
+  const isAuthPath = authPaths.some((path) => pathname.startsWith(path));
 
   // Redirect authenticated users trying to access auth pages
   if (token && isAuthPath) {

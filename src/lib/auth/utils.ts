@@ -1,5 +1,8 @@
-import { type UserRole, type AccountStatus, type ActivityType } from '@/app/api/auth/[...nextauth]/route';
-import { debounce } from '@/lib/utils';
+import {type UserRole,
+  type AccountStatus,
+  type ActivityType,
+} from '@/types/auth'
+import {debounce } from '@/lib/helpers';
 
 // Types
 export interface AuthError {
@@ -33,7 +36,7 @@ export const hasRequiredRole = (userRole: UserRole, requiredRoles: UserRole[]): 
   };
 
   const userRoleLevel = roleHierarchy[userRole];
-  return requiredRoles.some(role => userRoleLevel >= roleHierarchy[role]);
+  return requiredRoles.some((role) => userRoleLevel >= roleHierarchy[role]);
 };
 
 // Debounced authentication checks
@@ -60,14 +63,14 @@ export const parseAuthError = (error: unknown): AuthError => {
     return {
       code: 'AUTH_ERROR',
       message: error.message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
-  
+
   return {
     code: 'UNKNOWN_ERROR',
     message: 'An unknown authentication error occurred',
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 };
 
@@ -96,7 +99,7 @@ export const trackAuthActivity = async (event: AuthEvent): Promise<void> => {
 // Subscription helpers
 export type SubscriptionTier = 'free' | 'pro' | 'enterprise';
 
-export const getSubscriptionFeatures = (tier: SubscriptionTier) => {
+export const getSubscriptionFeatures = (_tier) => {
   const features = {
     free: {
       maxQrCodes: 10,
@@ -138,10 +141,7 @@ export const canAccessFeature = (
 };
 
 // Hook helpers for components
-export const getAuthRedirectUrl = (
-  returnTo?: string,
-  defaultPath = '/'
-): string => {
+export const getAuthRedirectUrl = (returnTo?: string, defaultPath = '/'): string => {
   if (!returnTo) {
     return defaultPath;
   }
@@ -152,7 +152,7 @@ export const getAuthRedirectUrl = (
     if (url.origin === window.location.origin) {
       return returnTo;
     }
-  } catch (e) {
+  } catch (_error) {
     // If returnTo is a relative path, it's safe to use
     if (returnTo.startsWith('/')) {
       return returnTo;

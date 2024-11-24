@@ -21,7 +21,7 @@ export class ApiError extends Error {
   ) {
     super(message);
     this.name = 'ApiError';
-    
+
     // Maintains proper stack trace for where error was thrown
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, ApiError);
@@ -65,7 +65,7 @@ export class ApiError extends Error {
 /*
 try {
   // Some code that might throw
-} catch (error) {
+} catch (_error) {
   if (!session) {
     throw ApiError.unauthorized('User session not found');
   }

@@ -1,23 +1,18 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
-import Link from "next/link";
+import {Button } from '@/components/ui/button';
+import {motion } from 'framer-motion';
+import {ArrowRight, Check } from 'lucide-react';
+import Link from 'next/link';
 
-const benefits = [
-  "No credit card required",
-  "14-day free trial",
-  "Cancel anytime",
-  "24/7 support"
-];
+const benefits = ['No credit card required', '14-day free trial', 'Cancel anytime', '24/7 support'];
 
 export function CTASection() {
   return (
     <div className="relative py-12">
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 via-transparent to-transparent" />
+        <div className="bg-gradient-radial absolute inset-0 from-blue-500/20 via-transparent to-transparent" />
       </div>
 
       <div className="mx-auto max-w-4xl text-center">
@@ -36,8 +31,8 @@ export function CTASection() {
           </h2>
 
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Join thousands of satisfied users who are already using our platform
-            to create stunning QR codes and track their performance.
+            Join thousands of satisfied users who are already using our platform to create stunning
+            QR codes and track their performance.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -59,7 +54,7 @@ export function CTASection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col justify-center gap-4 sm:flex-row"
           >
             <Button size="lg" asChild>
               <Link href="/signup" className="gap-2">
@@ -79,7 +74,7 @@ export function CTASection() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.5 }}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="absolute bottom-4 right-4 p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
+        className="absolute bottom-4 right-4 rounded-full bg-primary/10 p-2 transition-colors hover:bg-primary/20"
       >
         <ArrowRight className="h-5 w-5 rotate-[-90deg]" />
       </motion.button>

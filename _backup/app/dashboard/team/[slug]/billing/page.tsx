@@ -1,102 +1,89 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
-import {
-  CreditCard,
-  Download,
-  Loader2,
-  Package,
-  Users,
-} from "lucide-react"
-import { PLANS } from "@/lib/config/pricing"
-import { useTeam } from "@/hooks/use-team"
-import { formatDate } from "@/lib/utils"
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+import { CreditCard, Download, Loader2, Package, Users } from 'lucide-react';
+import { PLANS } from '@/lib/config/pricing';
+import { useTeam } from '@/hooks/use-team';
+import { formatDate } from '@/lib/utils';
 
-export default function TeamBillingPage({
-  params,
-}: {
-  params: { slug: string }
-}) {
-  const [isLoading, setIsLoading] = useState<string | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
-  const { team, teamUsage } = useTeam(params.slug)
+export default function TeamBillingPage({ params }: { params: { slug: string } }) {
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { team, teamUsage } = useTeam(params.slug);
 
-  if (!team) return null
+  if (!team) return null;
 
-  const currentPlan = PLANS.find((p) => p.id === team.subscription?.plan) || PLANS[0]
+  const currentPlan = PLANS.find((p) => p.id === team.subscription?.plan) || PLANS[0];
 
   const handleUpgrade = async (priceId: string) => {
     try {
-      setIsLoading(priceId)
-      const response = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      setIsLoading(priceId);
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceId,
           teamId: team.id,
         }),
-      })
+      });
 
-      const { url } = await response.json()
-      router.push(url)
+      const { url } = await response.json();
+      router.push(url);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to start upgrade process. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to start upgrade process. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   const handleManageSubscription = async () => {
     try {
-      setIsLoading("manage")
-      const response = await fetch("/api/stripe/create-portal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      setIsLoading('manage');
+      const response = await fetch('/api/stripe/create-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ teamId: team.id }),
-      })
+      });
 
-      const { url } = await response.json()
-      router.push(url)
+      const { url } = await response.json();
+      router.push(url);
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to open billing portal. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to open billing portal. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   return (
-    <div className="container max-w-6xl py-8 space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="container max-w-6xl space-y-8 py-8">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Team Billing</h1>
           <p className="text-muted-foreground">
             Manage your team's subscription and billing details
           </p>
         </div>
-        {team.subscription?.status === "active" && (
-          <Button
-            onClick={handleManageSubscription}
-            disabled={isLoading === "manage"}
-          >
-            {isLoading === "manage" ? (
+        {team.subscription?.status === 'active' && (
+          <Button onClick={handleManageSubscription} disabled={isLoading === 'manage'}>
+            {isLoading === 'manage' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <CreditCard className="h-4 w-4 mr-2" />
+                <CreditCard className="mr-2 h-4 w-4" />
                 Manage Subscription
               </>
             )}
@@ -106,22 +93,18 @@ export default function TeamBillingPage({
 
       {/* Current Plan */}
       <Card className="p-6">
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-semibold">Current Plan</h2>
-            <p className="text-muted-foreground mt-1">
-              {currentPlan.description}
-            </p>
+            <p className="mt-1 text-muted-foreground">{currentPlan.description}</p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold">
               ${currentPlan.prices.monthly}
-              <span className="text-base font-normal text-muted-foreground">
-                /month
-              </span>
+              <span className="text-base font-normal text-muted-foreground">/month</span>
             </p>
             {team.subscription?.currentPeriodEnd && (
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Next billing date: {formatDate(team.subscription.currentPeriodEnd)}
               </p>
             )}
@@ -141,7 +124,7 @@ export default function TeamBillingPage({
                 /{currentPlan.limits.teamMembers === -1 ? '∞' : currentPlan.limits.teamMembers}
               </span>
             </p>
-            <div className="mt-2 w-full bg-secondary h-2 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
               <div
                 className={`h-full transition-all ${
                   teamUsage?.activeMembers === currentPlan.limits.teamMembers
@@ -169,7 +152,7 @@ export default function TeamBillingPage({
                 /{currentPlan.limits.qrCodes === -1 ? '∞' : currentPlan.limits.qrCodes}
               </span>
             </p>
-            <div className="mt-2 w-full bg-secondary h-2 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
               <div
                 className={`h-full transition-all ${
                   teamUsage?.qrCodesCreated === currentPlan.limits.qrCodes
@@ -193,7 +176,7 @@ export default function TeamBillingPage({
             </div>
             <div className="mt-2">
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   team.subscription?.status === 'active'
                     ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'
@@ -211,30 +194,19 @@ export default function TeamBillingPage({
         <h2 className="text-xl font-semibold">Available Plans</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {PLANS.map((plan) => (
-            <motion.div
-              key={plan.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Card className={`p-6 ${
-                plan.id === currentPlan.id
-                  ? 'border-primary'
-                  : ''
-              }`}>
+            <motion.div key={plan.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Card className={`p-6 ${plan.id === currentPlan.id ? 'border-primary' : ''}`}>
                 <h3 className="text-lg font-semibold">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {plan.description}
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
 
                 <div className="mt-4">
                   <p className="text-3xl font-bold">
                     ${plan.prices.monthly}
-                    <span className="text-base font-normal text-muted-foreground">
-                      /month
-                    </span>
+                    <span className="text-base font-normal text-muted-foreground">/month</span>
                   </p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    ${plan.prices.yearly}/year (Save ${plan.prices.monthly * 12 - plan.prices.yearly})
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    ${plan.prices.yearly}/year (Save $
+                    {plan.prices.monthly * 12 - plan.prices.yearly})
                   </p>
                 </div>
 
@@ -251,11 +223,7 @@ export default function TeamBillingPage({
                         viewBox="0 0 24 24"
                       >
                         {feature.enabled ? (
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         ) : (
                           <path
                             strokeLinecap="round"
@@ -272,12 +240,9 @@ export default function TeamBillingPage({
                 </div>
 
                 <Button
-                  className="w-full mt-6"
+                  className="mt-6 w-full"
                   variant={plan.id === currentPlan.id ? 'outline' : 'default'}
-                  disabled={
-                    isLoading === plan.stripeIds.monthly ||
-                    plan.id === currentPlan.id
-                  }
+                  disabled={isLoading === plan.stripeIds.monthly || plan.id === currentPlan.id}
                   onClick={() => handleUpgrade(plan.stripeIds.monthly)}
                 >
                   {isLoading === plan.stripeIds.monthly ? (
@@ -296,11 +261,11 @@ export default function TeamBillingPage({
 
       {/* Billing History */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Billing History</h2>
+        <h2 className="mb-4 text-xl font-semibold">Billing History</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left border-b border-border">
+              <tr className="border-b border-border text-left">
                 <th className="pb-4 font-medium">Date</th>
                 <th className="pb-4 font-medium">Description</th>
                 <th className="pb-4 font-medium">Amount</th>
@@ -329,5 +294,5 @@ export default function TeamBillingPage({
         </div>
       </Card>
     </div>
-  )
+  );
 }

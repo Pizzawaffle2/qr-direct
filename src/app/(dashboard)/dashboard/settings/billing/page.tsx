@@ -1,122 +1,116 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/components/ui/use-toast"
-import { Loader2, Check, CreditCard } from "lucide-react"
-import { PLANS } from "@/lib/config/pricing"
+import {useState } from 'react';
+import {useRouter } from 'next/navigation';
+import {Card } from '@/components/ui/card';
+import {Button } from '@/components/ui/button';
+import {useToast } from '@/components/ui/use-toast';
+import {Loader2, Check, CreditCard } from 'lucide-react';
+import {PLANS } from '@/lib/config/pricing';
 
 type Plan = {
-  id: string
-  name: string
-  description: string
-  prices: { monthly: number; yearly: number }
-  stripeIds: { monthly?: string; yearly?: string }
-  limits: { qrCodes: number; templates: number }
-  features: Array<{ name: string; enabled?: boolean }>
-}
+  id: string;
+  name: string;
+  description: string;
+  prices: { monthly: number; yearly: number };
+  stripeIds: { monthly?: string; yearly?: string };
+  limits: { qrCodes: number; templates: number };
+  features: Array<{ name: string; enabled?: boolean }>;
+};
 
-type BillingInterval = "monthly" | "yearly"
+type BillingInterval = 'monthly' | 'yearly';
 
 interface BillingPageProps {
   subscription: {
-    plan: string
-    status: string
-    interval?: "monthly" | "yearly"
-    currentPeriodEnd?: Date
-    cancelAtPeriodEnd: boolean
-  }
+    plan: string;
+    status: string;
+    interval?: 'monthly' | 'yearly';
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd: boolean;
+  };
   usage: {
-    qrCodesCreated: number
-    templatesCreated: number
-    apiCalls: number
-  }
-}
-
-function getPrice(prices: { monthly: number; yearly: number }, interval: string): number {
-  return prices[interval as keyof typeof prices];
+    qrCodesCreated: number;
+    templatesCreated: number;
+    apiCalls: number;
+  };
 }
 
 export default function BillingPage({ subscription, usage }: BillingPageProps) {
-  const [selectedInterval, setSelectedInterval] = useState<BillingInterval>("monthly")
-  const [isLoading, setIsLoading] = useState<string | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
+  const [selectedInterval, setSelectedInterval] = useState<BillingInterval>('monthly');
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const currentPlan = PLANS.find(p => p.id === subscription.plan) || PLANS[0]
+  const currentPlan = PLANS.find((p) => p.id === subscription.plan) || PLANS[0];
 
   const handleUpgrade = async (plan: Plan) => {
     try {
-      setIsLoading(plan.id)
-      const response = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      setIsLoading(plan.id);
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           priceId: plan.stripeIds[selectedInterval],
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.url) {
-        router.push(data.url)
+        router.push(data.url);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to start upgrade process",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to start upgrade process',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   const handleManageSubscription = async () => {
     try {
-      setIsLoading("manage")
-      const response = await fetch("/api/stripe/create-portal", {
-        method: "POST",
-      })
+      setIsLoading('manage');
+      const response = await fetch('/api/stripe/create-portal', {
+        method: 'POST',
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.url) {
-        router.push(data.url)
+        router.push(data.url);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to open billing portal",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to open billing portal',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(null)
+      setIsLoading(null);
     }
-  }
+  };
 
   return (
-    <div className="container max-w-6xl py-8 space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="container max-w-6xl space-y-8 py-8">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Billing & Usage</h1>
-          <p className="text-muted-foreground">
-            Manage your subscription and billing details
-          </p>
+          <p className="text-muted-foreground">Manage your subscription and billing details</p>
         </div>
-        {subscription.status === "active" && (
+        {subscription.status === 'active' && (
           <Button
             onClick={handleManageSubscription}
-            disabled={isLoading === "manage"}
+            disabled={isLoading === 'manage'}
             variant="outline"
           >
-            {isLoading === "manage" ? (
+            {isLoading === 'manage' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <CreditCard className="h-4 w-4 mr-2" />
+                <CreditCard className="mr-2 h-4 w-4" />
                 Manage Subscription
               </>
             )}
@@ -126,24 +120,21 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
 
       {/* Current Plan */}
       <Card className="p-6">
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-semibold">Current Plan</h2>
-            <p className="text-muted-foreground">
-              {currentPlan.description}
-            </p>
+            <p className="text-muted-foreground">{currentPlan.description}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">
-              ${currentPlan.prices[subscription.interval || "monthly"]}
+              ${currentPlan.prices[subscription.interval || 'monthly&apos;]}
               <span className="text-base font-normal text-muted-foreground">
-                /{subscription.interval || "month"}
+                /{subscription.interval || &apos;month'}
               </span>
             </p>
             {subscription.currentPeriodEnd && (
               <p className="text-sm text-muted-foreground">
-                Next billing date:{" "}
-                {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                Next billing date: {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
               </p>
             )}
           </div>
@@ -152,14 +143,14 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
 
       {/* Usage */}
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Usage</h2>
+        <h2 className="mb-4 text-xl font-semibold">Usage</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <p className="text-muted-foreground">QR Codes Created</p>
             <p className="text-2xl font-bold">
               {usage.qrCodesCreated}
               <span className="text-base font-normal text-muted-foreground">
-                /{currentPlan.limits.qrCodes === -1 ? "∞" : currentPlan.limits.qrCodes}
+                /{currentPlan.limits.qrCodes === -1 ? '∞&apos; : currentPlan.limits.qrCodes}
               </span>
             </p>
           </div>
@@ -168,7 +159,7 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
             <p className="text-2xl font-bold">
               {usage.templatesCreated}
               <span className="text-base font-normal text-muted-foreground">
-                /{currentPlan.limits.templates === -1 ? "∞" : currentPlan.limits.templates}
+                /{currentPlan.limits.templates === -1 ? &apos;∞' : currentPlan.limits.templates}
               </span>
             </p>
           </div>
@@ -176,9 +167,7 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
             <p className="text-muted-foreground">API Calls</p>
             <p className="text-2xl font-bold">
               {usage.apiCalls}
-              <span className="text-base font-normal text-muted-foreground">
-                /month
-              </span>
+              <span className="text-base font-normal text-muted-foreground">/month</span>
             </p>
           </div>
         </div>
@@ -188,17 +177,17 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
       <div className="space-y-6">
         <div className="flex justify-center gap-2">
           <Button
-            variant={selectedInterval === "monthly" ? "default" : "outline"}
-            onClick={() => setSelectedInterval("monthly")}
+            variant={selectedInterval === 'monthly' ? 'default' : 'outline'}
+            onClick={() => setSelectedInterval(&apos;monthly&apos;)}
           >
             Monthly
           </Button>
           <Button
-            variant={selectedInterval === "yearly" ? "default" : "outline"}
-            onClick={() => setSelectedInterval("yearly")}
+            variant={selectedInterval === 'yearly' ? 'default' : 'outline'}
+            onClick={() => setSelectedInterval('yearly')}
           >
             Yearly
-            <span className="ml-1.5 text-xs bg-primary-foreground text-primary px-2 py-0.5 rounded">
+            <span className="ml-1.5 rounded bg-primary-foreground px-2 py-0.5 text-xs text-primary">
               Save 20%
             </span>
           </Button>
@@ -208,11 +197,7 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
           {PLANS.map((plan) => (
             <Card
               key={plan.id}
-              className={`p-6 ${
-                plan.id === currentPlan.id
-                  ? "ring-2 ring-primary"
-                  : ""
-              }`}
+              className={`p-6 ${plan.id === currentPlan.id ? 'ring-2 ring-primary' : ''}`}
             >
               <div className="space-y-4">
                 <div>
@@ -223,24 +208,21 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
                 <p className="text-3xl font-bold">
                   ${plan.prices[selectedInterval]}
                   <span className="text-base font-normal text-muted-foreground">
-                    /{selectedInterval === "monthly" ? "month" : "year"}
+                    /{selectedInterval === 'monthly' ? 'month' : 'year&apos;}
                   </span>
                 </p>
 
                 <Button
                   className="w-full"
-                  disabled={
-                    isLoading === plan.id ||
-                    plan.id === currentPlan.id
-                  }
+                  disabled={isLoading === plan.id || plan.id === currentPlan.id}
                   onClick={() => handleUpgrade(plan)}
                 >
                   {isLoading === plan.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : plan.id === currentPlan.id ? (
-                    "Current Plan"
+                    &apos;Current Plan'
                   ) : (
-                    "Upgrade"
+                    'Upgrade'
                   )}
                 </Button>
 
@@ -258,5 +240,5 @@ export default function BillingPage({ subscription, usage }: BillingPageProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

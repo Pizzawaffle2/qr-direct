@@ -1,25 +1,25 @@
 // File: src/components/qr-code/image-selector.tsx
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { socialIcons, IconCategory } from "@/lib/data/social-icons"
-import { motion } from "framer-motion"
-import { Upload, Image as ImageIcon } from "lucide-react"
-import { IconLoader } from "@/components/ui/icon-loader"
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { socialIcons, IconCategory } from '@/lib/data/social-icons';
+import { motion } from 'framer-motion';
+import { Upload, Image as ImageIcon } from 'lucide-react';
+import { IconLoader } from '@/components/ui/icon-loader';
 
 interface ImageSelectorProps {
-  onImageSelect: (image: string) => void
-  selectedImage?: string
+  onImageSelect: (image: string) => void;
+  selectedImage?: string;
 }
 
 export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorProps) {
-  const [selectedCategory, setSelectedCategory] = useState<IconCategory>('social')
+  const [selectedCategory, setSelectedCategory] = useState<IconCategory>('social');
   const categories: { value: IconCategory; label: string }[] = [
     { value: 'social', label: 'Social' },
     { value: 'business', label: 'Business' },
@@ -27,30 +27,30 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
     { value: 'payment', label: 'Payment' },
     { value: 'media', label: 'Media' },
     { value: 'store', label: 'Stores' },
-  ]
+  ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault()
-    const file = event.target.files?.[0]
+    event.preventDefault();
+    const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        onImageSelect(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        onImageSelect(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   return (
     <Card className="p-4">
       <Tabs defaultValue="gallery" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="gallery">
-            <ImageIcon className="h-4 w-4 mr-2" />
+            <ImageIcon className="mr-2 h-4 w-4" />
             Gallery
           </TabsTrigger>
           <TabsTrigger value="upload">
-            <Upload className="h-4 w-4 mr-2" />
+            <Upload className="mr-2 h-4 w-4" />
             Upload
           </TabsTrigger>
         </TabsList>
@@ -61,11 +61,11 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
               <Button
                 key={category.value}
                 type="button"
-                variant={selectedCategory === category.value ? "default" : "outline"}
+                variant={selectedCategory === category.value ? 'default' : 'outline'}
                 size="sm"
                 onClick={(e) => {
-                  e.preventDefault()
-                  setSelectedCategory(category.value)
+                  e.preventDefault();
+                  setSelectedCategory(category.value);
                 }}
               >
                 {category.label}
@@ -86,24 +86,22 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
                     <Button
                       type="button"
                       variant="outline"
-                      className={`w-full aspect-square p-2 ${
+                      className={`aspect-square w-full p-2 ${
                         selectedImage === icon.icon ? 'ring-2 ring-primary' : ''
                       }`}
                       onClick={(e) => {
-                        e.preventDefault()
-                        onImageSelect(icon.icon)
+                        e.preventDefault();
+                        onImageSelect(icon.icon);
                       }}
                     >
                       <IconLoader
                         icon={icon.icon}
                         color={icon.color}
                         size={32}
-                        className="w-full h-full object-contain"
+                        className="h-full w-full object-contain"
                       />
                     </Button>
-                    <p className="text-xs text-center mt-1 text-muted-foreground">
-                      {icon.name}
-                    </p>
+                    <p className="mt-1 text-center text-xs text-muted-foreground">{icon.name}</p>
                   </motion.div>
                 ))}
             </div>
@@ -112,16 +110,11 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
 
         <TabsContent value="upload">
           <div className="space-y-4">
-            <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 hover:border-primary/50 transition-colors">
-              <Label
-                htmlFor="image-upload"
-                className="flex flex-col items-center cursor-pointer"
-              >
-                <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors hover:border-primary/50">
+              <Label htmlFor="image-upload" className="flex cursor-pointer flex-col items-center">
+                <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
                 <span className="text-sm font-medium">Upload Image</span>
-                <span className="text-xs text-muted-foreground mt-1">
-                  SVG, PNG, JPG up to 2MB
-                </span>
+                <span className="mt-1 text-xs text-muted-foreground">SVG, PNG, JPG up to 2MB</span>
               </Label>
               <Input
                 id="image-upload"
@@ -134,7 +127,7 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
             </div>
 
             {selectedImage && selectedImage.startsWith('data:') && (
-              <div className="relative aspect-square w-24 mx-auto">
+              <div className="relative mx-auto aspect-square w-24">
                 <img
                   src={selectedImage}
                   alt="Uploaded image"
@@ -144,10 +137,10 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
                   type="button"
                   variant="destructive"
                   size="sm"
-                  className="absolute -top-2 -right-2"
+                  className="absolute -right-2 -top-2"
                   onClick={(e) => {
-                    e.preventDefault()
-                    onImageSelect('')
+                    e.preventDefault();
+                    onImageSelect('');
                   }}
                 >
                   ✕
@@ -158,5 +151,5 @@ export function ImageSelector({ onImageSelect, selectedImage }: ImageSelectorPro
         </TabsContent>
       </Tabs>
     </Card>
-  )
+  );
 }

@@ -1,20 +1,19 @@
 // File: src/components/template/templates-grid.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, Filter, Plus } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
+import {useState, useEffect } from 'react';
+import {Search, Filter, Plus } from 'lucide-react';
+import {Input } from '@/components/ui/input';
+import {Button } from '@/components/ui/button';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { TemplateCard } from './template-card';
-import { TemplateDialog } from './template-dialog';
-import { useToast } from '@/components/ui/use-toast';
+import {TemplateCard } from './template-card';
+import {TemplateDialog } from './template-dialog';
+import {useToast } from '@/components/ui/use-toast';
 import type { Category, Tag, Template } from '@/lib/types/qr-styles';
 
 interface TemplatesGridProps {
@@ -45,7 +44,7 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
       if (!response.ok) throw new Error('Failed to fetch templates');
       const data = await response.json();
       setTemplates(data);
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to load templates',
@@ -92,23 +91,25 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
       });
 
       fetchTemplates();
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to delete template',
-        variant: 'destructive',
+        variant: 'destructive&apos;,
       });
     }
   };
 
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredTemplates = templates.filter((template) => {
+    const matchesSearch =
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       template.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesCategory = !selectedCategory || template.categoryId === selectedCategory;
-    
-    const matchesTags = selectedTags.length === 0 || 
-      selectedTags.every(tagId => template.tags.some(tag => tag.id === tagId));
+
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.every((tagId) => template.tags.some((tag) => tag.id === tagId));
 
     return matchesSearch && matchesCategory && matchesTags;
   });
@@ -118,7 +119,7 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Templates</h2>
         <Button onClick={() => setIsTemplateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           New Template
         </Button>
       </div>
@@ -150,23 +151,20 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
           </Select>
 
           <Button variant="outline" onClick={() => setSelectedTags([])}>
-            <Filter className="w-4 h-4 mr-2" />
-            {selectedTags.length ? `${selectedTags.length} Tags` : 'Filter Tags'}
+            <Filter className="mr-2 h-4 w-4" />
+            {selectedTags.length ? `${selectedTags.length} Tags` : &apos;Filter Tags'}
           </Button>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((n) => (
-            <div
-              key={n}
-              className="h-48 rounded-lg bg-muted animate-pulse"
-            />
+            <div key={n} className="h-48 animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredTemplates.map((template) => (
             <TemplateCard
               key={template.id}
@@ -176,7 +174,7 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
             />
           ))}
           {filteredTemplates.length === 0 && (
-            <div className="col-span-full text-center py-8 text-muted-foreground">
+            <div className="col-span-full py-8 text-center text-muted-foreground">
               No templates found
             </div>
           )}
@@ -203,11 +201,11 @@ export function TemplatesGrid({ onTemplateSelect }: TemplatesGridProps) {
 
             setIsTemplateDialogOpen(false);
             fetchTemplates();
-          } catch (error) {
+          } catch (_error) {
             toast({
               title: 'Error',
               description: 'Failed to create template',
-              variant: 'destructive',
+              variant: &apos;destructive&apos;,
             });
           }
         }}

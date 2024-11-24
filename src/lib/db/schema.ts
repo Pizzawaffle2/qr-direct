@@ -1,6 +1,5 @@
-
 // src/lib/db/schema.ts
-import { z } from 'zod'
+import {z } from 'zod';
 
 export const userSchema = z.object({
   id: z.string(),
@@ -8,7 +7,7 @@ export const userSchema = z.object({
   email: z.string().email(),
   emailVerified: z.date().optional(),
   image: z.string().optional(),
-})
+});
 
 export const qrCodeSchema = z.object({
   id: z.string(),
@@ -22,4 +21,4 @@ export const qrCodeSchema = z.object({
   teamId: z.string().optional(),
   created: z.date(),
   updated: z.date(),
-})
+});

@@ -1,22 +1,21 @@
-"use client";
+// src/components/calendar/theme-selector.tsx
+'use client';
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Palette, 
-  Calendar,
-  Sparkles,
-  Snowflake,
-  Flower,
-  Sun,
-  Leaf,
-  Check
-} from "lucide-react";
-import { CALENDAR_THEMES, CalendarTheme, ThemeCategory } from "@/types/calendar-themes";
-import { cn } from "@/lib/utils";
+import {useState } from 'react';
+import {Card, CardContent } from '@/components/ui/card';
+import {Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {basicThemes } from '@/types/calendar-themes/basic-themes';
+import {holidayThemes } from '@/types/calendar-themes/holiday-themes';
+import {seasonalThemes } from '@/types/calendar-themes/seasonal-themes';
+import {CalendarTheme } from '@/types/calendar-types';
+
+const allThemes = [...basicThemes, ...holidayThemes, ...seasonalThemes];
 
 interface ThemeSelectorProps {
   currentTheme: string;
@@ -24,137 +23,81 @@ interface ThemeSelectorProps {
   onThemeSelect: (theme: CalendarTheme) => void;
 }
 
-const categoryIcons = {
-  basic: <Palette className="h-4 w-4" />,
-  seasonal: <Calendar className="h-4 w-4" />,
-  holiday: <Sparkles className="h-4 w-4" />
-};
-
-const seasonalIcons = {
-  winter: <Snowflake className="h-4 w-4" />,
-  spring: <Flower className="h-4 w-4" />,
-  summer: <Sun className="h-4 w-4" />,
-  fall: <Leaf className="h-4 w-4" />
-};
-
 export function ThemeSelector({ currentTheme, currentMonth, onThemeSelect }: ThemeSelectorProps) {
-  const [selectedCategory, setSelectedCategory] = useState<ThemeCategory>('basic');
-  const [showPreview, setShowPreview] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>('all');
 
-  const availableThemes = Object.values(CALENDAR_THEMES).filter(theme => 
-    theme.category === selectedCategory && 
-    (!theme.availableMonths || theme.availableMonths.includes(currentMonth))
-  );
+  // Filter themes based on category and month availability
+  const availableThemes = allThemes.filter((theme) => {
+    const matchesCategory = category === 'all' || theme.category === category;
+    const availableInMonth = !theme.availableMonths || theme.availableMonths.includes(currentMonth);
+    return matchesCategory && availableInMonth;
+  });
 
   return (
     <div className="space-y-4">
-      {/* Category Selection */}
-      <div className="flex gap-2">
-        {(['basic', 'seasonal', 'holiday'] as ThemeCategory[]).map((category) => (
-          <Button
-            key={category}
-            variant={selectedCategory === category ? "default" : "outline"}
-            onClick={() => setSelectedCategory(category)}
-            className="flex-1"
+      <Select value={category} onValueChange={setCategory}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="basic">Basic</SelectItem>
+            <SelectItem value="seasonal">Seasonal</SelectItem>
+            <SelectItem value="holiday">Holiday</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <div className="grid grid-cols-2 gap-4">
+        {availableThemes.map((theme) => (
+          <Card
+            key={theme.id}
+            className={`cursor-pointer transition-all ${
+              theme.id === currentTheme
+                ? 'ring-2 ring-primary'
+                : 'hover:ring-2 hover:ring-primary/50'
+            }`}
+            onClick={() => onThemeSelect(theme)}
           >
-            {categoryIcons[category]}
-            <span className="ml-2 capitalize">{category}</span>
-          </Button>
+            <div
+              className="aspect-video p-4"
+              style={{
+                backgroundColor: theme.colors.background,
+                color: theme.colors.text,
+              }}
+            >
+              {/* Theme Preview */}
+              <div className="space-y-2">
+                <div className="h-4 rounded" style={{ backgroundColor: theme.colors.primary }} />
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="aspect-square rounded"
+                      style={{ backgroundColor: theme.colors.secondary }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <CardContent className="border-t p-3">
+              <div className="space-y-1">
+                <h3 className="text-sm font-medium">{theme.name}</h3>
+                <p className="text-xs text-muted-foreground">{theme.description}</p>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Theme Grid */}
-      <ScrollArea className="h-[400px] rounded-md border">
-        <div className="grid grid-cols-2 gap-4 p-4">
-          {availableThemes.map((theme) => (
-            <ThemeCard
-              key={theme.id}
-              theme={theme}
-              isSelected={currentTheme === theme.id}
-              onSelect={() => onThemeSelect(theme)}
-              onPreview={() => setShowPreview(theme.id)}
-              onPreviewEnd={() => setShowPreview(null)}
-            />
-          ))}
+      {availableThemes.length === 0 && (
+        <div className="p-4 text-center">
+          <p className="text-muted-foreground">
+            No themes available for the selected category and month.
+          </p>
         </div>
-      </ScrollArea>
-    </div>
-  );
-}
-
-interface ThemeCardProps {
-  theme: CalendarTheme;
-  isSelected: boolean;
-  onSelect: () => void;
-  onPreview: () => void;
-  onPreviewEnd: () => void;
-}
-
-function ThemeCard({ theme, isSelected, onSelect, onPreview, onPreviewEnd }: ThemeCardProps) {
-  return (
-    <Card
-      className={cn(
-        "relative overflow-hidden cursor-pointer group",
-        "transition-all duration-200",
-        isSelected && "ring-2 ring-primary"
       )}
-      onClick={onSelect}
-      onMouseEnter={onPreview}
-      onMouseLeave={onPreviewEnd}
-    >
-      {/* Theme Preview */}
-      <div 
-        className="aspect-[4/3] p-2"
-        style={{ backgroundColor: theme.colors.background }}
-      >
-        {/* Frame Preview */}
-        <div
-          className="w-full h-full rounded border"
-          style={{
-            borderColor: theme.colors.border,
-            borderWidth: '2px',
-            borderStyle: theme.frame.borderStyle
-          }}
-        >
-          {/* Content Preview */}
-          <div className="p-2">
-            <div 
-              className="h-4 w-1/2 rounded"
-              style={{ backgroundColor: theme.colors.primary }}
-            />
-            <div 
-              className="mt-2 h-2 w-3/4 rounded"
-              style={{ backgroundColor: theme.colors.secondary }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Theme Info */}
-      <div className="p-3 border-t">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-medium">{theme.name}</h3>
-            <p className="text-xs text-muted-foreground">
-              {theme.description}
-            </p>
-          </div>
-          {isSelected && (
-            <Check className="h-4 w-4 text-primary" />
-          )}
-        </div>
-      </div>
-
-      {/* Color Palette Preview */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 flex">
-        {Object.values(theme.colors).map((color, i) => (
-          <div
-            key={i}
-            className="flex-1 h-full"
-            style={{ backgroundColor: color }}
-          />
-        ))}
-      </div>
-    </Card>
+    </div>
   );
 }

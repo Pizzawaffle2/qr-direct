@@ -185,15 +185,15 @@ export const defaultTemplates: Template[] = [
 
 // Helper function to get templates by type
 export function getTemplatesByType(type: string): Template[] {
-  return defaultTemplates.filter(template => template.type === type);
+  return defaultTemplates.filter((template) => template.type === type);
 }
 
 // Helper function to get templates by category
 export function getTemplatesByCategory(category: string): Template[] {
-  return defaultTemplates.filter(template => template.category === category);
+  return defaultTemplates.filter((template) => template.category === category);
 }
 
 // Helper function to get templates by tag
 export function getTemplatesByTag(tag: string): Template[] {
-  return defaultTemplates.filter(template => template.tags.includes(tag));
+  return defaultTemplates.filter((template) => template.tags.includes(tag));
 }

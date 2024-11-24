@@ -1,8 +1,8 @@
 // File: src/app/api/templates/route.ts
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import {NextResponse } from 'next/server';
+import {prisma } from '@/lib/prisma';
+import {getServerSession } from 'next-auth';
+import {authOptions } from '@/lib/auth';
 import type { CreateTemplateDTO } from '@/lib/types/qr-styles';
 
 export async function GET(req: Request) {
@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         isPublic: data.isPublic ?? false,
         userId: session.user.id,
         tags: {
-          connect: data.tagIds?.map(id => ({ id })) || [],
+          connect: data.tagIds?.map((id) => ({ id })) || [],
         },
       },
       include: {

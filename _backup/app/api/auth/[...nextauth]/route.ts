@@ -1,11 +1,11 @@
-import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
-import AppleProvider from "next-auth/providers/apple"
-import LinkedInProvider from "next-auth/providers/linkedin"
-import { AuthOptions } from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import NextAuth from 'next-auth';
+import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
+import AppleProvider from 'next-auth/providers/apple';
+import LinkedInProvider from 'next-auth/providers/linkedin';
+import { AuthOptions } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/lib/prisma';
 
 const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -26,30 +26,30 @@ const authOptions: AuthOptions = {
       clientId: process.env.LINKEDIN_CLIENT_ID!,
       clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
       authorization: {
-        params: { scope: 'openid profile email' }
+        params: { scope: 'openid profile email' },
       },
     }),
   ],
   callbacks: {
     async session({ session, token, user }) {
       if (session.user) {
-        session.user.id = token.sub!
+        session.user.id = token.sub!;
       }
-      return session
+      return session;
     },
     async jwt({ token, user, account, profile }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
       }
-      return token
+      return token;
     },
   },
   pages: {
     signIn: '/login',
     error: '/login',
     verifyRequest: '/verify-email',
-  }
-}
+  },
+};
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

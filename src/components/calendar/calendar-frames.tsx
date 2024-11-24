@@ -1,9 +1,16 @@
-"use client";
+'use client';
 
-import { useMemo } from 'react';
-import { cn } from "@/lib/utils";
+import {useMemo } from 'react';
+import {cn } from '@/lib/utils';
 
-export type FrameType = 'christmas' | 'snowflakes' | 'autumn' | 'spring' | 'summer' | 'basic' | 'minimal';
+export type FrameType =
+  | 'christmas'
+  | 'snowflakes'
+  | 'autumn'
+  | 'spring'
+  | 'summer'
+  | 'basic'
+  | 'minimal';
 export type DecorationType = 'holiday' | 'birthday' | 'event' | 'none';
 
 export const FRAME_PATTERNS = {
@@ -57,7 +64,7 @@ export const FRAME_PATTERNS = {
     <pattern id="minimal" patternUnits="userSpaceOnUse" width="60" height="60">
       <path d="M0 0h60v60H0z" fill="none"/>
     </pattern>
-  `
+  `,
 };
 
 export const CORNER_DECORATIONS = {
@@ -69,7 +76,7 @@ export const CORNER_DECORATIONS = {
     topRight: `
       <path d="M0 0c20 20 60 20 80 0" stroke="#2C5530" stroke-width="3" fill="none" transform="scale(-1, 1) translate(-80, 0)"/>
       <circle cx="40" cy="10" r="4" fill="#c41e3a"/>
-    `
+    `,
   },
   autumn: {
     topLeft: `
@@ -77,8 +84,8 @@ export const CORNER_DECORATIONS = {
     `,
     topRight: `
       <path d="M0 0c50 50 150 50 200 0" stroke="#EA580C" stroke-width="2" fill="none" opacity="0.2" transform="scale(-1, 1) translate(-80, 0)"/>
-    `
-  }
+    `,
+  },
 };
 
 export const DATE_DECORATIONS = {
@@ -101,7 +108,7 @@ export const DATE_DECORATIONS = {
       <circle cx="50%" cy="50%" r="2" fill="currentColor" opacity="0.3"/>
     </g>
   `,
-  none: ''
+  none: '',
 };
 
 export interface ThemeFrameProps {
@@ -119,36 +126,28 @@ export function ThemeFrame({
   color,
   opacity = 0.1,
   className,
-  children
+  children,
 }: ThemeFrameProps) {
   const pattern = useMemo(() => FRAME_PATTERNS[type], [type]);
-  const corners = useMemo(() => cornerStyle ? CORNER_DECORATIONS[cornerStyle] : null, [cornerStyle]);
+  const corners = useMemo(
+    () => (cornerStyle ? CORNER_DECORATIONS[cornerStyle] : null),
+    [cornerStyle]
+  );
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+    <div className={cn('relative overflow-hidden', className)}>
+      <svg className="pointer-events-none absolute inset-0 h-full w-full">
         <defs dangerouslySetInnerHTML={{ __html: pattern }} />
-        <rect 
-          width="100%" 
-          height="100%" 
-          fill={`url(#${type})`} 
-          style={{ opacity, color }}
-        />
+        <rect width="100%" height="100%" fill={`url(#${type})`} style={{ opacity, color }} />
       </svg>
 
       {corners && (
         <>
-          <svg className="absolute top-0 left-0 w-20 h-20" viewBox="0 0 80 80">
-            <g 
-              dangerouslySetInnerHTML={{ __html: corners.topLeft }}
-              style={{ color }}
-            />
+          <svg className="absolute left-0 top-0 h-20 w-20" viewBox="0 0 80 80">
+            <g dangerouslySetInnerHTML={{ __html: corners.topLeft }} style={{ color }} />
           </svg>
-          <svg className="absolute top-0 right-0 w-20 h-20" viewBox="0 0 80 80">
-            <g 
-              dangerouslySetInnerHTML={{ __html: corners.topRight }}
-              style={{ color }}
-            />
+          <svg className="absolute right-0 top-0 h-20 w-20" viewBox="0 0 80 80">
+            <g dangerouslySetInnerHTML={{ __html: corners.topRight }} style={{ color }} />
           </svg>
         </>
       )}
@@ -160,20 +159,20 @@ export function ThemeFrame({
 
 export function getFrameTypeForDate(date: Date): keyof typeof FRAME_PATTERNS {
   const month = date.getMonth();
-  
+
   // Special months
-  if (month === 11) return 'christmas';  // December
-  
+  if (month === 11) return 'christmas'; // December
+
   // Seasons
-  if (month <= 1 || month === 11) return 'snowflakes';  // Winter
-  if (month >= 2 && month <= 4) return 'spring';        // Spring
-  if (month >= 5 && month <= 7) return 'summer';        // Summer
-  return 'autumn';                                      // Fall (months 8-10)
+  if (month <= 1 || month === 11) return 'snowflakes'; // Winter
+  if (month >= 2 && month <= 4) return 'spring'; // Spring
+  if (month >= 5 && month <= 7) return 'summer'; // Summer
+  return 'autumn'; // Fall (months 8-10)
 }
 
 export function getDecorationForDate(
-  date: Date, 
-  isHoliday: boolean, 
+  date: Date,
+  isHoliday: boolean,
   hasEvents: boolean
 ): keyof typeof DATE_DECORATIONS {
   if (isHoliday) return 'holiday';

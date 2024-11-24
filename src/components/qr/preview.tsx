@@ -1,43 +1,40 @@
 // src/components/qr/preview.tsx
 
-import { useState, useEffect, useMemo } from "react";
-import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import { 
-  Paintbrush, 
-  Image as ImageIcon, 
-  Grid, 
-  Frame, 
-  QrCode,
-  Shield,
-  Palette 
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { 
-  QRCodeData, 
-  QRStyleOptions, 
-  ERROR_CORRECTION_LEVELS
-} from "@/types/qr";
-import { QRCodeSVG } from "qrcode.react";
+import {useState, useEffect, useMemo } from 'react';
+import {Card } from '@/components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Label } from '@/components/ui/label';
+import Image from 'next/image';
+import {Paintbrush, Image as ImageIcon, Grid, Frame, QrCode, Shield, Palette } from 'lucide-react';
+import {cn } from '@/lib/utils';
+import {QRCodeData, QRStyleOptions, ERROR_CORRECTION_LEVELS } from '@/types/qr';
+import {QRCodeSVG } from 'qrcode.react';
 
-const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyleOptions }) => {
-  const style = useMemo(() => ({
-    dotStyle: 'square' as const,
-    cornerStyle: 'square' as const,
-    cornerDotStyle: 'square' as const,
-    ...rawStyle
-  }), [rawStyle]);
+export const QRPreview = ({
+  data,
+  style: rawStyle,
+}: {
+  data: QRCodeData;
+  style: QRStyleOptions;
+}) => {
+  const style = useMemo(
+    () => ({
+      dotStyle: 'square' as const,
+      cornerStyle: 'square' as const,
+      cornerDotStyle: 'square' as const,
+      ...rawStyle,
+    }),
+    [rawStyle]
+  );
 
-  const [previewTab, setPreviewTab] = useState<"preview" | "details">("preview");
+  const [previewTab, setPreviewTab] = useState<'preview' | 'details'>('preview');
   const [cssVars, setCssVars] = useState<React.CSSProperties>({});
 
   const getAnimationClasses = () => {
     if (!rawStyle.animated) return '';
-    
+
     const classes = ['transition-all'];
-    
+
     if (rawStyle.animationType) {
       switch (rawStyle.animationType) {
         case 'fade':
@@ -69,16 +66,17 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
       '--qr-shadow-blur': style.shadowBlur ? `${style.shadowBlur}px` : '0px',
       '--qr-shadow-offset-x': style.shadowOffsetX ? `${style.shadowOffsetX}px` : '0px',
       '--qr-shadow-offset-y': style.shadowOffsetY ? `${style.shadowOffsetY}px` : '0px',
-      '--qr-gradient': style.gradientType && style.gradientColors 
-        ? `${style.gradientType}-gradient(${
-            style.gradientType === 'linear' 
-              ? `${style.gradientColors.direction || 0}deg` 
-              : 'circle'
-          }, ${style.gradientColors.start}, ${style.gradientColors.end})`
-        : 'none',
-      '--transition-duration': rawStyle.animationDuration 
-        ? `${rawStyle.animationDuration}ms` 
-        : '300ms'
+      '--qr-gradient':
+        style.gradientType && style.gradientColors
+          ? `${style.gradientType}-gradient(${
+              style.gradientType === 'linear'
+                ? `${style.gradientColors.direction || 0}deg`
+                : 'circle'
+            }, ${style.gradientColors.start}, ${style.gradientColors.end})`
+          : 'none',
+      '--transition-duration': rawStyle.animationDuration
+        ? `${rawStyle.animationDuration}ms`
+        : '300ms',
     } as React.CSSProperties;
 
     setCssVars(vars);
@@ -106,7 +104,9 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
 
         case 'sms': {
           const smsContent = `sms:${data.phone}`;
-          return data.message ? `${smsContent}?body=${encodeURIComponent(data.message)}` : smsContent;
+          return data.message
+            ? `${smsContent}?body=${encodeURIComponent(data.message)}`
+            : smsContent;
         }
 
         case 'wifi':
@@ -123,8 +123,10 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
             data.phone ? `TEL:${data.phone}` : '',
             data.website ? `URL:${data.website}` : '',
             data.address ? `ADR:${data.address}` : '',
-            'END:VCARD'
-          ].filter(Boolean).join('\n');
+            'END:VCARD',
+          ]
+            .filter(Boolean)
+            .join('\n');
           return vcard;
         }
 
@@ -148,18 +150,30 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
     email: { name: 'Email', description: 'Email address', icon: <Frame className="h-4 w-4" /> },
     phone: { name: 'Phone', description: 'Phone number', icon: <Grid className="h-4 w-4" /> },
     sms: { name: 'SMS', description: 'Text message', icon: <Grid className="h-4 w-4" /> },
-    wifi: { name: 'Wi-Fi', description: 'Network credentials', icon: <Shield className="h-4 w-4" /> },
-    vcard: { name: 'vCard', description: 'Contact information', icon: <ImageIcon className="h-4 w-4" /> },
-    location: { name: 'Location', description: 'Geographic coordinates', icon: <Frame className="h-4 w-4" /> }
+    wifi: {
+      name: 'Wi-Fi',
+      description: 'Network credentials',
+      icon: <Shield className="h-4 w-4" />,
+    },
+    vcard: {
+      name: 'vCard',
+      description: 'Contact information',
+      icon: <ImageIcon className="h-4 w-4" />,
+    },
+    location: {
+      name: 'Location',
+      description: 'Geographic coordinates',
+      icon: <Frame className="h-4 w-4" />,
+    },
   };
 
   const getQRTypeInfo = () => {
     const defaultTypeInfo = {
       name: 'Unknown',
       description: 'Unknown type',
-      icon: null
+      icon: null,
     };
-  
+
     return QRCodeType[data.type as keyof typeof QRCodeType] ?? defaultTypeInfo;
   };
 
@@ -189,8 +203,10 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
             data.phone ? `TEL:${data.phone}` : '',
             data.website ? `URL:${data.website}` : '',
             data.address ? `ADR:${data.address}` : '',
-            'END:VCARD'
-          ].filter(Boolean).join('\n');
+            'END:VCARD',
+          ]
+            .filter(Boolean)
+            .join('\n');
           return vcard;
         }
         case 'location': {
@@ -206,9 +222,8 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
     }
   }, [data]);
 
-
   return (
-    <div className={cn("space-y-4", rawStyle.animated && getAnimationClasses())}>
+    <div className={cn('space-y-4', rawStyle.animated && getAnimationClasses())}>
       <Tabs value={previewTab} onValueChange={(v) => setPreviewTab(v as typeof previewTab)}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -216,29 +231,29 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
         </TabsList>
 
         <TabsContent value="preview">
-          <Card 
+          <Card
             className={cn(
-              "flex items-center justify-center aspect-square bg-white dark:bg-gray-950 relative overflow-hidden p-4",
+              'relative flex aspect-square items-center justify-center overflow-hidden bg-white p-4 dark:bg-gray-950',
               getAnimationClasses()
             )}
             style={cssVars}
           >
-            <div className="relative w-full h-full">
+            <div className="relative h-full w-full">
               {style.frame && (
-                <div 
+                <div
                   className={cn(
-                    "absolute inset-4 border-2 rounded-lg flex items-center justify-center",
-                    style.frameStyle === 'modern' && "border-[3px]",
-                    style.frameStyle === 'vintage' && "border-double border-4"
+                    'absolute inset-4 flex items-center justify-center rounded-lg border-2',
+                    style.frameStyle === 'modern' && 'border-[3px]',
+                    style.frameStyle === 'vintage' && 'border-4 border-double'
                   )}
-                  style={{ 
+                  style={{
                     borderColor: 'var(--qr-frame-color)',
-                    backgroundColor: 'var(--qr-background-color)'
+                    backgroundColor: 'var(--qr-background-color)',
                   }}
                 >
                   {style.frameText && (
-                    <div 
-                      className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-2 text-sm bg-white dark:bg-gray-950"
+                    <div
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 transform bg-white px-2 text-sm dark:bg-gray-950"
                       style={{ color: 'var(--qr-frame-text-color)' }}
                     >
                       {style.frameText}
@@ -247,17 +262,25 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
                 </div>
               )}
 
-              <div 
+              <div
                 className={cn(
-                  "w-full h-full rounded-lg flex items-center justify-center",
-                  (style.shadowColor || style.shadowBlur || style.shadowOffsetX || style.shadowOffsetY) && "shadow-lg"
+                  'flex h-full w-full items-center justify-center rounded-lg',
+                  (style.shadowColor ||
+                    style.shadowBlur ||
+                    style.shadowOffsetX ||
+                    style.shadowOffsetY) &&
+                    'shadow-lg'
                 )}
                 style={{
                   backgroundColor: 'var(--qr-background-color)',
                   backgroundImage: 'var(--qr-gradient)',
-                  boxShadow: (style.shadowColor || style.shadowBlur || style.shadowOffsetX || style.shadowOffsetY) ? 
-                    'var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur) var(--qr-shadow-color)' : 
-                    undefined
+                  boxShadow:
+                    style.shadowColor ||
+                    style.shadowBlur ||
+                    style.shadowOffsetX ||
+                    style.shadowOffsetY
+                      ? 'var(--qr-shadow-offset-x) var(--qr-shadow-offset-y) var(--qr-shadow-blur) var(--qr-shadow-color)'
+                      : undefined,
                 }}
               >
                 <QRCodeSVG
@@ -267,29 +290,33 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
                   bgColor={style.backgroundColor}
                   fgColor={style.foregroundColor}
                   includeMargin={Boolean(style.margin)}
-                  imageSettings={style.logo ? {
-                    src: style.logo,
-                    height: (style.logoSize || 20) * style.size / 100,
-                    width: (style.logoSize || 20) * style.size / 100,
-                    excavate: true
-                  } : undefined}
+                  imageSettings={
+                    style.logo
+                      ? {
+                          src: style.logo,
+                          height: ((style.logoSize || 20) * style.size) / 100,
+                          width: ((style.logoSize || 20) * style.size) / 100,
+                          excavate: true,
+                        }
+                      : undefined
+                  }
                   shapeRendering="geometricPrecision"
                 />
 
                 {style.logo && (
-                  <div 
-                    className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                  <div
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
                     style={{
                       width: 'var(--qr-logo-size)',
                       padding: 'var(--qr-logo-padding)',
                       backgroundColor: 'var(--qr-logo-background)',
-                      opacity: 'var(--qr-logo-opacity)'
+                      opacity: 'var(--qr-logo-opacity)',
                     }}
                   >
-                    <Image 
-                      src={style.logo} 
-                      alt="QR Logo" 
-                      className="w-full h-full object-contain"
+                    <Image
+                      src={style.logo}
+                      alt="QR Logo"
+                      className="h-full w-full object-contain"
                       width={100}
                       height={100}
                     />
@@ -301,67 +328,74 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
         </TabsContent>
 
         <TabsContent value="details" className="space-y-4">
-          <div className="p-4 rounded-lg bg-muted space-y-2">
-            <Label className="text-sm text-muted-foreground flex items-center gap-2">
+          <div className="space-y-2 rounded-lg bg-muted p-4">
+            <Label className="flex items-center gap-2 text-sm text-muted-foreground">
               {getQRTypeInfo().icon && <span className="opacity-70">{getQRTypeInfo().name}</span>}
             </Label>
-            <div className="font-mono text-xs break-all">
-              {formatContent(data)}
-            </div>
+            <div className="break-all font-mono text-xs">{formatContent(data)}</div>
           </div>
 
-          <StyleDetail 
+          <StyleDetail
             icon={<Palette className="h-4 w-4" />}
             label="Colors"
             items={[
               { label: 'Foreground', value: style.foregroundColor },
               { label: 'Background', value: style.backgroundColor },
-              ...(style.gradientType ? [{ 
-                label: 'Gradient', 
-                value: `${style.gradientType} ${style.gradientColors?.direction || 0}°` 
-              }] : [])
+              ...(style.gradientType
+                ? [
+                    {
+                      label: 'Gradient',
+                      value: `${style.gradientType} ${style.gradientColors?.direction || 0}°`,
+                    },
+                  ]
+                : []),
             ]}
           />
-          
-          <StyleDetail 
+
+          <StyleDetail
             icon={<Grid className="h-4 w-4" />}
             label="Pattern"
             items={[
               { label: 'Dot Style', value: style.dotStyle },
               { label: 'Corner Style', value: style.cornerStyle },
               { label: 'Size', value: `${style.size}px` },
-              { label: 'Margin', value: `${style.margin}px` }
+              { label: 'Margin', value: `${style.margin}px` },
             ]}
           />
 
-          <StyleDetail 
+          <StyleDetail
             icon={<Shield className="h-4 w-4" />}
             label="Error Correction"
-            items={[{
-              label: ERROR_CORRECTION_LEVELS[style.errorCorrection]?.label ?? 'Unknown',
-              value: ERROR_CORRECTION_LEVELS[style.errorCorrection]?.description ?? 'Unknown level'
-            }]}
+            items={[
+              {
+                label: ERROR_CORRECTION_LEVELS[style.errorCorrection]?.label ?? 'Unknown',
+                value:
+                  ERROR_CORRECTION_LEVELS[style.errorCorrection]?.description ?? 'Unknown level',
+              },
+            ]}
           />
 
           {style.logo && (
-            <StyleDetail 
+            <StyleDetail
               icon={<ImageIcon className="h-4 w-4" />}
               label="Logo"
               items={[
                 { label: 'Size', value: `${style.logoSize}%` },
                 { label: 'Padding', value: `${style.logoPadding}px` },
-                ...(style.logoOpacity ? [{ label: 'Opacity', value: `${style.logoOpacity * 100}%` }] : [])
+                ...(style.logoOpacity
+                  ? [{ label: 'Opacity&apos;, value: `${style.logoOpacity * 100}%` }]
+                  : []),
               ]}
             />
           )}
 
           {style.frame && (
-            <StyleDetail 
+            <StyleDetail
               icon={<Frame className="h-4 w-4" />}
               label="Frame"
               items={[
-                { label: 'Style', value: style.frameStyle },
-                { label: 'Size', value: `${style.frameSize}px` }
+                { label: &apos;Style', value: style.frameStyle },
+                { label: 'Size', value: `${style.frameSize}px` },
               ]}
             />
           )}
@@ -369,16 +403,16 @@ const QRPreview = ({ data, style: rawStyle }: { data: QRCodeData, style: QRStyle
       </Tabs>
     </div>
   );
-}
+};
 
-function StyleDetail({ 
-  icon, 
-  label, 
-  items 
-}: { 
-  icon: React.ReactNode; 
-  label: string; 
-  items: Array<{ label: string; value?: string | number }> 
+function StyleDetail({
+  icon,
+  label,
+  items,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  items: Array<{ label: string; value?: string | number }>;
 }) {
   return (
     <div className="space-y-2">
@@ -388,7 +422,7 @@ function StyleDetail({
       </Label>
       <div className="grid grid-cols-2 gap-2 text-sm">
         {items.map((item, index) => (
-          <div key={index} className="p-2 rounded-md bg-muted">
+          <div key={index} className="rounded-md bg-muted p-2">
             <div className="text-muted-foreground">{item.label}</div>
             <div className="font-medium">{item.value}</div>
           </div>
@@ -398,4 +432,4 @@ function StyleDetail({
   );
 }
 
-export default QRPreview;
+export { QRPreview as default };

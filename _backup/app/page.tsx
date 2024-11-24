@@ -1,68 +1,70 @@
 // File: src/app/page.tsx
-"use client"
+'use client';
 
-import { QRCodeTabs } from "@/components/qr-code-tabs"
-import { useSession } from "next-auth/react"
-import { Button } from "@/components/ui/button"
-import { useHistoryStore } from "@/lib/store/history-store"
-import { format } from "date-fns"
-import Link from "next/link"
-import { Parallax, ParallaxProvider } from 'react-scroll-parallax'
-import { motion } from "framer-motion"
-import { FileText, Share2, Database, ArrowRight, Download, History } from "lucide-react"
-import { ParticleBackground } from "@/components/ui/particle-background"
+import { QRCodeTabs } from '@/components/qr-code-tabs';
+import { useSession } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { useHistoryStore } from '@/lib/store/history-store';
+import { format } from 'date-fns';
+import Link from 'next/link';
+import { Parallax, ParallaxProvider } from 'react-scroll-parallax';
+import { motion } from 'framer-motion';
+import { FileText, Share2, Database, ArrowRight, Download, History } from 'lucide-react';
+import { ParticleBackground } from '@/components/ui/particle-background';
 
 const features = [
-  { 
-    icon: FileText, 
-    title: "Multiple QR Types",
-    description: "Create QR codes for URLs, WiFi, vCards, and more"
+  {
+    icon: FileText,
+    title: 'Multiple QR Types',
+    description: 'Create QR codes for URLs, WiFi, vCards, and more',
   },
   {
     icon: Share2,
-    title: "Easy Sharing",
-    description: "Share your QR codes instantly across any platform"
+    title: 'Easy Sharing',
+    description: 'Share your QR codes instantly across any platform',
   },
   {
     icon: Database,
-    title: "Template System",
-    description: "Save and reuse your favorite QR code styles"
-  }
-]
+    title: 'Template System',
+    description: 'Save and reuse your favorite QR code styles',
+  },
+];
 
 const stats = [
-  { label: "QR Codes Generated", value: "1M+" },
-  { label: "Active Users", value: "50K+" },
-  { label: "Templates Created", value: "10K+" }
-]
+  { label: 'QR Codes Generated', value: '1M+' },
+  { label: 'Active Users', value: '50K+' },
+  { label: 'Templates Created', value: '10K+' },
+];
 
 export default function Home() {
-  const { data: session } = useSession()
-  const { history } = useHistoryStore()
-  
+  const { data: session } = useSession();
+  const { history } = useHistoryStore();
+
   return (
     <ParallaxProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
         <ParticleBackground />
-        
+
         <div className="container mx-auto px-4 py-24">
           {/* Hero Section */}
           <Parallax translateY={[-20, 20]}>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-4xl mx-auto mb-20"
+              className="mx-auto mb-20 max-w-4xl text-center"
             >
-              <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-6">
+              <h1 className="mb-6 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-5xl font-bold text-transparent md:text-7xl">
                 Create Stunning QR Codes
               </h1>
-              <p className="text-xl text-gray-300 mb-8">
+              <p className="mb-8 text-xl text-gray-300">
                 Generate, customize, and manage QR codes that perfectly match your brand
               </p>
               {!session ? (
-                <div className="flex gap-4 justify-center">
+                <div className="flex justify-center gap-4">
                   <Button size="lg" asChild>
-                    <Link href="/register">Get Started <ArrowRight className="ml-2" /></Link>
+                    <Link href="/register">
+                      Get Started <ArrowRight className="ml-2" />
+                    </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild>
                     <Link href="/login">Sign In</Link>
@@ -84,33 +86,33 @@ export default function Home() {
           </motion.div>
 
           {/* Features */}
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
+          <div className="mb-20 grid gap-8 md:grid-cols-3">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.2 }}
-                className="glass-morphism p-6 rounded-2xl"
+                className="glass-morphism rounded-2xl p-6"
               >
-                <feature.icon className="h-12 w-12 text-blue-400 mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                <feature.icon className="mb-4 h-12 w-12 text-blue-400" />
+                <h3 className="mb-2 text-xl font-semibold text-white">{feature.title}</h3>
                 <p className="text-gray-400">{feature.description}</p>
               </motion.div>
             ))}
           </div>
 
           {/* Stats */}
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
+          <div className="mb-20 grid gap-8 md:grid-cols-3">
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="glass-morphism p-6 rounded-2xl text-center"
+                className="glass-morphism rounded-2xl p-6 text-center"
               >
-                <div className="text-3xl font-bold text-blue-400 mb-2">{stat.value}</div>
+                <div className="mb-2 text-3xl font-bold text-blue-400">{stat.value}</div>
                 <div className="text-gray-400">{stat.label}</div>
               </motion.div>
             ))}
@@ -123,7 +125,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               className="glass-morphism rounded-3xl p-8"
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-2xl font-semibold text-white">Recent QR Codes</h2>
                 <Button variant="outline" asChild>
                   <Link href="/history">
@@ -132,12 +134,12 @@ export default function Home() {
                   </Link>
                 </Button>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {history.slice(0, 3).map((item) => (
-                  <div key={item.id} className="bg-white/5 p-4 rounded-xl">
-                    <img src={item.url} alt={item.title} className="w-full mb-4" />
-                    <h3 className="text-white font-medium mb-2">{item.title}</h3>
-                    <p className="text-sm text-gray-400 mb-4">
+                  <div key={item.id} className="rounded-xl bg-white/5 p-4">
+                    <img src={item.url} alt={item.title} className="mb-4 w-full" />
+                    <h3 className="mb-2 font-medium text-white">{item.title}</h3>
+                    <p className="mb-4 text-sm text-gray-400">
                       Created {format(new Date(item.created), 'PPp')}
                     </p>
                     <Button size="sm" className="w-full">
@@ -151,5 +153,5 @@ export default function Home() {
         </div>
       </div>
     </ParallaxProvider>
-  )
+  );
 }

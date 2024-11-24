@@ -1,76 +1,71 @@
 // src/app/(dashboard)/dashboard/qr-codes/new/page.tsx
 
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QRContentForm } from "@/components/qr/content-form";
-import { QRStylePicker } from "@/components/qr/style-picker";
-import QRPreview from "@/components/qr/preview";
-import { StyleEditor } from "@/components/qr/style-editor";
-import { ChevronLeft, Download, Share2 } from "lucide-react";
-import Link from "next/link";
-import { 
-  Link as LinkIcon, 
-  Type, 
-  Mail, 
-  Phone, 
-  MessageSquare, 
-  Wifi, 
-  Contact, 
+import {useState } from 'react';
+import {useRouter } from 'next/navigation';
+import {Card } from '@/components/ui/card';
+import {Button } from '@/components/ui/button';
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {QRContentForm } from '@/components/qr/content-form';
+import {QRStylePicker } from '@/components/qr/style-picker';
+import QRPreview from '@/components/qr/preview';
+import {QRStyleEditor } from '@/components/qr/style-editor';
+import {ChevronLeft, Download, Share2 } from 'lucide-react';
+import Link from 'next/link';
+import {Link as LinkIcon,
+  Type,
+  Mail,
+  Phone,
+  MessageSquare,
+  Wifi,
+  Contact,
   MapPin,
-  FileText,
-  User,
-  QrCode,
-  MessageSquare as Sms
 } from 'lucide-react';
-import { QR_STYLE_PRESETS } from '@/lib/qr-presets';
-import type { QRCodeData, QRStyleOptions } from "@/types/qr";
+import {QR_STYLE_PRESETS } from '@/lib/qr-presets';
+import type { QRCodeData, QRStyleOptions } from '@/types/qr';
 
 const QR_CODE_TYPES = {
   url: {
     name: 'URL',
     description: 'Create QR code for website links',
-    icon: LinkIcon
+    icon: LinkIcon,
   },
   text: {
     name: 'Text',
     description: 'Create QR code for plain text',
-    icon: Type
+    icon: Type,
   },
   email: {
     name: 'Email',
     description: 'Create QR code for email address',
-    icon: Mail
+    icon: Mail,
   },
   phone: {
     name: 'Phone',
     description: 'Create QR code for phone numbers',
-    icon: Phone
+    icon: Phone,
   },
   sms: {
     name: 'SMS',
     description: 'Create QR code for text messages',
-    icon: MessageSquare
+    icon: MessageSquare,
   },
   wifi: {
     name: 'WiFi',
     description: 'Create QR code for WiFi networks',
-    icon: Wifi
+    icon: Wifi,
   },
   vcard: {
     name: 'vCard',
     description: 'Create QR code for contact information',
-    icon: Contact
+    icon: Contact,
   },
   location: {
     name: 'Location',
     description: 'Create QR code for geographic locations',
-    icon: MapPin
-  }
+    icon: MapPin,
+  },
 } as const;
 
 type QRCodeType = keyof typeof QR_CODE_TYPES;
@@ -96,35 +91,12 @@ const getInitialData = (type: QRCodeType): QRCodeData => {
   }
 };
 
-const getQRTypeInfo = (type: string) => {
-  switch (type) {
-    case 'url':
-      return Link;
-    case 'text':
-      return FileText;
-    case 'email':
-      return Mail;
-    case 'phone':
-      return Phone;
-    case 'sms':
-      return Sms;
-    case 'wifi':
-      return Wifi;
-    case 'vcard':
-      return User;
-    case 'location':
-      return MapPin;
-    default:
-      return QrCode;
-  }
-};
-
 export default function NewQRCodePage() {
   const router = useRouter();
-  const [currentTab, setCurrentTab] = useState<"content" | "style">("content");
-  const [styleMode, setStyleMode] = useState<"templates" | "custom">("templates");
-  const [type, setType] = useState<QRCodeType>("url");
-  const [data, setData] = useState<QRCodeData>(getInitialData("url"));
+  const [currentTab, setCurrentTab] = useState<'content' | 'style'>('content');
+  const [styleMode, setStyleMode] = useState<'templates' | 'custom'>('templates');
+  const [type, setType] = useState<QRCodeType>('url');
+  const [data, setData] = useState<QRCodeData>(getInitialData('url'));
   const [style, setStyle] = useState<QRStyleOptions>(QR_STYLE_PRESETS[0].style);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -137,9 +109,9 @@ export default function NewQRCodePage() {
     setIsGenerating(true);
     try {
       // Add your save logic here
-      router.push("/dashboard/qr-codes");
+      router.push('/dashboard/qr-codes');
     } catch (error) {
-      console.error("Failed to save QR code:", error);
+      console.error('Failed to save QR code:&apos;, error);
     } finally {
       setIsGenerating(false);
     }
@@ -150,12 +122,7 @@ export default function NewQRCodePage() {
       {/* Header */}
       <div className="border-b bg-background">
         <div className="container flex h-16 items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="flex items-center gap-2"
-          >
+          <Button variant="ghost" size="sm" asChild className="flex items-center gap-2">
             <Link href="/dashboard/qr-codes">
               <ChevronLeft className="h-4 w-4" />
               Back
@@ -174,7 +141,7 @@ export default function NewQRCodePage() {
               Download
             </Button>
             <Button size="sm" disabled={isGenerating} onClick={handleSave}>
-              {isGenerating ? "Saving..." : "Save QR Code"}
+              {isGenerating ? &apos;Saving...' : 'Save QR Code'}
             </Button>
           </div>
         </div>
@@ -184,7 +151,7 @@ export default function NewQRCodePage() {
       <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Left Column - Editor */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8 lg:col-span-2">
             <Card className="p-6">
               <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as typeof currentTab)}>
                 <TabsList className="mb-4">
@@ -194,17 +161,24 @@ export default function NewQRCodePage() {
 
                 <TabsContent value="content" className="space-y-6">
                   {/* QR Type Selection */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {(Object.entries(QR_CODE_TYPES) as [QRCodeType, typeof QR_CODE_TYPES[QRCodeType]][]).map(([key, value]) => {
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {(
+                      Object.entries(QR_CODE_TYPES) as [
+                        QRCodeType,
+                        (typeof QR_CODE_TYPES)[QRCodeType],
+                      ][]
+                    ).map(([key, value]) => {
                       const Icon = value.icon;
                       return (
                         <Button
                           key={key}
-                          variant={type === key ? "default" : "outline"}
-                          className="h-auto flex-col py-4 px-2"
+                          variant={type === key ? 'default' : 'outline'}
+                          className="h-auto flex-col px-2 py-4"
                           onClick={() => handleTypeChange(key)}
                         >
-                          <div className={`${type === key ? 'text-primary-foreground' : 'text-muted-foreground'}`}>
+                          <div
+                            className={`${type === key ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                          >
                             <Icon className="h-6 w-6" />
                           </div>
                           <span className="mt-2">{value.name}</span>
@@ -215,37 +189,33 @@ export default function NewQRCodePage() {
 
                   {/* Content Form */}
                   <div className="mt-6">
-                    <QRContentForm
-                      type={type}
-                      initialData={data}
-                      onChange={setData}
-                    />
+                    <QRContentForm type={type} initialData={data} onChange={setData} />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="style">
                   <div className="space-y-6">
-                    <Tabs value={styleMode} onValueChange={(v) => setStyleMode(v as typeof styleMode)}>
+                    <Tabs
+                      value={styleMode}
+                      onValueChange={(v) => setStyleMode(v as typeof styleMode)}
+                    >
                       <TabsList>
                         <TabsTrigger value="templates">Templates</TabsTrigger>
                         <TabsTrigger value="custom">Custom</TabsTrigger>
                       </TabsList>
                     </Tabs>
-                    {styleMode === "templates" ? (
+                    {styleMode === 'templates' ? (
                       <QRStylePicker
                         presets={QR_STYLE_PRESETS}
                         value={style}
                         onChange={setStyle}
                         onCustomize={(templateStyle) => {
                           setStyle(templateStyle);
-                          setStyleMode("custom");
+                          setStyleMode('custom');
                         }}
                       />
                     ) : (
-                      <StyleEditor
-                        value={style}
-                        onChange={setStyle}
-                      />
+                      <QRStyleEditor value={style} onChange={setStyle} />
                     )}
                   </div>
                 </TabsContent>
@@ -258,10 +228,7 @@ export default function NewQRCodePage() {
             <div className="sticky top-24">
               <Card className="p-6">
                 <div className="mb-4 text-lg font-semibold">Preview</div>
-                <QRPreview
-                  data={data}
-                  style={style}
-                />
+                <QRPreview data={data} style={style} />
                 <div className="mt-6 space-y-2">
                   <Button className="w-full" size="sm">
                     <Download className="mr-2 h-4 w-4" />

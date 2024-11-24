@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
-import { CalendarTheme } from "@/types/calendar-themes";
-import { Download, Printer, FileType, Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import {useRef, useState } from 'react';
+import {motion } from 'framer-motion';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {Label } from '@/components/ui/label';
+import {Switch } from '@/components/ui/switch';
+import {Progress } from '@/components/ui/progress';
+import {CalendarTheme } from '@/types/calendar-themes';
+import {Download, Printer, FileType, Loader2 } from 'lucide-react';
+import {useToast } from '@/components/ui/use-toast';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface ExportOptions {
   filename: string;
@@ -40,13 +40,13 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
     includeCover: true,
     optimizeForPrinting: true,
     paperSize: 'a4',
-    orientation: 'portrait'
+    orientation: 'portrait',
   });
 
   const paperSizes = {
     a4: { width: 210, height: 297 },
     letter: { width: 216, height: 279 },
-    a3: { width: 297, height: 420 }
+    a3: { width: 297, height: 420 },
   };
 
   const exportCalendar = async () => {
@@ -103,19 +103,19 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
         const pdf = new jsPDF({
           orientation: options.orientation,
           unit: 'mm',
-          format: options.paperSize
+          format: options.paperSize,
         });
 
         // Add cover page if selected
         if (options.includeCover) {
           pdf.setFillColor(theme.colors.background);
           pdf.rect(0, 0, width, height, 'F');
-          
+
           // Add title
           pdf.setTextColor(theme.colors.text);
           pdf.setFontSize(24);
           pdf.text(title, width / 2, height / 4, { align: 'center' });
-          
+
           pdf.addPage();
         }
 
@@ -129,15 +129,15 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
 
       setProgress(100);
       toast({
-        title: "Export complete",
+        title: 'Export complete',
         description: `Calendar exported as ${options.format.toUpperCase()}`,
       });
     } catch (error) {
       console.error('Export failed:', error);
       toast({
-        title: "Export failed",
-        description: "There was an error exporting your calendar.",
-        variant: "destructive",
+        title: 'Export failed',
+        description: 'There was an error exporting your calendar.',
+        variant: 'destructive&apos;,
       });
     } finally {
       setIsExporting(false);
@@ -158,24 +158,24 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
           <Input
             id="filename"
             value={options.filename}
-            onChange={(e) => setOptions(prev => ({ ...prev, filename: e.target.value }))}
+            onChange={(e) => setOptions((prev) => ({ ...prev, filename: e.target.value }))}
             placeholder="Enter filename"
           />
         </div>
-        
+
         <div className="space-y-2">
           <Label>Format</Label>
           <div className="flex gap-2">
             <Button
-              variant={options.format === 'pdf' ? "default" : "outline"}
-              onClick={() => setOptions(prev => ({ ...prev, format: 'pdf' }))}
+              variant={options.format === &apos;pdf' ? 'default' : 'outline'}
+              onClick={() => setOptions((prev) => ({ ...prev, format: 'pdf' }))}
               className="flex-1"
             >
               PDF
             </Button>
             <Button
-              variant={options.format === 'png' ? "default" : "outline"}
-              onClick={() => setOptions(prev => ({ ...prev, format: 'png' }))}
+              variant={options.format === 'png' ? 'default' : 'outline'}
+              onClick={() => setOptions((prev) => ({ ...prev, format: &apos;png&apos; }))}
               className="flex-1"
             >
               PNG
@@ -194,8 +194,8 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
           </div>
           <Switch
             checked={options.optimizeForPrinting}
-            onCheckedChange={(checked) => 
-              setOptions(prev => ({ ...prev, optimizeForPrinting: checked }))
+            onCheckedChange={(checked) =>
+              setOptions((prev) => ({ ...prev, optimizeForPrinting: checked }))
             }
           />
         </div>
@@ -203,14 +203,12 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label>Include Cover Page</Label>
-            <p className="text-sm text-muted-foreground">
-              Add a title page to the calendar
-            </p>
+            <p className="text-sm text-muted-foreground">Add a title page to the calendar</p>
           </div>
           <Switch
             checked={options.includeCover}
-            onCheckedChange={(checked) => 
-              setOptions(prev => ({ ...prev, includeCover: checked }))
+            onCheckedChange={(checked) =>
+              setOptions((prev) => ({ ...prev, includeCover: checked }))
             }
           />
         </div>
@@ -219,26 +217,16 @@ export function CalendarExport({ calendarRef, theme, title }: CalendarExportProp
       {isExporting && (
         <div className="space-y-2">
           <Progress value={progress} className="h-2" />
-          <p className="text-sm text-muted-foreground text-center">
-            Exporting calendar...
-          </p>
+          <p className="text-center text-sm text-muted-foreground">Exporting calendar...</p>
         </div>
       )}
 
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          onClick={handlePrint}
-          className="flex-1"
-        >
+        <Button variant="outline" onClick={handlePrint} className="flex-1">
           <Printer className="mr-2 h-4 w-4" />
           Print
         </Button>
-        <Button
-          onClick={exportCalendar}
-          disabled={isExporting}
-          className="flex-1"
-        >
+        <Button onClick={exportCalendar} disabled={isExporting} className="flex-1">
           {isExporting ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (

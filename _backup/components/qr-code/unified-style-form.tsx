@@ -1,9 +1,9 @@
 // File: src/components/qr-code/unified-style-form.tsx
-"use client"
+'use client';
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { QRStyleSchema, type QRStyle } from "@/lib/types/qr-styles"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { QRStyleSchema, type QRStyle } from '@/lib/types/qr-styles';
 import {
   Form,
   FormControl,
@@ -11,46 +11,41 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form"
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ImageSelector } from "./image-selector"
-import { Label } from "@/components/ui/label"
-import { useState } from "react"
-import {
-  Palette,
-  Grid,
-  Image as ImageIcon,
-  Sliders,
-} from "lucide-react"
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ImageSelector } from './image-selector';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { Palette, Grid, Image as ImageIcon, Sliders } from 'lucide-react';
 
 interface UnifiedStyleFormProps {
-  value: QRStyle
-  onChange: (value: QRStyle) => void
+  value: QRStyle;
+  onChange: (value: QRStyle) => void;
 }
 
 export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
-  const [activeTab, setActiveTab] = useState("basic")
+  const [activeTab, setActiveTab] = useState('basic');
 
   const form = useForm<QRStyle>({
     resolver: zodResolver(QRStyleSchema),
     defaultValues: value,
-  })
+  });
 
   const handleFormChange = () => {
-    const values = form.getValues()
-    onChange(values)
-  }
+    const values = form.getValues();
+    onChange(values);
+  };
 
   return (
     <Form {...form}>
@@ -96,7 +91,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             value={[field.value]}
                             onValueChange={([value]) => field.onChange(value)}
                           />
-                          <div className="text-sm text-muted-foreground text-right">
+                          <div className="text-right text-sm text-muted-foreground">
                             {field.value}px
                           </div>
                         </div>
@@ -120,7 +115,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             value={[field.value]}
                             onValueChange={([value]) => field.onChange(value)}
                           />
-                          <div className="text-sm text-muted-foreground text-right">
+                          <div className="text-right text-sm text-muted-foreground">
                             {field.value} blocks
                           </div>
                         </div>
@@ -135,10 +130,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Error Correction</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select error correction level" />
@@ -176,11 +168,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                         <FormLabel>Background Color</FormLabel>
                         <FormControl>
                           <div className="flex gap-2">
-                            <Input
-                              type="color"
-                              className="w-12 p-1 h-10"
-                              {...field}
-                            />
+                            <Input type="color" className="h-10 w-12 p-1" {...field} />
                             <Input
                               type="text"
                               value={field.value}
@@ -201,11 +189,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                         <FormLabel>QR Code Color</FormLabel>
                         <FormControl>
                           <div className="flex gap-2">
-                            <Input
-                              type="color"
-                              className="w-12 p-1 h-10"
-                              {...field}
-                            />
+                            <Input type="color" className="h-10 w-12 p-1" {...field} />
                             <Input
                               type="text"
                               value={field.value}
@@ -232,9 +216,9 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             field.onChange(
                               checked
                                 ? {
-                                    type: "linear",
-                                    start: form.getValues("colorScheme.foreground"),
-                                    end: "#000000",
+                                    type: 'linear',
+                                    start: form.getValues('colorScheme.foreground'),
+                                    end: '#000000',
                                     direction: 90,
                                   }
                                 : undefined
@@ -250,7 +234,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             onValueChange={(value) =>
                               field.onChange({
                                 ...field.value,
-                                type: value as "linear" | "radial",
+                                type: value as 'linear' | 'radial',
                               })
                             }
                           >
@@ -266,7 +250,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                           <div className="grid gap-4 sm:grid-cols-2">
                             <div>
                               <Label>Start Color</Label>
-                              <div className="flex gap-2 mt-2">
+                              <div className="mt-2 flex gap-2">
                                 <Input
                                   type="color"
                                   value={field.value.start}
@@ -276,7 +260,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                                       start: e.target.value,
                                     })
                                   }
-                                  className="w-12 p-1 h-10"
+                                  className="h-10 w-12 p-1"
                                 />
                                 <Input
                                   type="text"
@@ -294,7 +278,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
 
                             <div>
                               <Label>End Color</Label>
-                              <div className="flex gap-2 mt-2">
+                              <div className="mt-2 flex gap-2">
                                 <Input
                                   type="color"
                                   value={field.value.end}
@@ -304,7 +288,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                                       end: e.target.value,
                                     })
                                   }
-                                  className="w-12 p-1 h-10"
+                                  className="h-10 w-12 p-1"
                                 />
                                 <Input
                                   type="text"
@@ -321,7 +305,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             </div>
                           </div>
 
-                          {field.value.type === "linear" && (
+                          {field.value.type === 'linear' && (
                             <FormItem>
                               <FormLabel>Direction</FormLabel>
                               <FormControl>
@@ -338,7 +322,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                                       })
                                     }
                                   />
-                                  <div className="text-sm text-muted-foreground text-right">
+                                  <div className="text-right text-sm text-muted-foreground">
                                     {field.value.direction || 0}°
                                   </div>
                                 </div>
@@ -366,10 +350,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Pattern Style</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select pattern style" />
@@ -391,13 +372,11 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Corner Style</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select corner style" /></SelectTrigger>
+                            <SelectValue placeholder="Select corner style" />
+                          </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="square">Square</SelectItem>
@@ -415,10 +394,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Corner Dot Style</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select corner dot style" />
@@ -455,7 +431,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                             field.onChange(
                               checked
                                 ? {
-                                    image: "",
+                                    image: '',
                                     size: 50,
                                     margin: 5,
                                   }
@@ -494,7 +470,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                                       })
                                     }
                                   />
-                                  <div className="text-sm text-muted-foreground text-right">
+                                  <div className="text-right text-sm text-muted-foreground">
                                     {field.value.size}px
                                   </div>
                                 </div>
@@ -517,7 +493,7 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
                                       })
                                     }
                                   />
-                                  <div className="text-sm text-muted-foreground text-right">
+                                  <div className="text-right text-sm text-muted-foreground">
                                     {field.value.margin}px
                                   </div>
                                 </div>
@@ -535,5 +511,5 @@ export function UnifiedStyleForm({ value, onChange }: UnifiedStyleFormProps) {
         </Tabs>
       </form>
     </Form>
-  )
+  );
 }

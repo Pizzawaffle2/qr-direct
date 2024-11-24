@@ -1,5 +1,5 @@
 // src/lib/validations/settings.ts
-import { z } from 'zod';
+import {z } from 'zod';
 
 // Type definitions for better code organization
 type ValidationConfig = {
@@ -55,10 +55,12 @@ export const emailSchema = z
   .toLowerCase();
 
 // Main settings schema with transformed output
-export const SettingsSchema = z.object({
-  name: nameSchema.transform((val) => val.trim()),
-  email: emailSchema.transform((val) => val.toLowerCase().trim())
-}).strict();
+export const SettingsSchema = z
+  .object({
+    name: nameSchema.transform((val) => val.trim()),
+    email: emailSchema.transform((val) => val.toLowerCase().trim()),
+  })
+  .strict();
 
 // Type inference for TypeScript usage
 export type Settings = z.infer<typeof SettingsSchema>;

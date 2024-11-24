@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
   Table,
   TableBody,
@@ -10,20 +10,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,39 +28,32 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/components/ui/use-toast"
-import {
-  Loader2,
-  MoreVertical,
-  UserPlus,
-  Settings,
-  Users,
-  Trash,
-} from "lucide-react"
-import { useTeam } from "@/hooks/use-team"
-import { CreateTeamDialog } from "@/components/team/create-team-dialog"
-import { InviteMemberDialog } from "@/components/team/invite-member-dialog"
-import { RoleManager } from "@/components/team/role-manager"
-import { cn } from "@/lib/utils"
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/components/ui/use-toast';
+import { Loader2, MoreVertical, UserPlus, Settings, Users, Trash } from 'lucide-react';
+import { useTeam } from '@/hooks/use-team';
+import { CreateTeamDialog } from '@/components/team/create-team-dialog';
+import { InviteMemberDialog } from '@/components/team/invite-member-dialog';
+import { RoleManager } from '@/components/team/role-manager';
+import { cn } from '@/lib/utils';
 
 export default function TeamPage() {
-  const [isCreating, setIsCreating] = useState(false)
-  const [isInviting, setIsInviting] = useState(false)
+  const [isCreating, setIsCreating] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
   const [managingMember, setManagingMember] = useState<{
-    action: 'remove' | 'change-role'
-    member: any
-  } | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
-  const { team, members, teamUsage, isLoading, mutate } = useTeam()
+    action: 'remove' | 'change-role';
+    member: any;
+  } | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { team, members, teamUsage, isLoading, mutate } = useTeam();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   if (!team) {
@@ -73,12 +61,12 @@ export default function TeamPage() {
       <div className="container max-w-6xl py-8">
         <Card>
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Create your team</h2>
-            <p className="text-muted-foreground mb-6">
+            <h2 className="mb-4 text-2xl font-bold">Create your team</h2>
+            <p className="mb-6 text-muted-foreground">
               Start collaborating with your team members by creating a team.
             </p>
             <Button onClick={() => setIsCreating(true)}>
-              <Users className="h-4 w-4 mr-2" />
+              <Users className="mr-2 h-4 w-4" />
               Create Team
             </Button>
           </CardContent>
@@ -89,49 +77,47 @@ export default function TeamPage() {
           onOpenChange={setIsCreating}
           onSubmit={async (data) => {
             try {
-              const response = await fetch("/api/teams", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+              const response = await fetch('/api/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
-              })
+              });
 
-              if (!response.ok) throw new Error()
+              if (!response.ok) throw new Error();
 
               toast({
-                title: "Team created",
-                description: "Your team has been created successfully.",
-              })
+                title: 'Team created',
+                description: 'Your team has been created successfully.',
+              });
 
-              mutate()
+              mutate();
             } catch (error) {
               toast({
-                title: "Error",
-                description: "Failed to create team.",
-                variant: "destructive",
-              })
+                title: 'Error',
+                description: 'Failed to create team.',
+                variant: 'destructive',
+              });
             }
           }}
         />
       </div>
-    )
+    );
   }
 
   return (
-    <div className="container max-w-6xl py-8 space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="container max-w-6xl space-y-8 py-8">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{team.name}</h1>
-          <p className="text-muted-foreground">
-            Manage your team members and settings
-          </p>
+          <p className="text-muted-foreground">Manage your team members and settings</p>
         </div>
         <div className="flex gap-4">
           <Button onClick={() => setIsInviting(true)}>
-            <UserPlus className="h-4 w-4 mr-2" />
+            <UserPlus className="mr-2 h-4 w-4" />
             Invite Member
           </Button>
           <Button variant="outline" onClick={() => router.push(`/team/${team.slug}/settings`)}>
-            <Settings className="h-4 w-4 mr-2" />
+            <Settings className="mr-2 h-4 w-4" />
             Team Settings
           </Button>
         </div>
@@ -161,14 +147,16 @@ export default function TeamPage() {
                     <span className="capitalize">{member.role.toLowerCase()}</span>
                   </TableCell>
                   <TableCell>
-                    <span className={cn(
-                      "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium",
-                      {
-                        "bg-green-100 text-green-700": member.status === "ACTIVE",
-                        "bg-yellow-100 text-yellow-700": member.status === "PENDING",
-                        "bg-red-100 text-red-700": member.status === "SUSPENDED"
-                      }
-                    )}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
+                        {
+                          'bg-green-100 text-green-700': member.status === 'ACTIVE',
+                          'bg-yellow-100 text-yellow-700': member.status === 'PENDING',
+                          'bg-red-100 text-red-700': member.status === 'SUSPENDED',
+                        }
+                      )}
+                    >
                       {member.status.toLowerCase()}
                     </span>
                   </TableCell>
@@ -181,22 +169,26 @@ export default function TeamPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => setManagingMember({
-                            action: "change-role",
-                            member
-                          })}
+                          onClick={() =>
+                            setManagingMember({
+                              action: 'change-role',
+                              member,
+                            })
+                          }
                         >
-                          <Settings className="h-4 w-4 mr-2" />
+                          <Settings className="mr-2 h-4 w-4" />
                           Change Role
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-red-600"
-                          onClick={() => setManagingMember({
-                            action: "remove",
-                            member
-                          })}
+                          onClick={() =>
+                            setManagingMember({
+                              action: 'remove',
+                              member,
+                            })
+                          }
                         >
-                          <Trash className="h-4 w-4 mr-2" />
+                          <Trash className="mr-2 h-4 w-4" />
                           Remove
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -216,30 +208,30 @@ export default function TeamPage() {
         onSubmit={async (data) => {
           try {
             const response = await fetch(`/api/teams/${team.id}/members`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
-            })
+            });
 
-            if (!response.ok) throw new Error()
+            if (!response.ok) throw new Error();
 
             toast({
-              title: "Invitation sent",
-              description: "Team member has been invited successfully.",
-            })
+              title: 'Invitation sent',
+              description: 'Team member has been invited successfully.',
+            });
 
-            mutate()
+            mutate();
           } catch (error) {
             toast({
-              title: "Error",
-              description: "Failed to invite team member.",
-              variant: "destructive",
-            })
+              title: 'Error',
+              description: 'Failed to invite team member.',
+              variant: 'destructive',
+            });
           }
         }}
       />
 
-      {managingMember?.action === "change-role" && (
+      {managingMember?.action === 'change-role' && (
         <RoleManager
           open={true}
           onOpenChange={() => setManagingMember(null)}
@@ -251,7 +243,7 @@ export default function TeamPage() {
         />
       )}
 
-      <AlertDialog open={managingMember?.action === "remove"}>
+      <AlertDialog open={managingMember?.action === 'remove'}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove team member</AlertDialogTitle>
@@ -260,34 +252,32 @@ export default function TeamPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setManagingMember(null)}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setManagingMember(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700"
               onClick={async () => {
                 try {
                   const response = await fetch(
                     `/api/teams/${team.id}/members?memberId=${managingMember?.member.id}`,
-                    { method: "DELETE" }
-                  )
+                    { method: 'DELETE' }
+                  );
 
-                  if (!response.ok) throw new Error()
+                  if (!response.ok) throw new Error();
 
                   toast({
-                    title: "Member removed",
-                    description: "Team member has been removed successfully.",
-                  })
+                    title: 'Member removed',
+                    description: 'Team member has been removed successfully.',
+                  });
 
-                  mutate()
+                  mutate();
                 } catch (error) {
                   toast({
-                    title: "Error",
-                    description: "Failed to remove team member.",
-                    variant: "destructive",
-                  })
+                    title: 'Error',
+                    description: 'Failed to remove team member.',
+                    variant: 'destructive',
+                  });
                 } finally {
-                  setManagingMember(null)
+                  setManagingMember(null);
                 }
               }}
             >
@@ -297,5 +287,5 @@ export default function TeamPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

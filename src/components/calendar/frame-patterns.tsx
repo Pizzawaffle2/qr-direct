@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import {useMemo } from 'react';
+import {cn } from '@/lib/utils';
 
 // Comprehensive set of frame patterns for different themes and seasons
 export const FRAME_PATTERNS = {
@@ -83,7 +83,7 @@ export const FRAME_PATTERNS = {
       <path d="M20 35c-5-15 5-30 0-30s-5 15 0 30z" fill="#818CF8" opacity="0.2"/>
       <path d="M40 35c-5-15 5-30 0-30s-5 15 0 30z" fill="#34D399" opacity="0.2"/>
     </pattern>
-  `
+  `,
 };
 
 // Corner decorations for different themes
@@ -152,24 +152,32 @@ export function ThemeFrame({
   color,
   opacity = 0.1,
   className,
-  children
+  children,
 }: ThemeFrameProps) {
   const pattern = useMemo(() => FRAME_PATTERNS[type], [type]);
-  const corners = useMemo(() => cornerStyle ? CORNER_DECORATIONS[cornerStyle] : null, [cornerStyle]);
+  const corners = useMemo(
+    () => (cornerStyle ? CORNER_DECORATIONS[cornerStyle] : null),
+    [cornerStyle]
+  );
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+    <div className={cn('relative overflow-hidden', className)}>
+      <svg className="pointer-events-none absolute inset-0 h-full w-full">
         <defs dangerouslySetInnerHTML={{ __html: pattern }} />
-        <rect width="100%" height="100%" fill={`url(#${type})`} className={cn(`opacity-${Math.round(opacity * 100)}`)} />
+        <rect
+          width="100%"
+          height="100%"
+          fill={`url(#${type})`}
+          className={cn(`opacity-${Math.round(opacity * 100)}`)}
+        />
       </svg>
 
       {corners && (
         <>
-          <svg className="absolute top-0 left-0 w-20 h-20" viewBox="0 0 80 80">
+          <svg className="absolute left-0 top-0 h-20 w-20" viewBox="0 0 80 80">
             <g dangerouslySetInnerHTML={{ __html: corners.topLeft }} />
           </svg>
-          <svg className="absolute top-0 right-0 w-20 h-20" viewBox="0 0 80 80">
+          <svg className="absolute right-0 top-0 h-20 w-20" viewBox="0 0 80 80">
             <g dangerouslySetInnerHTML={{ __html: corners.topRight }} />
           </svg>
           {/* ... bottom corners ... */}

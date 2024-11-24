@@ -27,8 +27,10 @@ export class QRCodeService {
       data.website ? `URL:${data.website}` : '',
       data.address ? `ADR:;;${data.address};;;` : '',
       data.note ? `NOTE:${data.note}` : '',
-      'END:VCARD'
-    ].filter(Boolean).join('\n');
+      'END:VCARD',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     return vcard;
   }
@@ -43,7 +45,7 @@ export class QRCodeService {
     const params = new URLSearchParams();
     if (subject) params.append('subject', subject);
     if (body) params.append('body', body);
-    
+
     return `mailto:${email}${params.toString() ? '?' + params.toString() : ''}`;
   }
 

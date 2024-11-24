@@ -1,34 +1,34 @@
 // src/lib/types/qr-code.ts
 
-export type QRCodeType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi' | 'location'
+export type QRCodeType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi' | 'location';
 
 export interface QRCodeData {
-  type: QRCodeType
+  type: QRCodeType;
   // URL
-  url?: string
+  url?: string;
   // Text
-  text?: string
+  text?: string;
   // Email
-  email?: string
-  subject?: string
+  email?: string;
+  subject?: string;
   // Phone
-  phone?: string
+  phone?: string;
   // SMS
-  message?: string
+  message?: string;
   // WiFi
-  ssid?: string
-  password?: string
-  networkType?: 'WEP' | 'WPA' | 'nopass'
-  hidden?: boolean
+  ssid?: string;
+  password?: string;
+  networkType?: 'WEP' | 'WPA' | 'nopass';
+  hidden?: boolean;
   // Location
-  latitude?: number
-  longitude?: number
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface QRStyleOptions {
-  size?: number
-  margin?: number
-  darkColor?: string
-  lightColor?: string
-  errorCorrection?: 'L' | 'M' | 'Q' | 'H'
+  size?: number;
+  margin?: number;
+  darkColor?: string;
+  lightColor?: string;
+  errorCorrection?: 'L' | 'M' | 'Q' | 'H';
 }

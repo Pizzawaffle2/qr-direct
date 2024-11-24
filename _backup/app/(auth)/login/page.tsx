@@ -1,14 +1,14 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { OAuthButtons } from "@/components/auth/oauth-buttons"
+import { useState, useEffect } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { OAuthButtons } from '@/components/auth/oauth-buttons';
 import {
   Form,
   FormControl,
@@ -16,59 +16,59 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
-import { Github, Loader2, Mail, Eye, EyeOff, ArrowRight, Home } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ParticleBackground } from "@/components/ui/particle-background"
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
+import { Github, Loader2, Mail, Eye, EyeOff, ArrowRight, Home } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ParticleBackground } from '@/components/ui/particle-background';
 
 const formSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-})
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+});
 
-type FormData = z.infer<typeof formSchema>
+type FormData = z.infer<typeof formSchema>;
 
 const Header = () => (
   <motion.div
     initial={{ opacity: 0, y: -20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="fixed top-0 left-0 right-0 z-50 p-4"
+    className="fixed left-0 right-0 top-0 z-50 p-4"
   >
     <div className="container mx-auto">
       <Link href="/" className="inline-flex items-center">
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="glass-morphism rounded-full p-2 text-white hover:text-blue-400 transition-colors"
+          className="glass-morphism rounded-full p-2 text-white transition-colors hover:text-blue-400"
         >
           <Home className="h-6 w-6" />
         </motion.div>
       </Link>
     </div>
   </motion.div>
-)
+);
 
 const FormHeader = () => (
-  <div className="relative px-12 pt-16 pb-8 text-center">
+  <div className="relative px-12 pb-8 pt-16 text-center">
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-      className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+      transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+      className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"
     >
       <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
         <div className="h-full w-full rounded-full bg-slate-950 p-2">
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
             className="h-full w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
           />
         </div>
       </div>
     </motion.div>
-    
+
     <motion.h1
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -86,13 +86,13 @@ const FormHeader = () => (
       Sign in to your account to continue
     </motion.p>
   </div>
-)
+);
 
 const BackgroundEffects = () => (
   <div className="absolute inset-0">
-    <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 animate-gradient-xy" />
-    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
-    
+    <div className="animate-gradient-xy absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10" />
+    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20 [mask-image:radial-gradient(white,transparent_85%)]" />
+
     <motion.div
       animate={{
         scale: [1, 1.2, 1],
@@ -102,9 +102,9 @@ const BackgroundEffects = () => (
       transition={{
         duration: 20,
         repeat: Infinity,
-        ease: "linear",
+        ease: 'linear',
       }}
-      className="absolute -top-48 -left-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
+      className="absolute -left-48 -top-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
     />
     <motion.div
       animate={{
@@ -115,68 +115,68 @@ const BackgroundEffects = () => (
       transition={{
         duration: 15,
         repeat: Infinity,
-        ease: "linear",
+        ease: 'linear',
       }}
       className="absolute -bottom-48 -right-48 h-96 w-96 rounded-full bg-purple-500/30 blur-3xl"
     />
   </div>
-)
+);
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [showPassword, setShowPassword] = useState<boolean>(false)
-  const [mounted, setMounted] = useState<boolean>(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { toast } = useToast()
-  
-  const callbackUrl = searchParams?.get("callbackUrl") || "/"
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+
+  const callbackUrl = searchParams?.get('callbackUrl') || '/';
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  })
+  });
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true)
-      const result = await signIn("credentials", {
+      setIsLoading(true);
+      const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
         callbackUrl,
-      })
+      });
 
       if (result?.error) {
         toast({
-          title: "Error",
-          description: "Invalid email or password",
-          variant: "destructive",
-        })
-        return
+          title: 'Error',
+          description: 'Invalid email or password',
+          variant: 'destructive',
+        });
+        return;
       }
 
-      router.push(callbackUrl)
-      router.refresh()
+      router.push(callbackUrl);
+      router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
@@ -193,8 +193,8 @@ export default function LoginPage() {
         >
           <motion.div
             whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="glass-morphism rounded-3xl overflow-hidden"
+            transition={{ type: 'spring', stiffness: 300 }}
+            className="glass-morphism overflow-hidden rounded-3xl"
           >
             <FormHeader />
 
@@ -215,7 +215,7 @@ export default function LoginPage() {
                           <FormControl>
                             <Input
                               placeholder="name@example.com"
-                              className="h-12 border-white/10 bg-white/5 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                              className="h-12 border-white/10 bg-white/5 text-white transition-all duration-300 placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
                               {...field}
                             />
                           </FormControl>
@@ -241,15 +241,15 @@ export default function LoginPage() {
                           <FormControl>
                             <div className="relative">
                               <Input
-                                type={showPassword ? "text" : "password"}
-                                className="h-12 border-white/10 bg-white/5 text-white pr-10 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300"
+                                type={showPassword ? 'text' : 'password'}
+                                className="h-12 border-white/10 bg-white/5 pr-10 text-white transition-all duration-300 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
                                 {...field}
                               />
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-white transition-colors"
+                                className="absolute right-0 top-0 h-full px-3 py-2 text-gray-400 transition-colors hover:bg-transparent hover:text-white"
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? (
@@ -276,12 +276,12 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="h-12 w-full transform bg-gradient-to-r from-blue-600 to-indigo-600 text-white transition-all duration-300 hover:scale-[1.02] hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98]"
                   >
                     {isLoading ? (
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       >
                         <Loader2 className="h-5 w-5" />
                       </motion.div>
@@ -307,7 +307,7 @@ export default function LoginPage() {
                   <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-slate-950 text-gray-400">Or continue with</span>
+                  <span className="bg-slate-950 px-2 text-gray-400">Or continue with</span>
                 </div>
               </div>
 
@@ -323,10 +323,10 @@ export default function LoginPage() {
               className="border-t border-white/10 bg-white/5 p-8 text-center"
             >
               <p className="text-base text-gray-400">
-                Don't have an account?{" "}
+                Don't have an account?{' '}
                 <Link
                   href="/register"
-                  className="font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                  className="font-medium text-blue-400 transition-colors hover:text-blue-300"
                 >
                   Create an account
                 </Link>
@@ -336,5 +336,5 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

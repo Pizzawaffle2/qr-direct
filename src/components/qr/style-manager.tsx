@@ -1,93 +1,92 @@
 // src/components/qr/style-manager.tsx
-"use client"
+'use client';
 
-import { useState } from "react"
-import {
-  Dialog,
+import {useState } from 'react';
+import {Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SavedStyle } from "@/lib/style-management"
-import { useToast } from "@/components/ui/use-toast"
-import { Save, Folder, Trash2 } from "lucide-react"
+} from '@/components/ui/dialog';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {SavedStyle } from '@/lib/style-management';
+import {useToast } from '@/components/ui/use-toast';
+import {Save, Folder, Trash2 } from 'lucide-react';
 
 interface StyleManagerProps {
-  currentStyle: any
-  onLoadStyle: (style: any) => void
+  currentStyle: any;
+  onLoadStyle: (style: any) => void;
 }
 
 export function StyleManager({ currentStyle, onLoadStyle }: StyleManagerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [styleName, setStyleName] = useState("")
-  const [savedStyles, setSavedStyles] = useState<SavedStyle[]>([])
-  const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
+  const [isOpen, setIsOpen] = useState(false);
+  const [styleName, setStyleName] = useState('');
+  const [savedStyles, setSavedStyles] = useState<SavedStyle[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSaveStyle = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("/api/styles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      setLoading(true);
+      const response = await fetch('/api/styles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: styleName, style: currentStyle }),
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to save style")
+      if (!response.ok) throw new Error('Failed to save style');
 
       toast({
-        title: "Style saved",
-        description: "Your style has been saved successfully",
-      })
-      setIsOpen(false)
-      setStyleName("")
-    } catch (error) {
+        title: 'Style saved',
+        description: 'Your style has been saved successfully',
+      });
+      setIsOpen(false);
+      setStyleName('');
+    } catch (_error) {
       toast({
-        title: "Error",
-        description: "Failed to save style",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to save style',
+        variant: 'destructive',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteStyle = async (id: string) => {
     try {
       const response = await fetch(`/api/styles/${id}`, {
-        method: "DELETE",
-      })
+        method: 'DELETE',
+      });
 
-      if (!response.ok) throw new Error("Failed to delete style")
+      if (!response.ok) throw new Error('Failed to delete style');
 
-      setSavedStyles(savedStyles.filter(style => style.id !== id))
+      setSavedStyles(savedStyles.filter((style) => style.id !== id));
       toast({
-        title: "Style deleted",
-        description: "Your style has been deleted successfully",
-      })
-    } catch (error) {
+        title: 'Style deleted',
+        description: 'Your style has been deleted successfully',
+      });
+    } catch (_error) {
       toast({
-        title: "Error",
-        description: "Failed to delete style",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to delete style',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
         <Button variant="outline" onClick={() => setIsOpen(true)}>
-          <Save className="h-4 w-4 mr-2" />
+          <Save className="mr-2 h-4 w-4" />
           Save Style
         </Button>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline">
-              <Folder className="h-4 w-4 mr-2" />
+              <Folder className="mr-2 h-4 w-4" />
               Load Style
             </Button>
           </DialogTrigger>
@@ -99,7 +98,7 @@ export function StyleManager({ currentStyle, onLoadStyle }: StyleManagerProps) {
               {savedStyles.map((style) => (
                 <div
                   key={style.id}
-                  className="flex items-center justify-between p-4 rounded-lg border"
+                  className="flex items-center justify-between rounded-lg border p-4"
                 >
                   <div>
                     <h4 className="font-medium">{style.name}</h4>
@@ -108,27 +107,17 @@ export function StyleManager({ currentStyle, onLoadStyle }: StyleManagerProps) {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onLoadStyle(style.style)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => onLoadStyle(style.style)}>
                       Load
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDeleteStyle(style.id)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => handleDeleteStyle(style.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               ))}
               {savedStyles.length === 0 && (
-                <p className="text-center text-muted-foreground">
-                  No saved styles found
-                </p>
+                <p className="text-center text-muted-foreground">No saved styles found</p>
               )}
             </div>
           </DialogContent>
@@ -146,16 +135,12 @@ export function StyleManager({ currentStyle, onLoadStyle }: StyleManagerProps) {
               value={styleName}
               onChange={(e) => setStyleName(e.target.value)}
             />
-            <Button
-              onClick={handleSaveStyle}
-              disabled={loading || !styleName}
-              className="w-full"
-            >
+            <Button onClick={handleSaveStyle} disabled={loading || !styleName} className="w-full">
               Save Style
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

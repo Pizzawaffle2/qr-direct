@@ -1,32 +1,23 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Table,
+import {useState } from 'react';
+import {useRouter } from 'next/navigation';
+import {Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
+} from '@/components/ui/table';
+import {Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  AlertDialog,
+} from '@/components/ui/dropdown-menu';
+import {Button } from '@/components/ui/button';
+import {useToast } from '@/components/ui/use-toast';
+import {AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
@@ -34,9 +25,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { MoreVertical, UserPlus, Settings, Trash } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/alert-dialog';
+import {MoreVertical, UserPlus, Settings, Trash } from 'lucide-react';
+import {cn } from '@/lib/utils';
 
 // Types for team members
 type TeamMember = {
@@ -82,31 +73,29 @@ export default function TeamPage() {
   const handleDeleteMember = async (memberId: string) => {
     try {
       // Add your delete logic here
-      setMembers(members.filter(member => member.id !== memberId));
+      setMembers(members.filter((member) => member.id !== memberId));
       setShowDeleteDialog(false);
       toast({
-        title: "Member removed",
-        description: "Team member has been removed successfully.",
+        title: 'Member removed',
+        description: 'Team member has been removed successfully.',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: "Failed to remove team member.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to remove team member.',
+        variant: 'destructive',
       });
     }
   };
 
   return (
     <div className="container space-y-6 p-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Team Members</h1>
-          <p className="text-muted-foreground">
-            Manage your team members and their roles.
-          </p>
+          <p className="text-muted-foreground">Manage your team members and their roles.</p>
         </div>
-        <Button onClick={() => router.push('/dashboard/team/invite')}>
+        <Button onClick={() => router.push('/dashboard/team/invite&apos;)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Invite Member
         </Button>
@@ -115,9 +104,7 @@ export default function TeamPage() {
       <Card>
         <CardHeader>
           <CardTitle>Members</CardTitle>
-          <CardDescription>
-            View and manage your team members.
-          </CardDescription>
+          <CardDescription>View and manage your team members.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -137,14 +124,16 @@ export default function TeamPage() {
                   <TableCell>{member.email}</TableCell>
                   <TableCell className="capitalize">{member.role}</TableCell>
                   <TableCell>
-                    <span className={cn(
-                      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      {
-                        "bg-green-100 text-green-800": member.status === "active",
-                        "bg-yellow-100 text-yellow-800": member.status === "pending",
-                        "bg-gray-100 text-gray-800": member.status === "inactive",
-                      }
-                    )}>
+                    <span
+                      className={cn(
+                        &apos;inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                        {
+                          'bg-green-100 text-green-800': member.status === 'active',
+                          'bg-yellow-100 text-yellow-800': member.status === 'pending',
+                          'bg-gray-100 text-gray-800': member.status === 'inactive',
+                        }
+                      )}
+                    >
                       {member.status}
                     </span>
                   </TableCell>

@@ -9,7 +9,9 @@ const deploy = async (environment: 'staging' | 'production') => {
 
     // Push to registry (example with AWS ECR)
     console.log('Pushing to registry...');
-    execSync(`docker tag qr-direct:${environment} ${process.env.ECR_REGISTRY}/qr-direct:${environment}`);
+    execSync(
+      `docker tag qr-direct:${environment} ${process.env.ECR_REGISTRY}/qr-direct:${environment}`
+    );
     execSync(`docker push ${process.env.ECR_REGISTRY}/qr-direct:${environment}`);
 
     console.log('Deployment complete!');

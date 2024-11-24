@@ -22,7 +22,7 @@ export const getSubscriptionPlan = (priceId: string | undefined) => {
 };
 
 export async function updateUserSubscriptionStatus(
-  userId: string, 
+  userId: string,
   subscription: Stripe.Subscription
 ) {
   const { user } = await prisma.user.update({
@@ -40,29 +40,29 @@ export async function updateUserSubscriptionStatus(
 }
 
 export function determineSubscriptionTier(priceId: string): 'free' | 'pro' | 'enterprise' {
-    switch (priceId) {
-      case process.env.STRIPE_PRO_PRICE_ID:
-        return 'pro';
-      case process.env.STRIPE_ENTERPRISE_PRICE_ID:
-        return 'enterprise';
-      default:
-        return 'free';
-    }
-  }
-  
-  export async function getSubscriptionTierFromSession(
-    session: Stripe.Checkout.Session,
-    stripe: Stripe
-  ): Promise<'free' | 'pro' | 'enterprise'> {
-    try {
-      if (!session.subscription) return 'free';
-  
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-      const priceId = subscription.items.data[0]?.price.id;
-      
-      return determineSubscriptionTier(priceId);
-    } catch (error) {
-      console.error('Error determining subscription tier:', error);
+  switch (priceId) {
+    case process.env.STRIPE_PRO_PRICE_ID:
+      return 'pro';
+    case process.env.STRIPE_ENTERPRISE_PRICE_ID:
+      return 'enterprise';
+    default:
       return 'free';
-    }
   }
+}
+
+export async function getSubscriptionTierFromSession(
+  session: Stripe.Checkout.Session,
+  stripe: Stripe
+): Promise<'free' | 'pro' | 'enterprise'> {
+  try {
+    if (!session.subscription) return 'free';
+
+    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    const priceId = subscription.items.data[0]?.price.id;
+
+    return determineSubscriptionTier(priceId);
+  } catch (error) {
+    console.error('Error determining subscription tier:', error);
+    return 'free';
+  }
+}

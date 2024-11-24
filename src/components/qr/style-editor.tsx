@@ -1,44 +1,31 @@
 // src/components/qr/style-editor.tsx
 
-"use client"
+'use client';
 
-import { useState } from "react"
-import { QRStyleOptions } from "@/types/qr"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import {
-  Select,
+import {QRStyleOptions } from '@/types/qr';
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Label } from '@/components/ui/label';
+import {Slider } from '@/components/ui/slider';
+import {Input } from '@/components/ui/input';
+import {Switch } from '@/components/ui/switch';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { 
-  Palette, 
-  Image, 
-  Droplets, 
-  Box, 
-  Grid, 
-  Shield,
-  Loader2,
-  Play
-} from "lucide-react"
+} from '@/components/ui/select';
+import {Button } from '@/components/ui/button';
+import {Palette, Image, Droplets, Box, Grid, Shield, Play } from 'lucide-react';
 
 interface StyleEditorProps {
-  value: QRStyleOptions
-  onChange: (value: QRStyleOptions) => void
+  value: QRStyleOptions;
+  onChange: (value: QRStyleOptions) => void;
 }
 
-export function StyleEditor({ value, onChange }: StyleEditorProps) {
-  const [uploading, setUploading] = useState(false)
-
+export const QRStyleEditor = ({ value, onChange }: StyleEditorProps) => {
   const handleStyleChange = (update: Partial<QRStyleOptions>) => {
-    onChange({ ...value, ...update })
-  }
+    onChange({ ...value, ...update });
+  };
 
   return (
     <Tabs defaultValue="colors" className="space-y-4">
@@ -88,7 +75,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
               </div>
               <Input
                 type="color"
-                className="w-12 p-1 h-10"
+                className="h-10 w-12 p-1"
                 value={value.foregroundColor}
                 onChange={(e) => handleStyleChange({ foregroundColor: e.target.value })}
               />
@@ -108,7 +95,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
               </div>
               <Input
                 type="color"
-                className="w-12 p-1 h-10"
+                className="h-10 w-12 p-1"
                 value={value.backgroundColor}
                 onChange={(e) => handleStyleChange({ backgroundColor: e.target.value })}
               />
@@ -120,23 +107,27 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
               <Label>Use Gradient</Label>
               <Switch
                 checked={!!value.gradientType}
-                onCheckedChange={(checked) => 
-                  handleStyleChange({ 
+                onCheckedChange={(checked) =>
+                  handleStyleChange({
                     gradientType: checked ? 'linear' : undefined,
-                    gradientColors: checked ? { 
-                      start: value.foregroundColor || '#000000', 
-                      end: value.backgroundColor || '#FFFFFF',
-                      direction: 0
-                    } : undefined
+                    gradientColors: checked
+                      ? {
+                          start: value.foregroundColor || '#000000',
+                          end: value.backgroundColor || &apos;#FFFFFF&apos;,
+                          direction: 0,
+                        }
+                      : undefined,
                   })
                 }
               />
             </div>
             {value.gradientType && (
-              <div className="space-y-4 mt-4">
+              <div className="mt-4 space-y-4">
                 <Select
                   value={value.gradientType}
-                  onValueChange={(gradientType: "linear" | "radial") => handleStyleChange({ gradientType })}
+                  onValueChange={(gradientType: 'linear' | 'radial') =>
+                    handleStyleChange({ gradientType })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select gradient type" />
@@ -154,27 +145,32 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                       <Input
                         type="text"
                         value={value.gradientColors?.start}
-                        onChange={(e) => handleStyleChange({ 
-                          gradientColors: { 
-                            start: e.target.value,
-                            end: value.gradientColors?.end || value.backgroundColor || '#FFFFFF',
-                            direction: value.gradientColors?.direction || 0
-                          }
-                        })}
+                        onChange={(e) =>
+                          handleStyleChange({
+                            gradientColors: {
+                              start: e.target.value,
+                              end: value.gradientColors?.end || value.backgroundColor || '#FFFFFF&apos;,
+                              direction: value.gradientColors?.direction || 0,
+                            },
+                          })
+                        }
                         placeholder="#000000"
                       />
                     </div>
                     <Input
                       type="color"
-                      className="w-12 p-1 h-10"
+                      className="h-10 w-12 p-1"
                       value={value.gradientColors?.start}
-                      onChange={(e) => handleStyleChange({ 
-                        gradientColors: { 
-                          start: value.gradientColors?.start || value.foregroundColor || '#000000',
-                          end: e.target.value,
-                          direction: value.gradientColors?.direction || 0
-                        }
-                      })}
+                      onChange={(e) =>
+                        handleStyleChange({
+                          gradientColors: {
+                            start:
+                              value.gradientColors?.start || value.foregroundColor || &apos;#000000',
+                            end: e.target.value,
+                            direction: value.gradientColors?.direction || 0,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -186,32 +182,38 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                       <Input
                         type="text"
                         value={value.gradientColors?.end}
-                        onChange={(e) => handleStyleChange({ 
-                          gradientColors: { 
-                            start: value.gradientColors?.start || value.foregroundColor || '#000000',
-                            end: e.target.value,
-                            direction: value.gradientColors?.direction || 0
-                          }
-                        })}
+                        onChange={(e) =>
+                          handleStyleChange({
+                            gradientColors: {
+                              start:
+                                value.gradientColors?.start || value.foregroundColor || '#000000&apos;,
+                              end: e.target.value,
+                              direction: value.gradientColors?.direction || 0,
+                            },
+                          })
+                        }
                         placeholder="#000000"
                       />
                     </div>
                     <Input
                       type="color"
-                      className="w-12 p-1 h-10"
+                      className="h-10 w-12 p-1"
                       value={value.gradientColors?.end}
-                      onChange={(e) => handleStyleChange({ 
-                        gradientColors: { 
-                          start: value.gradientColors?.start || value.foregroundColor || '#000000',
-                          end: e.target.value,
-                          direction: value.gradientColors?.direction || 0
-                        }
-                      })}
+                      onChange={(e) =>
+                        handleStyleChange({
+                          gradientColors: {
+                            start:
+                              value.gradientColors?.start || value.foregroundColor || &apos;#000000',
+                            end: e.target.value,
+                            direction: value.gradientColors?.direction || 0,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
 
-                {value.gradientType === 'linear' && (
+                {value.gradientType === 'linear&apos; && (
                   <div className="space-y-2">
                     <Label>Gradient Angle ({value.gradientColors?.direction || 0}°)</Label>
                     <Slider
@@ -219,13 +221,16 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                       min={0}
                       max={360}
                       step={1}
-                      onValueChange={([direction]: number[]) => handleStyleChange({
-                        gradientColors: {
-                          start: value.gradientColors?.start || value.foregroundColor || '#000000',
-                          end: value.gradientColors?.end || value.backgroundColor || '#FFFFFF',
-                          direction
-                        }
-                      })}
+                      onValueChange={([direction]: number[]) =>
+                        handleStyleChange({
+                          gradientColors: {
+                            start:
+                              value.gradientColors?.start || value.foregroundColor || &apos;#000000',
+                            end: value.gradientColors?.end || value.backgroundColor || '#FFFFFF',
+                            direction,
+                          },
+                        })
+                      }
                     />
                   </div>
                 )}
@@ -241,7 +246,9 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             <Label>Dot Style</Label>
             <Select
               value={value.dotStyle}
-              onValueChange={(dotStyle: "square" | "rounded" | "dots" | "classy" | "sharp") => handleStyleChange({ dotStyle })}
+              onValueChange={(dotStyle: 'square' | 'rounded' | 'dots' | 'classy' | 'sharp') =>
+                handleStyleChange({ dotStyle })
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select dot style" />
@@ -328,7 +335,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                   </div>
                   <Input
                     type="color"
-                    className="w-12 p-1 h-10"
+                    className="h-10 w-12 p-1"
                     value={value.logoBackgroundColor || '#FFFFFF'}
                     onChange={(e) => handleStyleChange({ logoBackgroundColor: e.target.value })}
                   />
@@ -344,7 +351,9 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
           <Label>Error Correction Level</Label>
           <Select
             value={value.errorCorrection}
-            onValueChange={(errorCorrection: "L" | "M" | "Q" | "H") => handleStyleChange({ errorCorrection })}
+            onValueChange={(errorCorrection: 'L' | 'M' | 'Q' | 'H') =>
+              handleStyleChange({ errorCorrection })
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Select error correction level" />
@@ -365,11 +374,11 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
             <Label>Enable Animation</Label>
             <Switch
               checked={value.animated || false}
-              onCheckedChange={(checked) => 
-                handleStyleChange({ 
+              onCheckedChange={(checked) =>
+                handleStyleChange({
                   animated: checked,
-                  animationType: checked ? (value.animationType || 'fade') : undefined,
-                  animationDuration: checked ? (value.animationDuration || 300) : undefined
+                  animationType: checked ? value.animationType || &apos;fade&apos; : undefined,
+                  animationDuration: checked ? value.animationDuration || 300 : undefined,
                 })
               }
             />
@@ -381,9 +390,9 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                 <Label>Animation Type</Label>
                 <Select
                   value={value.animationType || 'fade'}
-                  onValueChange={(animationType) => 
-                    handleStyleChange({ 
-                      animationType: animationType as 'fade' | 'slide' | 'bounce' 
+                  onValueChange={(animationType) =>
+                    handleStyleChange({
+                      animationType: animationType as 'fade' | 'slide' | 'bounce',
                     })
                   }
                 >
@@ -407,15 +416,15 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
                   step={100}
                   onValueChange={([duration]) =>
                     handleStyleChange({
-                      animationDuration: duration
+                      animationDuration: duration,
                     })
                   }
                 />
               </div>
 
-              <div className="pt-4 border-t">
-                <Button 
-                  variant="outline" 
+              <div className="border-t pt-4">
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => {
                     handleStyleChange({ animated: false });
@@ -430,7 +439,7 @@ export function StyleEditor({ value, onChange }: StyleEditorProps) {
         </div>
       </TabsContent>
     </Tabs>
-  )
-}
+  );
+};
 
-export default StyleEditor;
+export { QRStyleEditor as default };

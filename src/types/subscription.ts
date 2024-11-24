@@ -1,4 +1,4 @@
-export type SubscriptionStatus = 
+export type SubscriptionStatus =
   | 'active'
   | 'canceled'
   | 'past_due'
@@ -7,11 +7,7 @@ export type SubscriptionStatus =
   | 'trialing'
   | 'unpaid';
 
-export type SubscriptionPlan = 
-  | 'basic'
-  | 'pro'
-  | 'enterprise'
-  | 'free';
+export type SubscriptionPlan = 'basic' | 'pro' | 'enterprise' | 'free';
 
 export interface Subscription {
   id: string;

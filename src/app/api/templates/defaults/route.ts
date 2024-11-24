@@ -1,6 +1,10 @@
 // File: src/app/api/templates/defaults/route.ts
-import { NextResponse } from 'next/server';
-import { defaultTemplates, getTemplatesByType, getTemplatesByCategory, getTemplatesByTag } from '@/lib/templates/default-templates';
+import {NextResponse } from 'next/server';
+import {defaultTemplates,
+  getTemplatesByType,
+  getTemplatesByCategory,
+  getTemplatesByTag,
+} from '@/lib/templates/default-templates';
 
 export async function GET(req: Request) {
   try {
@@ -20,7 +24,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json(templates);
-  } catch (error) {
+  } catch (_error) {
     return new Response('Failed to fetch templates', { status: 500 });
   }
 }

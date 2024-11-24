@@ -1,14 +1,14 @@
 // src/types/auth.ts
-import { DefaultSession } from 'next-auth';
+import {DefaultSession } from 'next-auth';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
-  USER = 'USER'
+  USER = 'USER',
 }
 
 export enum SubscriptionStatus {
   ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
+  INACTIVE = 'INACTIVE',
 }
 
 export interface ExtendedUser {
@@ -26,5 +26,5 @@ export interface ExtendedSession extends DefaultSession {
     subscriptionStatus: SubscriptionStatus;
     stripeCustomerId?: string | null;
     subscriptionTier?: string | null;
-  } & DefaultSession["user"]
+  } & DefaultSession['user'];
 }

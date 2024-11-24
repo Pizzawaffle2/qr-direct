@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import {useEffect, useState } from 'react';
+import {useSession } from 'next-auth/react';
+import {Card } from '@/components/ui/card';
+import {Button } from '@/components/ui/button';
+import {Loader2 } from 'lucide-react';
+import {useToast } from '@/components/ui/use-toast';
 
 export function BillingStatus() {
   const { data: session } = useSession();
@@ -16,18 +16,18 @@ export function BillingStatus() {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
-        const response = await fetch("/api/subscription");
+        const response = await fetch('/api/subscription');
         if (!response.ok) {
-          throw new Error("Failed to fetch subscription");
+          throw new Error('Failed to fetch subscription');
         }
         const data = await response.json();
         setSubscription(data.subscription);
       } catch (error) {
-        console.error("Error fetching subscription:", error);
+        console.error('Error fetching subscription:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch subscription.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to fetch subscription.',
+          variant: 'destructive',
         });
       } finally {
         setLoading(false);
@@ -51,9 +51,9 @@ export function BillingStatus() {
     <Card className="p-6">
       <h2 className="text-xl font-semibold">Subscription Status</h2>
       <p className="text-muted-foreground">
-        {subscription.status === "active" ? "Active" : "Inactive"}
+        {subscription.status === 'active' ? 'Active' : 'Inactive&apos;}
       </p>
-      <Button variant="outline" onClick={() => console.log("Manage Subscription")}>
+      <Button variant="outline" onClick={() => console.log(&apos;Manage Subscription')}>
         Manage Subscription
       </Button>
     </Card>

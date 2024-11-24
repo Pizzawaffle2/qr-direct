@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail } from 'lucide-react';
+import {useState } from 'react';
+import {Button } from '@/components/ui/button';
+import {Input } from '@/components/ui/input';
+import {Alert, AlertDescription } from '@/components/ui/alert';
+import {Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -30,6 +30,7 @@ export default function ForgotPasswordPage() {
       }
     } catch (error) {
       setStatus('error');
+      console.error('Failed to reset password:&apos;, error);
     } finally {
       setIsLoading(false);
     }
@@ -39,12 +40,12 @@ export default function ForgotPasswordPage() {
     <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-white">Reset Password</h1>
-        <p className="text-gray-400 mt-2">
-          Enter your email address and we'll send you a link to reset your password
+        <p className="mt-2 text-gray-400">
+          Enter your email address and we&apos;ll send you a link to reset your password
         </p>
       </div>
 
-      {status === 'success' ? (
+      {status === 'success&apos; ? (
         <Alert>
           <Mail className="h-4 w-4" />
           <AlertDescription>
@@ -60,25 +61,19 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="bg-white/5 border-white/10"
+              className="border-white/10 bg-white/5"
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Sending...' : 'Send Reset Link'}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? &apos;Sending...' : 'Send Reset Link'}
           </Button>
         </form>
       )}
 
       <div className="text-center">
         <Button variant="link" asChild>
-          <Link href="/login">
-            Back to Login
-          </Link>
+          <Link href="/login">Back to Login</Link>
         </Button>
       </div>
     </div>

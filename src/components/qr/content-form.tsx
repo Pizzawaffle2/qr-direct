@@ -1,18 +1,17 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { QRCodeType, QRCodeData, QR_CODE_TYPES } from "@/types/qr";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
+import {useState } from 'react';
+import {QRCodeType, QRCodeData, QR_CODE_TYPES } from '@/types/qr';
+import {Input } from '@/components/ui/input';
+import {Label } from '@/components/ui/label';
+import {Textarea } from '@/components/ui/textarea';
+import {Switch } from '@/components/ui/switch';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 interface QRContentFormProps {
   type: QRCodeType;
@@ -20,19 +19,18 @@ interface QRContentFormProps {
   onChange: (data: QRCodeData) => void;
 }
 
-export function QRContentForm({
-  type,
-  initialData,
-  onChange,
-}: QRContentFormProps) {
+export function QRContentForm({ type, initialData, onChange }: QRContentFormProps) {
   const FormComponent = FORM_COMPONENTS[type];
   return <FormComponent initialData={initialData} onChange={onChange} />;
 }
 
 // URL Form
-function URLForm({ initialData, onChange }: { 
-  initialData?: QRCodeData; 
-  onChange: (data: QRCodeData) => void; 
+function URLForm({
+  initialData,
+  onChange,
+}: {
+  initialData?: QRCodeData;
+  onChange: (data: QRCodeData) => void;
 }) {
   const [url, setUrl] = useState((initialData as any)?.url || '');
 
@@ -61,17 +59,22 @@ function URLForm({ initialData, onChange }: {
 }
 
 // WiFi Form
-function WiFiForm({ initialData, onChange }: {
+function WiFiForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
-  const [data, setData] = useState<QRCodeData>((initialData as any) || {
-    type: 'wifi',
-    ssid: '',
-    password: '',
-    networkType: 'WPA',
-    hidden: false,
-  });
+  const [data, setData] = useState<QRCodeData>(
+    (initialData as any) || {
+      type: 'wifi',
+      ssid: '',
+      password: '',
+      networkType: 'WPA',
+      hidden: false,
+    }
+  );
 
   const handleChange = (updates: Partial<typeof data>) => {
     const newData = { ...data, ...updates } as QRCodeData;
@@ -130,21 +133,26 @@ function WiFiForm({ initialData, onChange }: {
 }
 
 // vCard Form
-function VCardForm({ initialData, onChange }: {
+function VCardForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
-  const [data, setData] = useState<QRCodeData>((initialData as any) || {
-    type: 'vcard',
-    firstName: '',
-    lastName: '',
-    organization: '',
-    title: '',
-    email: '',
-    phone: '',
-    website: '',
-    address: '',
-  });
+  const [data, setData] = useState<QRCodeData>(
+    (initialData as any) || {
+      type: 'vcard',
+      firstName: '',
+      lastName: '',
+      organization: '',
+      title: '',
+      email: '',
+      phone: '',
+      website: '',
+      address: '',
+    }
+  );
 
   const handleChange = (updates: Partial<typeof data>) => {
     const newData = { ...data, ...updates } as QRCodeData;
@@ -234,7 +242,10 @@ function VCardForm({ initialData, onChange }: {
 }
 
 // Text Form
-function TextForm({ initialData, onChange }: {
+function TextForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
@@ -264,7 +275,10 @@ function TextForm({ initialData, onChange }: {
 }
 
 // Email Form
-function EmailForm({ initialData, onChange }: {
+function EmailForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
@@ -295,7 +309,10 @@ function EmailForm({ initialData, onChange }: {
 }
 
 // Phone Form
-function PhoneForm({ initialData, onChange }: {
+function PhoneForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
@@ -326,15 +343,20 @@ function PhoneForm({ initialData, onChange }: {
 }
 
 // SMS Form
-function SMSForm({ initialData, onChange }: {
+function SMSForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
-  const [data, setData] = useState<QRCodeData>((initialData as any) || {
-    type: 'sms',
-    phone: '',
-    message: '',
-  });
+  const [data, setData] = useState<QRCodeData>(
+    (initialData as any) || {
+      type: 'sms',
+      phone: '',
+      message: '',
+    }
+  );
 
   const handleChange = (updates: Partial<typeof data>) => {
     const newData = { ...data, ...updates } as QRCodeData;
@@ -366,15 +388,20 @@ function SMSForm({ initialData, onChange }: {
 }
 
 // Location Form
-function LocationForm({ initialData, onChange }: {
+function LocationForm({
+  initialData,
+  onChange,
+}: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
 }) {
-  const [data, setData] = useState<QRCodeData>((initialData as any) || {
-    type: 'location',
-    latitude: '',
-    longitude: '',
-  });
+  const [data, setData] = useState<QRCodeData>(
+    (initialData as any) || {
+      type: 'location',
+      latitude: '',
+      longitude: '',
+    }
+  );
 
   const handleChange = (updates: Partial<typeof data>) => {
     const newData = { ...data, ...updates } as QRCodeData;
@@ -409,12 +436,12 @@ function LocationForm({ initialData, onChange }: {
 }
 
 const FORM_COMPONENTS = {
-    url: URLForm,
-    text: TextForm,
-    email: EmailForm,
-    phone: PhoneForm,
-    sms: SMSForm,
-    wifi: WiFiForm,
-    vcard: VCardForm,
-    location: LocationForm,
-  } as const;
+  url: URLForm,
+  text: TextForm,
+  email: EmailForm,
+  phone: PhoneForm,
+  sms: SMSForm,
+  wifi: WiFiForm,
+  vcard: VCardForm,
+  location: LocationForm,
+} as const;

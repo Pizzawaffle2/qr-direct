@@ -1,44 +1,32 @@
 // File: src/app/profile/page.tsx
 
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { Photograph, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
+import { Photograph, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const [image, setImage] = useState(session?.user.image || "");
+  const [image, setImage] = useState(session?.user.image || '');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [isDarkMode, setIsDarkMode] = useState(false); // Add state for dark mode
@@ -47,14 +35,14 @@ export default function ProfilePage() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: session?.user.name || "",
+      name: session?.user.name || '',
     },
   });
 
   useEffect(() => {
     if (session) {
-      form.setValue("name", session.user.name || "");
-      setImage(session.user.image || "");
+      form.setValue('name', session.user.name || '');
+      setImage(session.user.image || '');
     }
   }, [session, form]);
 
@@ -62,7 +50,7 @@ export default function ProfilePage() {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        if (typeof e.target?.result === "string") {
+        if (typeof e.target?.result === 'string') {
           setImage(e.target.result);
         }
       };
@@ -74,33 +62,33 @@ export default function ProfilePage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/profile", {
-        method: "PUT",
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: data.name, image }),
       });
 
       if (response.ok) {
         toast({
-          title: "Success",
-          description: "Profile updated successfully!",
+          title: 'Success',
+          description: 'Profile updated successfully!',
         });
       } else {
         const data = await response.json();
         toast({
-          title: "Error",
-          description: data.error || "Failed to update profile.",
-          variant: "destructive",
+          title: 'Error',
+          description: data.error || 'Failed to update profile.',
+          variant: 'destructive',
         });
       }
     } catch (error) {
       console.error(error);
       toast({
-        title: "Error",
-        description: "An error occurred. Please try again later.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'An error occurred. Please try again later.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -118,7 +106,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container mx-auto flex flex-col items-center justify-center min-h-screen p-4">
+    <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Profile</CardTitle>
@@ -130,12 +118,13 @@ export default function ProfilePage() {
               <div className="mb-4">
                 <div className="flex items-center justify-center">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={image} alt={form.getValues("name")} />
+                    <AvatarImage src={image} alt={form.getValues('name')} />
                     <AvatarFallback>
-                      {form.getValues("name")
-                        .split(" ")
+                      {form
+                        .getValues('name')
+                        .split(' ')
                         .map((n) => n[0])
-                        .join("")}
+                        .join('')}
                     </AvatarFallback>
                   </Avatar>
                 </div>
@@ -143,11 +132,11 @@ export default function ProfilePage() {
                   <Button variant="outline" asChild>
                     <motion.label
                       htmlFor="image"
-                      className="cursor-pointer flex items-center justify-center"
+                      className="flex cursor-pointer items-center justify-center"
                       whileHover={{ scale: 1.05 }}
                     >
                       <Photograph className="mr-2 h-4 w-4" />
-                      {image ? "Change Photo" : "Upload Photo"}
+                      {image ? 'Change Photo' : 'Upload Photo'}
                       <Input
                         type="file"
                         id="image"
@@ -167,7 +156,7 @@ export default function ProfilePage() {
                     <FormControl>
                       <Input
                         type="text"
-                        className="h-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="h-10 rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
                         {...field}
                       />
                     </FormControl>
@@ -177,12 +166,7 @@ export default function ProfilePage() {
               />
               <div className="mb-4">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  type="email"
-                  id="email"
-                  value={session?.user.email || ""}
-                  readOnly
-                />
+                <Input type="email" id="email" value={session?.user.email || ''} readOnly />
               </div>
               <div className="mb-4">
                 <div className="flex items-center space-x-2">
@@ -201,17 +185,11 @@ export default function ProfilePage() {
                     checked={emailNotifications}
                     onCheckedChange={handleEmailNotificationsChange}
                   />
-                  <Label htmlFor="email-notifications">
-                    Email Notifications
-                  </Label>
+                  <Label htmlFor="email-notifications">Email Notifications</Label>
                 </div>
               </div>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Update Profile"
-                )}
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Update Profile'}
               </Button>
             </form>
           </Form>

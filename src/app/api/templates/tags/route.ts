@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import {NextResponse } from 'next/server';
+import {prisma } from '@/lib/prisma';
+import {getServerSession } from 'next-auth';
+import {authOptions } from '@/lib/auth';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -20,7 +20,7 @@ export async function GET() {
     });
 
     return NextResponse.json(tags);
-  } catch (error) {
+  } catch (_error) {
     return new Response('Failed to fetch tags', { status: 500 });
   }
 }
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(tag);
-  } catch (error) {
+  } catch (_error) {
     return new Response('Failed to create tag', { status: 500 });
   }
 }

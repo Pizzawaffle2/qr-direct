@@ -1,7 +1,7 @@
-import { useState, useCallback, ChangeEvent } from 'react';
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import {useState, useCallback, ChangeEvent } from 'react';
+import {Label } from '@/components/ui/label';
+import {Input } from '@/components/ui/input';
+import {Textarea } from '@/components/ui/textarea';
 
 interface QRCodeData extends SMSFormData {}
 
@@ -11,9 +11,9 @@ interface SMSFormData {
   message: string;
 }
 
-function SMSForm({ 
-  initialData, 
-  onChange 
+function SMSForm({
+  initialData,
+  onChange,
 }: {
   initialData?: QRCodeData;
   onChange: (data: QRCodeData) => void;
@@ -24,13 +24,14 @@ function SMSForm({
     message: initialData?.message || '',
   });
 
-  const handleChange = useCallback((
-    updates: Partial<SMSFormData>
-  ) => {
-    const newData = { ...data, ...updates };
-    setData(newData);
-    onChange(newData);
-  }, [data, onChange]);
+  const handleChange = useCallback(
+    (updates: Partial<SMSFormData>) => {
+      const newData = { ...data, ...updates };
+      setData(newData);
+      onChange(newData);
+    },
+    [data, onChange]
+  );
 
   return (
     <div className="space-y-4">
@@ -50,7 +51,9 @@ function SMSForm({
           id="message"
           placeholder="Enter your message"
           value={data.message}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => handleChange({ message: e.target.value })}
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+            handleChange({ message: e.target.value })
+          }
           className="min-h-[100px]"
         />
       </div>

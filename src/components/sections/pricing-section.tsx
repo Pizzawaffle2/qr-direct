@@ -1,62 +1,57 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
-import Link from "next/link";
+import {Button } from '@/components/ui/button';
+import {motion } from 'framer-motion';
+import {Check } from 'lucide-react';
+import Link from 'next/link';
 
 const plans = [
   {
-    name: "Basic",
-    price: "Free",
-    description: "Perfect for getting started",
+    name: 'Basic',
+    price: 'Free',
+    description: 'Perfect for getting started',
     features: [
-      "Basic QR code generation",
-      "Standard templates",
-      "Basic analytics",
-      "PNG downloads",
+      'Basic QR code generation',
+      'Standard templates',
+      'Basic analytics',
+      'PNG downloads',
     ],
-    cta: "Get Started",
-    popular: false
+    cta: 'Get Started',
+    popular: false,
   },
   {
-    name: "Pro",
-    price: "$14",
-    period: "per month",
-    description: "Best for professionals",
+    name: 'Pro',
+    price: '$14',
+    period: 'per month',
+    description: 'Best for professionals',
     features: [
-      "Everything in Basic",
-      "Custom design options",
-      "Advanced analytics",
-      "Team collaboration"
+      'Everything in Basic',
+      'Custom design options',
+      'Advanced analytics',
+      'Team collaboration',
     ],
-    cta: "Start Free Trial",
-    popular: true
+    cta: 'Start Free Trial',
+    popular: true,
   },
   {
-    name: "Enterprise",
-    price: "Custom",
-    description: "For large organizations",
-    features: [
-      "Everything in Pro",
-      "Custom branding",
-      "API access",
-      "Custom integrations",
-    ],
-    cta: "Contact Sales",
-    popular: false
-  }
+    name: 'Enterprise',
+    price: 'Custom',
+    description: 'For large organizations',
+    features: ['Everything in Pro', 'Custom branding', 'API access', 'Custom integrations'],
+    cta: 'Contact Sales',
+    popular: false,
+  },
 ];
 
 export function PricingSection() {
   return (
     <div className="py-12">
-      <div className="text-center mb-16">
+      <div className="mb-16 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl font-bold sm:text-4xl mb-4"
+          className="mb-4 text-3xl font-bold sm:text-4xl"
         >
           Simple, Transparent Pricing
         </motion.h2>
@@ -64,7 +59,7 @@ export function PricingSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-muted-foreground mx-auto max-w-2xl"
+          className="mx-auto max-w-2xl text-muted-foreground"
         >
           Choose the perfect plan for your needs. All plans include core features.
         </motion.p>
@@ -93,13 +88,9 @@ export function PricingSection() {
               <h3 className="text-xl font-bold">{plan.name}</h3>
               <div className="mt-2">
                 <span className="text-4xl font-bold">{plan.price}</span>
-                {plan.period && (
-                  <span className="text-muted-foreground"> {plan.period}</span>
-                )}
+                {plan.period && <span className="text-muted-foreground"> {plan.period}</span>}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {plan.description}
-              </p>
+              <p className="mt-2 text-sm text-muted-foreground">{plan.description}</p>
             </div>
 
             <ul className="mb-6 space-y-4">
@@ -111,11 +102,7 @@ export function PricingSection() {
               ))}
             </ul>
 
-            <Button 
-              className="w-full" 
-              variant={plan.popular ? "default" : "outline"}
-              asChild
-            >
+            <Button className="w-full" variant={plan.popular ? 'default' : 'outline'} asChild>
               <Link href="/signup">{plan.cta}</Link>
             </Button>
           </motion.div>

@@ -1,7 +1,7 @@
 import type Stripe from 'stripe';
-import { prisma } from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
-import { getSubscriptionTierFromSession } from '@/lib/stripe-utils';
+import {prisma } from '@/lib/prisma';
+import {stripe } from '@/lib/stripe';
+import {getSubscriptionTierFromSession } from '@/lib/stripe-utils';
 
 export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
   console.log('Processing checkout session:', {
@@ -33,7 +33,7 @@ export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
 
     // Find or create user
     let user = await prisma.user.findUnique({
-      where: { email: email }
+      where: { email: email },
     });
 
     if (user) {
@@ -45,10 +45,10 @@ export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
           name: customer.name || user.name,
           subscriptionStatus: 'active',
           subscriptionTier: subscriptionTier,
-          subscriptionCurrentPeriodEnd: session.expires_at 
+          subscriptionCurrentPeriodEnd: session.expires_at
             ? new Date(session.expires_at * 1000)
-            : undefined
-        }
+            : undefined,
+        },
       });
       console.log('Updated existing user:', user.id);
     } else {
@@ -60,10 +60,10 @@ export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
           stripeCustomerId: customer.id,
           subscriptionStatus: 'active',
           subscriptionTier: subscriptionTier,
-          subscriptionCurrentPeriodEnd: session.expires_at 
+          subscriptionCurrentPeriodEnd: session.expires_at
             ? new Date(session.expires_at * 1000)
-            : undefined
-        }
+            : undefined,
+        },
       });
       console.log('Created new user:', user.id);
     }
@@ -72,8 +72,8 @@ export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
     if (session.subscription) {
       await stripe.subscriptions.update(session.subscription as string, {
         metadata: {
-          userId: user.id
-        }
+          userId: user.id,
+        },
       });
 
       const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
@@ -81,8 +81,8 @@ export async function handleCheckoutSession(session: Stripe.Checkout.Session) {
         where: { id: user.id },
         data: {
           subscriptionId: subscription.id,
-          subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000)
-        }
+          subscriptionCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        },
       });
 
       console.log('Updated subscription metadata for user:', user.id);

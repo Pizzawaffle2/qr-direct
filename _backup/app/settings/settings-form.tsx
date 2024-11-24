@@ -1,18 +1,12 @@
 // File: src/app/settings/settings-form.tsx
-"use client";
+'use client';
 
-import { useTransition } from "react";
-import { useSettingsStore } from "@/lib/store/setting-store";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
+import { useTransition } from 'react';
+import { useSettingsStore } from '@/lib/store/setting-store';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
 import { triggerConfetti } from '@/lib/utils/confetti';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -21,32 +15,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  Sun,
-  Moon,
-  Monitor,
-  Loader2,
-} from "lucide-react";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { useToast } from '@/components/ui/use-toast';
+import { Sun, Moon, Monitor, Loader2 } from 'lucide-react';
 
 const settingsSchema = z.object({
-  theme: z.enum(["light", "dark", "system"]),
+  theme: z.enum(['light', 'dark', 'system']),
   defaultBackgroundColor: z.string(),
   defaultForegroundColor: z.string(),
-  errorCorrectionLevel: z.enum(["L", "M", "Q", "H"]),
+  errorCorrectionLevel: z.enum(['L', 'M', 'Q', 'H']),
   autoDownload: z.boolean(),
   historyLimit: z.number().min(10).max(1000),
 });
@@ -66,10 +55,10 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
   const form = useForm<SettingsValues>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      theme: (theme as "light" | "dark" | "system") || "system",
-      defaultBackgroundColor: initialSettings?.defaultBackgroundColor || "#FFFFFF",
-      defaultForegroundColor: initialSettings?.defaultForegroundColor || "#000000",
-      errorCorrectionLevel: initialSettings?.errorCorrectionLevel || "M",
+      theme: (theme as 'light' | 'dark' | 'system') || 'system',
+      defaultBackgroundColor: initialSettings?.defaultBackgroundColor || '#FFFFFF',
+      defaultForegroundColor: initialSettings?.defaultForegroundColor || '#000000',
+      errorCorrectionLevel: initialSettings?.errorCorrectionLevel || 'M',
       autoDownload: initialSettings?.autoDownload || false,
       historyLimit: initialSettings?.historyLimit || 50,
     },
@@ -90,16 +79,16 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
       settings.updateSettings(data);
       setTheme(data.theme);
       triggerConfetti();
-      
+
       toast({
-        title: "Settings Updated",
-        description: "Your preferences have been saved.",
+        title: 'Settings Updated',
+        description: 'Your preferences have been saved.',
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update settings",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update settings',
+        variant: 'destructive',
       });
     }
   };
@@ -112,35 +101,35 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
 
   const handleReset = () => {
     form.reset({
-      theme: "system",
-      defaultBackgroundColor: "#FFFFFF",
-      defaultForegroundColor: "#000000",
-      errorCorrectionLevel: "M",
+      theme: 'system',
+      defaultBackgroundColor: '#FFFFFF',
+      defaultForegroundColor: '#000000',
+      errorCorrectionLevel: 'M',
       autoDownload: false,
       historyLimit: 50,
     });
 
     toast({
-      title: "Settings Reset",
-      description: "Your settings have been reset to defaults.",
+      title: 'Settings Reset',
+      description: 'Your settings have been reset to defaults.',
     });
   };
 
   return (
-    <div className="container max-w-4xl mx-auto py-24 px-8 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 rounded-3xl shadow-2xl transition-all duration-700 ease-in-out animate-fade-in">
+    <div className="animate-fade-in container mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 px-8 py-24 shadow-2xl transition-all duration-700 ease-in-out dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
       <div className="mb-10 text-center">
-        <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600 dark:from-teal-400 dark:to-blue-500 neon-glow mb-4">
+        <h1 className="neon-glow mb-4 bg-gradient-to-r from-teal-500 to-blue-600 bg-clip-text text-5xl font-bold text-transparent dark:from-teal-400 dark:to-blue-500">
           Settings
         </h1>
-        <p className="text-xl text-gray-800 dark:text-gray-300 leading-relaxed">
+        <p className="text-xl leading-relaxed text-gray-800 dark:text-gray-300">
           Customize your QR code generation preferences.
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 animate-slide-in-up">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="animate-slide-in-up space-y-12">
           {/* Appearance Settings */}
-          <Card className="group relative p-6 bg-white dark:bg-gray-800 rounded-3xl shadow-md hover:shadow-2xl border border-gray-200 dark:border-gray-700 transition-transform transform hover:scale-105 duration-700 ease-in-out neon-border-animated">
+          <Card className="neon-border-animated group relative transform rounded-3xl border border-gray-200 bg-white p-6 shadow-md transition-transform duration-700 ease-in-out hover:scale-105 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800">
             <CardHeader>
               <CardTitle className="text-3xl font-bold">Appearance</CardTitle>
               <CardDescription>
@@ -156,7 +145,7 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
                     <FormLabel>Theme</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="hover:bg-blue-50 dark:hover:bg-blue-900 transition-all duration-500">
+                        <SelectTrigger className="transition-all duration-500 hover:bg-blue-50 dark:hover:bg-blue-900">
                           <SelectValue placeholder="Select theme" />
                         </SelectTrigger>
                       </FormControl>
@@ -194,17 +183,17 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
                     <FormItem>
                       <FormLabel>Default Background Color</FormLabel>
                       <FormControl>
-                        <div className="flex gap-4 items-center">
+                        <div className="flex items-center gap-4">
                           <Input
                             type="color"
-                            className="w-14 h-14 rounded-full border-none shadow-inner"
+                            className="h-14 w-14 rounded-full border-none shadow-inner"
                             {...field}
                           />
                           <Input
                             type="text"
                             value={field.value}
                             onChange={field.onChange}
-                            className="font-mono rounded-lg shadow-md dark:bg-gray-900"
+                            className="rounded-lg font-mono shadow-md dark:bg-gray-900"
                           />
                         </div>
                       </FormControl>
@@ -219,17 +208,17 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
                     <FormItem>
                       <FormLabel>Default QR Code Color</FormLabel>
                       <FormControl>
-                        <div className="flex gap-4 items-center">
+                        <div className="flex items-center gap-4">
                           <Input
                             type="color"
-                            className="w-14 h-14 rounded-full border-none shadow-inner"
+                            className="h-14 w-14 rounded-full border-none shadow-inner"
                             {...field}
                           />
                           <Input
                             type="text"
                             value={field.value}
                             onChange={field.onChange}
-                            className="font-mono rounded-lg shadow-md dark:bg-gray-900"
+                            className="rounded-lg font-mono shadow-md dark:bg-gray-900"
                           />
                         </div>
                       </FormControl>
@@ -241,12 +230,10 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
           </Card>
 
           {/* QR Code Generation Settings */}
-          <Card className="group relative p-6 bg-white dark:bg-gray-800 rounded-3xl shadow-md hover:shadow-2xl border border-gray-200 dark:border-gray-700 transition-transform transform hover:scale-105 duration-700 ease-in-out neon-border-animated">
+          <Card className="neon-border-animated group relative transform rounded-3xl border border-gray-200 bg-white p-6 shadow-md transition-transform duration-700 ease-in-out hover:scale-105 hover:shadow-2xl dark:border-gray-700 dark:bg-gray-800">
             <CardHeader>
               <CardTitle className="text-3xl font-bold">QR Code Generation</CardTitle>
-              <CardDescription>
-                Configure default QR code generation settings.
-              </CardDescription>
+              <CardDescription>Configure default QR code generation settings.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <FormField
@@ -257,7 +244,7 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
                     <FormLabel>Error Correction Level</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="hover:bg-blue-50 dark:hover:bg-blue-900 transition-all duration-500">
+                        <SelectTrigger className="transition-all duration-500 hover:bg-blue-50 dark:hover:bg-blue-900">
                           <SelectValue placeholder="Select error correction level" />
                         </SelectTrigger>
                       </FormControl>
@@ -279,11 +266,9 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
                 control={form.control}
                 name="autoDownload"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-gray-50 dark:bg-gray-900">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-gray-50 p-4 dark:bg-gray-900">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base font-semibold">
-                        Auto Download
-                      </FormLabel>
+                      <FormLabel className="text-base font-semibold">Auto Download</FormLabel>
                       <FormDescription>
                         Automatically download QR codes after generation.
                       </FormDescription>
@@ -325,20 +310,20 @@ function SettingsForm({ initialSettings }: SettingsFormProps) {
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-6 mt-10">
+          <div className="mt-10 flex justify-end gap-6">
             <Button
               type="button"
               variant="outline"
               onClick={handleReset}
               disabled={isPending}
-              className="py-3 px-8 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-bold rounded-lg hover:from-gray-500 hover:to-gray-700 transition-all duration-500"
+              className="rounded-lg bg-gradient-to-r from-gray-400 to-gray-600 px-8 py-3 font-bold text-white transition-all duration-500 hover:from-gray-500 hover:to-gray-700"
             >
               Reset to Defaults
             </Button>
             <Button
               type="submit"
               disabled={isPending}
-              className="py-3 px-10 bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold rounded-lg hover:from-teal-600 hover:to-blue-700 transition-all duration-500 neon-glow"
+              className="neon-glow rounded-lg bg-gradient-to-r from-teal-500 to-blue-600 px-10 py-3 font-bold text-white transition-all duration-500 hover:from-teal-600 hover:to-blue-700"
             >
               {isPending ? (
                 <>

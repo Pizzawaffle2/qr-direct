@@ -1,7 +1,7 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
+import {signIn } from 'next-auth/react';
+import {Button } from '@/components/ui/button';
 import type { LucideIcon } from 'lucide-react';
 
 interface AuthButtonProps {
@@ -28,11 +28,7 @@ export function AuthButton({
   };
 
   return (
-    <Button
-      variant={variant}
-      className="w-full"
-      onClick={handleClick}
-    >
+    <Button variant={variant} className="w-full" onClick={handleClick}>
       <Icon className="mr-2 h-4 w-4" />
       {children}
     </Button>

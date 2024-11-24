@@ -1,12 +1,12 @@
 'use client';
 
-import { User } from 'next-auth';
-import { signOut } from 'next-auth/react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Cog, LogOut } from 'lucide-react';
+import {User } from 'next-auth';
+import {signOut } from 'next-auth/react';
+import {Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import {Button } from '@/components/ui/button';
+import {Badge } from '@/components/ui/badge';
+import {Cog, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 interface ExtendedUser extends User {
@@ -18,8 +18,12 @@ interface ProfileProps {
   user: ExtendedUser;
 }
 
-const getInitials = (name: string | null | undefined): string => 
-  name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
+const getInitials = (name: string | null | undefined): string =>
+  name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase() || '?';
 
 const SubscriptionBadge = ({ status, tier }: { status: string; tier?: string | null }) => (
   <>
@@ -29,7 +33,7 @@ const SubscriptionBadge = ({ status, tier }: { status: string; tier?: string | n
       </Badge>
     )}
     <Badge variant={status === 'active' ? 'default' : 'secondary'}>
-      {status === 'active' ? 'Active' : 'Inactive'}
+      {status === 'active' ? 'Active' : &apos;Inactive&apos;}
     </Badge>
   </>
 );
@@ -59,9 +63,7 @@ const ProfileContent = ({ user }: { user: ExtendedUser }) => (
     <div className="space-y-1">
       <p className="text-sm font-medium">Subscription Status</p>
       <div className="flex items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          {user.subscriptionStatus || 'Free Plan'}
-        </p>
+        <p className="text-sm text-muted-foreground">{user.subscriptionStatus || &apos;Free Plan&apos;}</p>
         <SubscriptionBadge status={user.subscriptionStatus} tier={user.subscriptionTier} />
       </div>
     </div>

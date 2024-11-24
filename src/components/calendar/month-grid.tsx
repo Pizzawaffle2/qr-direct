@@ -1,6 +1,6 @@
 // src/components/calendar/month-grid.tsx
 import React from 'react';
-import { CalendarDay } from './calendar-day';
+import {CalendarDay } from './calendar-day';
 import type { WeatherData, CalendarEvent } from '@/types/calendar';
 
 interface MonthGridProps {
@@ -18,13 +18,11 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
   events,
   weather,
   onAddEvent,
-  isEditing
+  isEditing,
 }) => {
-  const getDaysInMonth = (year: number, month: number) => 
-    new Date(year, month + 1, 0).getDate();
-  
-  const getFirstDayOfMonth = (year: number, month: number) => 
-    new Date(year, month, 1).getDay();
+  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+
+  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
 
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -39,8 +37,8 @@ export const MonthGrid: React.FC<MonthGridProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-7 gap-px bg-gray-200 month-grid">
-      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+    <div className="month-grid grid grid-cols-7 gap-px bg-gray-200">
+      {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
         <div key={day} className="bg-gray-100 p-2 text-center text-sm font-medium">
           {day}
         </div>

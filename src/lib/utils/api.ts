@@ -1,11 +1,11 @@
 // src/lib/utils/api.ts
 
-import { ApiError } from '@/lib/errors'
-import { NextResponse } from 'next/server'
-import { ZodError } from 'zod'
+import {ApiError } from '@/lib/errors';
+import {NextResponse } from 'next/server';
+import {ZodError } from 'zod';
 
 export function handleApiError(error: unknown) {
-  console.error('API Error:', error)
+  console.error('API Error:', error);
 
   if (error instanceof ApiError) {
     return NextResponse.json(
@@ -16,7 +16,7 @@ export function handleApiError(error: unknown) {
         },
       },
       { status: error.statusCode }
-    )
+    );
   }
 
   if (error instanceof ZodError) {
@@ -29,7 +29,7 @@ export function handleApiError(error: unknown) {
         },
       },
       { status: 400 }
-    )
+    );
   }
 
   return NextResponse.json(
@@ -40,9 +40,9 @@ export function handleApiError(error: unknown) {
       },
     },
     { status: 500 }
-  )
+  );
 }
 
 export function createSuccessResponse(data: any) {
-  return NextResponse.json({ data })
+  return NextResponse.json({ data });
 }

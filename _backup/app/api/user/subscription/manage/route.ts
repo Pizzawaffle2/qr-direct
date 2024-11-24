@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
 import { absoluteUrl } from '@/lib/utils';
@@ -32,10 +32,12 @@ export async function POST() {
         payment_method_types: ['card'],
         customer_email: user.email,
         metadata: { userId: user.id },
-        line_items: [{
-          price: process.env.STRIPE_PRO_PRICE_ID,
-          quantity: 1,
-        }],
+        line_items: [
+          {
+            price: process.env.STRIPE_PRO_PRICE_ID,
+            quantity: 1,
+          },
+        ],
         success_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: returnUrl,
       });
@@ -50,7 +52,6 @@ export async function POST() {
     });
 
     return NextResponse.json({ url: portalSession.url });
-    
   } catch (error) {
     console.error('Subscription management error:', error);
     return NextResponse.json(

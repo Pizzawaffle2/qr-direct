@@ -5,10 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import type { UpdateTemplateDTO } from '@/lib/types/qr-styles';
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return new Response('Unauthorized', { status: 401 });
@@ -18,10 +15,7 @@ export async function GET(
     const template = await prisma.template.findFirst({
       where: {
         id: params.id,
-        OR: [
-          { userId: session.user.id },
-          { isPublic: true },
-        ],
+        OR: [{ userId: session.user.id }, { isPublic: true }],
       },
       include: {
         category: true,
@@ -40,10 +34,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return new Response('Unauthorized', { status: 401 });
@@ -76,7 +67,7 @@ export async function PUT(
         isPublic: data.isPublic,
         ...(data.tagIds && {
           tags: {
-            set: data.tagIds.map(id => ({ id })),
+            set: data.tagIds.map((id) => ({ id })),
           },
         }),
       },
@@ -93,10 +84,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return new Response('Unauthorized', { status: 401 });

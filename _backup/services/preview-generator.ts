@@ -11,7 +11,10 @@ export class PreviewGenerator {
   private static SAMPLE_TEXT = 'https://example.com';
   private static DEFAULT_SIZE = 300;
 
-  static async generatePreview({ style, size = PreviewGenerator.DEFAULT_SIZE }: GeneratePreviewOptions): Promise<string> {
+  static async generatePreview({
+    style,
+    size = PreviewGenerator.DEFAULT_SIZE,
+  }: GeneratePreviewOptions): Promise<string> {
     try {
       const qrOptions = {
         errorCorrectionLevel: style.errorCorrectionLevel as 'L' | 'M' | 'Q' | 'H',

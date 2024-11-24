@@ -1,8 +1,8 @@
 // File: src/components/ui/auth-layout.tsx
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { ParticleBackground } from "./particle-background"
+import {motion } from 'framer-motion';
+import {ParticleBackground } from './particle-background';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -18,9 +18,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 animate-gradient-xy" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent_85%)] opacity-20" />
-        
+        <div className="animate-gradient-xy absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20 [mask-image:radial-gradient(white,transparent_85%)]" />
+
         {/* Animated Blobs */}
         <motion.div
           animate={{
@@ -31,9 +31,9 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           transition={{
             duration: 20,
             repeat: Infinity,
-            ease: "linear",
+            ease: 'linear',
           }}
-          className="absolute -top-48 -left-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
+          className="absolute -left-48 -top-48 h-96 w-96 rounded-full bg-blue-500/30 blur-3xl"
         />
         <motion.div
           animate={{
@@ -44,7 +44,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           transition={{
             duration: 15,
             repeat: Infinity,
-            ease: "linear",
+            ease: 'linear',
           }}
           className="absolute -bottom-48 -right-48 h-96 w-96 rounded-full bg-purple-500/30 blur-3xl"
         />
@@ -60,28 +60,28 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         >
           <motion.div
             whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="glass-morphism rounded-3xl overflow-hidden"
+            transition={{ type: 'spring', stiffness: 300 }}
+            className="glass-morphism overflow-hidden rounded-3xl"
           >
             {/* Form Header */}
-            <div className="relative px-12 pt-16 pb-8 text-center">
+            <div className="relative px-12 pb-8 pt-16 text-center">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
-                className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2"
               >
                 <div className="h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 p-1">
                   <div className="h-full w-full rounded-full bg-slate-950 p-2">
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                       className="h-full w-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500"
                     />
                   </div>
                 </div>
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -105,5 +105,5 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

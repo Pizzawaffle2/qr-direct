@@ -1,9 +1,9 @@
 // types/auth.ts
-import { Session, User } from 'next-auth';
+import {Session, User } from 'next-auth';
 
 export enum UserRole {
   USER = 'USER',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
 export interface CustomSession extends Session {
@@ -11,7 +11,7 @@ export interface CustomSession extends Session {
     id: string;
     role: UserRole; // Use enum instead of string
     stripeCustomerId: string | null;
-  }
+  };
 }
 
 export interface CustomToken {

@@ -1,157 +1,153 @@
 // src/components/qr/logo-selector.tsx
-"use client"
+'use client';
 
-import { useState, useCallback } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import {
-  Select,
+import {useState, useCallback } from 'react';
+import {Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {Input } from '@/components/ui/input';
+import {Button } from '@/components/ui/button';
+import {Slider } from '@/components/ui/slider';
+import {Label } from '@/components/ui/label';
+import {Switch } from '@/components/ui/switch';
+import {Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card"
-import { DEFAULT_LOGOS } from "@/config/qr-logos"
-import { 
-  Upload, 
-  Move, 
-  Droplet, 
-  Image as ImageIcon, 
+} from '@/components/ui/select';
+import {Card, CardContent } from '@/components/ui/card';
+import {DEFAULT_LOGOS } from '@/config/qr-logos';
+import {Upload,
+  Move,
+  Droplet,
+  Image as ImageIcon,
   Plus,
   RotateCcw,
   SlidersHorizontal,
-  Layers
-} from "lucide-react"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-import { LogoPreview } from "./logo-preview" // Add this import
+  Layers,
+} from 'lucide-react';
+import Image from 'next/image';
+import {cn } from '@/lib/utils';
+import {LogoPreview } from './logo-preview'; // Add this import
 
 interface LogoSelectorProps {
   value: {
-    logo?: string
-    logoSize?: number
-    logoPadding?: number
-    logoBackgroundColor?: string
+    logo?: string;
+    logoSize?: number;
+    logoPadding?: number;
+    logoBackgroundColor?: string;
     logoPosition?: {
-      x: number
-      y: number
-    }
-    logoRotation?: number
-    logoOpacity?: number
+      x: number;
+      y: number;
+    };
+    logoRotation?: number;
+    logoOpacity?: number;
     logoEffects?: {
-      blur?: number
-      brightness?: number
-      contrast?: number
-      grayscale?: boolean
-      invert?: boolean
-      sepia?: boolean
-    }
-    logoShape?: 'square' | 'circle' | 'rounded'
+      blur?: number;
+      brightness?: number;
+      contrast?: number;
+      grayscale?: boolean;
+      invert?: boolean;
+      sepia?: boolean;
+    };
+    logoShape?: 'square' | 'circle' | 'rounded';
     logoBorder?: {
-      width?: number
-      color?: string
-      style?: 'solid' | 'dashed' | 'dotted'
-    }
+      width?: number;
+      color?: string;
+      style?: 'solid' | 'dashed' | 'dotted';
+    };
     logoShadow?: {
-      enabled: boolean
-      x?: number
-      y?: number
-      blur?: number
-      color?: string
-    }
-  }
-  onChange: (value: any) => void
-  onLogoChange: (logoData: Partial<LogoSettings>) => void // new prop for QRPreview
+      enabled: boolean;
+      x?: number;
+      y?: number;
+      blur?: number;
+      color?: string;
+    };
+  };
+  onChange: (value: any) => void;
+  onLogoChange: (logoData: Partial<LogoSettings>) => void; // new prop for QRPreview
 }
 
 export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProps) {
-  const [activeTab, setActiveTab] = useState("preset")
-  const [uploadedLogo, setUploadedLogo] = useState<string>()
+  const [activeTab, setActiveTab] = useState('preset');
+  const [uploadedLogo, setUploadedLogo] = useState<string>();
 
-  const handleLogoUpload = useCallback(async (file: File) => {
-    // Add image optimization
-    const optimizedImage = await optimizeImage(file)
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const uploadedUrl = reader.result as string
-      setUploadedLogo(uploadedUrl)
-      onChange({ ...value, logo: uploadedUrl })
-      onChange(newLogoData) // set new logo data
-      onLogoChange(newLogoData)
-    }
-    reader.readAsDataURL(optimizedImage)
-  }, [value, onChange, onLogoChange])
+  const handleLogoUpload = useCallback(
+    async (file: File) => {
+      // Add image optimization
+      const optimizedImage = await optimizeImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const uploadedUrl = reader.result as string;
+        setUploadedLogo(uploadedUrl);
+        onChange({ ...value, logo: uploadedUrl });
+        onChange(newLogoData); // set new logo data
+        onLogoChange(newLogoData);
+      };
+      reader.readAsDataURL(optimizedImage);
+    },
+    [value, onChange, onLogoChange]
+  );
 
   const optimizeImage = async (file: File): Promise<Blob> => {
     return new Promise((resolve) => {
-      const img = new Image()
+      const img = new Image();
       img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const MAX_SIZE = 1024 // Maximum dimension
-        let width = img.width
-        let height = img.height
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 1024; // Maximum dimension
+        let width = img.width;
+        let height = img.height;
 
         // Calculate new dimensions while maintaining aspect ratio
         if (width > height && width > MAX_SIZE) {
-          height = (height * MAX_SIZE) / width
-          width = MAX_SIZE
+          height = (height * MAX_SIZE) / width;
+          width = MAX_SIZE;
         } else if (height > MAX_SIZE) {
-          width = (width * MAX_SIZE) / height
-          height = MAX_SIZE
+          width = (width * MAX_SIZE) / height;
+          height = MAX_SIZE;
         }
 
-        canvas.width = width
-        canvas.height = height
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, width, height)
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
           (blob) => resolve(blob!),
           'image/png',
           0.85 // Quality
-        )
-      }
-      img.src = URL.createObjectURL(file)
-    })
-  }
+        );
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
 
   const getLogoStyle = () => {
-    const effects = value.logoEffects || {}
-    const filters = []
+    const effects = value.logoEffects || {};
+    const filters = [];
 
-    if (effects.blur) filters.push(`blur(${effects.blur}px)`)
-    if (effects.brightness) filters.push(`brightness(${effects.brightness}%)`)
-    if (effects.contrast) filters.push(`contrast(${effects.contrast}%)`)
-    if (effects.grayscale) filters.push('grayscale(1)')
-    if (effects.invert) filters.push('invert(1)')
-    if (effects.sepia) filters.push('sepia(1)')
+    if (effects.blur) filters.push(`blur(${effects.blur}px)`);
+    if (effects.brightness) filters.push(`brightness(${effects.brightness}%)`);
+    if (effects.contrast) filters.push(`contrast(${effects.contrast}%)`);
+    if (effects.grayscale) filters.push('grayscale(1)');
+    if (effects.invert) filters.push('invert(1)');
+    if (effects.sepia) filters.push('sepia(1)');
 
     return {
       filter: filters.join(' '),
       transform: `rotate(${value.logoRotation || 0}deg)`,
       opacity: value.logoOpacity || 1,
-      borderRadius: value.logoShape === 'circle' ? '50%' : 
-                   value.logoShape === 'rounded' ? '12px' : '0',
-      border: value.logoBorder?.width ? 
-        `${value.logoBorder.width}px ${value.logoBorder.style || 'solid'} ${value.logoBorder.color || '#000'}` : 
-        undefined,
-      boxShadow: value.logoShadow?.enabled ?
-        `${value.logoShadow.x || 0}px ${value.logoShadow.y || 0}px ${value.logoShadow.blur || 0}px ${value.logoShadow.color || 'rgba(0,0,0,0.5)'}` :
-        undefined,
-    }
-  }
+      borderRadius:
+        value.logoShape === 'circle' ? '50%' : value.logoShape === 'rounded' ? '12px' : '0',
+      border: value.logoBorder?.width
+        ? `${value.logoBorder.width}px ${value.logoBorder.style || 'solid'} ${value.logoBorder.color || '#000'}`
+        : undefined,
+      boxShadow: value.logoShadow?.enabled
+        ? `${value.logoShadow.x || 0}px ${value.logoShadow.y || 0}px ${value.logoShadow.blur || 0}px ${value.logoShadow.color || 'rgba(0,0,0,0.5)'}`
+        : undefined,
+    };
+  };
 
-  const logoCategories = Array.from(
-    new Set(DEFAULT_LOGOS.basic.map((logo) => logo.category))
-  )
+  const logoCategories = Array.from(new Set(DEFAULT_LOGOS.basic.map((logo) => logo.category)));
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -190,13 +186,13 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                     <Card
                       key={logo.id}
                       className={cn(
-                        "cursor-pointer transition-all hover:scale-105",
-                        value.logo === logo.url ? "ring-2 ring-primary" : ""
+                        'cursor-pointer transition-all hover:scale-105',
+                        value.logo === logo.url ? 'ring-2 ring-primary' : ''
                       )}
                       onClick={() => onChange({ ...value, logo: logo.url })}
                     >
                       <CardContent className="p-2">
-                        <div className="aspect-square relative">
+                        <div className="relative aspect-square">
                           <Image
                             src={logo.url}
                             alt={logo.name}
@@ -204,9 +200,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                             className="object-contain p-2"
                           />
                         </div>
-                        <p className="text-xs text-center mt-1 truncate">
-                          {logo.name}
-                        </p>
+                        <p className="mt-1 truncate text-center text-xs">{logo.name}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -218,36 +212,26 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
 
       <TabsContent value="upload">
         <div className="space-y-4">
-          <div className="grid place-items-center border-2 border-dashed rounded-lg p-8">
+          <div className="grid place-items-center rounded-lg border-2 border-dashed p-8">
             {uploadedLogo ? (
               <div className="space-y-4 text-center">
-                <div className="relative w-32 h-32">
-                  <Image
-                    src={uploadedLogo}
-                    alt="Uploaded logo"
-                    fill
-                    className="object-contain"
-                  />
+                <div className="relative h-32 w-32">
+                  <Image src={uploadedLogo} alt="Uploaded logo" fill className="object-contain" />
                 </div>
                 <Button
                   variant="outline"
-                  onClick={() => document.getElementById("logo-upload")?.click()}
+                  onClick={() => document.getElementById('logo-upload&apos;)?.click()}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="mr-2 h-4 w-4" />
                   <span>Change Logo</span>
                 </Button>
               </div>
             ) : (
-              <label
-                htmlFor="logo-upload"
-                className="cursor-pointer text-center space-y-2"
-              >
-                <div className="w-32 h-32 rounded-lg border-2 border-dashed grid place-items-center">
+              <label htmlFor="logo-upload" className="cursor-pointer space-y-2 text-center">
+                <div className="grid h-32 w-32 place-items-center rounded-lg border-2 border-dashed">
                   <div className="text-center">
-                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Upload Logo
-                    </p>
+                    <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">Upload Logo</p>
                   </div>
                 </div>
               </label>
@@ -259,8 +243,8 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
             className="hidden"
             accept="image/*"
             onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) handleLogoUpload(file)
+              const file = e.target.files?.[0];
+              if (file) handleLogoUpload(file);
             }}
           />
         </div>
@@ -447,7 +431,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                   onChange({
                     ...value,
                     logoBorder: enabled
-                      ? { width: 2, style: "solid", color: "#000000" }
+                      ? { width: 2, style: &apos;solid', color: '#000000' }
                       : undefined,
                   })
                 }
@@ -455,7 +439,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
             </div>
 
             {value.logoBorder && (
-              <div className="space-y-4 mt-4">
+              <div className="mt-4 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Width ({value.logoBorder.width}px)</Label>
@@ -499,7 +483,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                   <div className="flex gap-2">
                     <Input
                       type="text"
-                      value={value.logoBorder.color || "#000000"}
+                      value={value.logoBorder.color || '#000000'}
                       onChange={(e) =>
                         onChange({
                           ...value,
@@ -510,8 +494,8 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                     />
                     <Input
                       type="color"
-                      className="w-12 p-1 h-10"
-                      value={value.logoBorder.color || "#000000"}
+                      className="h-10 w-12 p-1"
+                      value={value.logoBorder.color || '#000000'}
                       onChange={(e) =>
                         onChange({
                           ...value,
@@ -539,7 +523,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                           x: 0,
                           y: 4,
                           blur: 8,
-                          color: "rgba(0,0,0,0.5)",
+                          color: &apos;rgba(0,0,0,0.5)&apos;,
                         }
                       : undefined,
                   })
@@ -548,7 +532,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
             </div>
 
             {value.logoShadow?.enabled && (
-              <div className="space-y-4 mt-4">
+              <div className="mt-4 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Offset X ({value.logoShadow.x || 0}px)</Label>
@@ -601,7 +585,7 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                   <div className="flex gap-2">
                     <Input
                       type="text"
-                      value={value.logoShadow.color || "rgba(0,0,0,0.5)"}
+                      value={value.logoShadow.color || 'rgba(0,0,0,0.5)'}
                       onChange={(e) =>
                         onChange({
                           ...value,
@@ -612,8 +596,8 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
                     />
                     <Input
                       type="color"
-                      className="w-12 p-1 h-10"
-                      value={value.logoShadow.color || "#000000"}
+                      className="h-10 w-12 p-1"
+                      value={value.logoShadow.color || '#000000'}
                       onChange={(e) =>
                         onChange({
                           ...value,
@@ -634,59 +618,62 @@ export function LogoSelector({ value, onChange, onLogoChange }: LogoSelectorProp
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onChange({
-            ...value,
-            logoEffects: undefined,
-            logoRotation: 0,
-            logoOpacity: 1,
-          })}
+          onClick={() =>
+            onChange({
+              ...value,
+              logoEffects: undefined,
+              logoRotation: 0,
+              logoOpacity: 1,
+            })
+          }
         >
-          <RotateCcw className="h-4 w-4 mr-2" />
+          <RotateCcw className="mr-2 h-4 w-4" />
           <span>Reset Effects</span>
         </Button>
 
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onChange({
-            ...value,
-            logoPosition: { x: 50, y: 50 },
-          })}
+          onClick={() =>
+            onChange({
+              ...value,
+              logoPosition: { x: 50, y: 50 },
+            })
+          }
         >
-          <Move className="h-4 w-4 mr-2" />
+          <Move className="mr-2 h-4 w-4" />
           <span>Center Logo</span>
         </Button>
 
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onChange({
-            ...value,
-            logoShape: "circle",
-            logoBorder: {
-              width: 2,
-              style: "solid",
-              color: "#ffffff",
-            },
-            logoShadow: {
-              enabled: true,
-              x: 0,
-              y: 4,
-              blur: 8,
-              color: "rgba(0,0,0,0.25)",
-            },
-          })}
+          onClick={() =>
+            onChange({
+              ...value,
+              logoShape: 'circle',
+              logoBorder: {
+                width: 2,
+                style: 'solid',
+                color: '#ffffff',
+              },
+              logoShadow: {
+                enabled: true,
+                x: 0,
+                y: 4,
+                blur: 8,
+                color: 'rgba(0,0,0,0.25)',
+              },
+            })
+          }
         >
-          <Droplet className="h-4 w-4 mr-2" />
+          <Droplet className="mr-2 h-4 w-4" />
           <span>Apply Preset Style</span>
         </Button>
       </div>
 
-{/* Preview - always show it, the component handles empty state */}
-<LogoPreview 
-  value={value}
-  showGrid={true}
-/>
-</Tabs>
-)
+      {/* Preview - always show it, the component handles empty state */}
+      <LogoPreview value={value} showGrid={true} />
+    </Tabs>
+  );
 }

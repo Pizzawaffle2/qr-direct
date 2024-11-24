@@ -1,59 +1,62 @@
 // src/components/qr/forms/vcard-form.tsx
-"use client"
+'use client';
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {
-  Form,
+import {useForm } from 'react-hook-form';
+import {zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { QRCodeData } from "@/types/qr"
-import { Separator } from "@/components/ui/separator"
+} from '@/components/ui/form';
+import {Input } from '@/components/ui/input';
+import {Textarea } from '@/components/ui/textarea';
+import {QRCodeData } from '@/types/qr';
+import {Separator } from '@/components/ui/separator';
 
 const schema = z.object({
-  title: z.string().min(1, "Title is required"),
-  firstName: z.string().min(1, "First name is required"),
+  title: z.string().min(1, 'Title is required'),
+  firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().optional(),
   organization: z.string().optional(),
   jobTitle: z.string().optional(),
-  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
-  phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Please enter a valid phone number").optional().or(z.literal("")),
-  website: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  email: z.string().email('Please enter a valid email').optional().or(z.literal('')),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number')
+    .optional()
+    .or(z.literal('')),
+  website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
   address: z.string().optional(),
-})
+});
 
 interface VCardFormProps {
-  value: Partial<QRCodeData>
-  onChange: (value: Partial<QRCodeData>) => void
+  value: Partial<QRCodeData>;
+  onChange: (value: Partial<QRCodeData>) => void;
 }
 
 export function VCardForm({ value, onChange }: VCardFormProps) {
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      title: value.title || "",
-      firstName: value.firstName || "",
-      lastName: value.lastName || "",
-      organization: value.organization || "",
-      jobTitle: value.jobTitle || "",
-      email: value.email || "",
-      phone: value.phone || "",
-      website: value.website || "",
-      address: value.address || "",
+      title: value.title || '',
+      firstName: value.firstName || '',
+      lastName: value.lastName || '',
+      organization: value.organization || '',
+      jobTitle: value.jobTitle || '',
+      email: value.email || '',
+      phone: value.phone || '',
+      website: value.website || '',
+      address: value.address || '',
     },
-  })
+  });
 
   const onSubmit = (data: z.infer<typeof schema>) => {
-    onChange(data)
-  }
+    onChange(data);
+  };
 
   return (
     <Form {...form}>
@@ -76,7 +79,7 @@ export function VCardForm({ value, onChange }: VCardFormProps) {
 
         <div className="space-y-4">
           <h3 className="text-sm font-medium">Personal Information</h3>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -192,8 +195,8 @@ export function VCardForm({ value, onChange }: VCardFormProps) {
               <FormItem>
                 <FormLabel>Address (Optional)</FormLabel>
                 <FormControl>
-                // src/components/qr/forms/vcard-form.tsx (continued)
-                  <Textarea 
+                  // src/components/qr/forms/vcard-form.tsx (continued)
+                  <Textarea
                     placeholder="Enter complete address..."
                     className="min-h-[100px]"
                     {...field}
@@ -254,7 +257,7 @@ export function VCardForm({ value, onChange }: VCardFormProps) {
               <FormItem>
                 <FormLabel>Notes</FormLabel>
                 <FormControl>
-                  <Textarea 
+                  <Textarea
                     placeholder="Any additional information..."
                     className="min-h-[100px]"
                     {...field}
@@ -270,5 +273,5 @@ export function VCardForm({ value, onChange }: VCardFormProps) {
         </div>
       </form>
     </Form>
-  )
+  );
 }

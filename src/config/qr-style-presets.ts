@@ -1,15 +1,15 @@
- // src/config/qr-style-presets.ts
+// src/config/qr-style-presets.ts
 
-import { QRStyleOptions } from "@/types/qr"
+import {QRStyleOptions } from '@/types/qr';
 
 export interface QRStylePreset {
-  id: string
-  name: string
-  description: string
-  category: 'basic' | 'modern' | 'branded' | 'artistic' | 'professional'
-  style: QRStyleOptions
-  preview?: string // URL for preview image
-  isPro?: boolean
+  id: string;
+  name: string;
+  description: string;
+  category: 'basic' | 'modern' | 'branded' | 'artistic' | 'professional';
+  style: QRStyleOptions;
+  preview?: string; // URL for preview image
+  isPro?: boolean;
 }
 
 export const QR_STYLE_PRESETS: QRStylePreset[] = [
@@ -25,7 +25,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       foregroundColor: '#000000',
       backgroundColor: '#FFFFFF',
       errorCorrection: 'M',
-    }
+    },
   },
   {
     id: 'modern-blue',
@@ -45,7 +45,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       backgroundColor: '#FFFFFF',
       errorCorrection: 'M',
     },
-    isPro: true
+    isPro: true,
   },
   {
     id: 'corporate',
@@ -63,7 +63,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       logoPadding: 4,
       logoBackgroundColor: '#FFFFFF',
     },
-    isPro: true
+    isPro: true,
   },
   {
     id: 'minimal',
@@ -77,7 +77,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       foregroundColor: '#374151',
       backgroundColor: '#F3F4F6',
       errorCorrection: 'M',
-    }
+    },
   },
   {
     id: 'neon',
@@ -97,7 +97,7 @@ export const QR_STYLE_PRESETS: QRStylePreset[] = [
       backgroundColor: '#000000',
       errorCorrection: 'Q',
     },
-    isPro: true
+    isPro: true,
   },
   // Add more presets...
-]
+];

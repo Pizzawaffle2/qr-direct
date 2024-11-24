@@ -3,7 +3,7 @@
 import React from 'react';
 
 const DialogContent = ({ children }: { children: React.ReactNode }) => (
-  <div className="dialog-content backdrop-blur-md bg-opacity-90 bg-gray-800 dark:bg-gray-700 rounded-lg shadow-lg p-6 transition-all duration-300">
+  <div className="dialog-content rounded-lg bg-gray-800 bg-opacity-90 p-6 shadow-lg backdrop-blur-md transition-all duration-300 dark:bg-gray-700">
     {children}
   </div>
 );

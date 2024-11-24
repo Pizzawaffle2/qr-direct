@@ -1,16 +1,16 @@
 // scripts/db-init.ts
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting database initialization...')
+  console.log('Starting database initialization...');
 
   try {
     // Test connection
-    await prisma.$connect()
-    console.log('Database connected successfully')
+    await prisma.$connect();
+    console.log('Database connected successfully');
 
     // Create default categories
     const categories = await prisma.category.createMany({
@@ -20,8 +20,8 @@ async function main() {
         { name: 'Marketing', description: 'Marketing campaign QR codes' },
       ],
       skipDuplicates: true,
-    })
-    console.log('Created default categories')
+    });
+    console.log('Created default categories');
 
     // Create default templates
     const templates = await prisma.template.createMany({
@@ -50,16 +50,16 @@ async function main() {
         },
       ],
       skipDuplicates: true,
-    })
-    console.log('Created default templates')
+    });
+    console.log('Created default templates');
 
-    console.log('Database initialization completed successfully')
+    console.log('Database initialization completed successfully');
   } catch (error) {
-    console.error('Database initialization failed:', error)
-    process.exit(1)
+    console.error('Database initialization failed:', error);
+    process.exit(1);
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
-main()
+main();
